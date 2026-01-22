@@ -1,3 +1,17 @@
+# Setup VSCode :
+### Extensions (VSCode) a installer impérativement :
+> GitLens
+> GitGraph
+
+### Ouvrir le projet 
+> Lier son compte Git avec GitHub et faire "`Clone Repository`" de notre repertoire "`ProjetS2-2026-CMI`"
+> Écrire les deux lignes suivantes dans le terminal Bash de votre vscode :
+```bash
+ git config --global user.email "emailDeVotreCompte@gmail.com" 
+ git config --global user.name "votreUsernameGit"
+```
+
+
 # **Fiche de Définition de Projet : Charte de Projet**
 
 ### Titre abrégé du projet
