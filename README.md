@@ -10,6 +10,7 @@
  git config --global user.email "emailDeVotreCompte@gmail.com" 
  git config --global user.name "votreUsernameGit"
 ```
+Ecrire la ligne suivante dans le terminal vscode pour installer la librairie pygame : python3 -m pip install -U pygame --user
 
 
 # **Fiche de Définition de Projet : Charte de Projet**
