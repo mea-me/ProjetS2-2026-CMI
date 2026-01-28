@@ -38,17 +38,7 @@ Un **commit** est une sauvegarde ("snapshot") de votre code à un instant T. \
 > - Utilisez des **mots-clés** pour s'y retrouver rapidement :
 * `FEAT:` (Nouvelle fonctionnalité)
 * `FIX:` (Correction d'un bug)
-* `DOC:` (Documentation) -> ex:
-![](assets/readme/branches.png)
-
-#### Blame
-Une façon de visualiser l'**historique** du code modifié au fil du temps. \
-Vous pouvez le voir directement *à côté* de chaque ligne de code dans VSCode :
-![](assets/readme/blameInLine.png)
-Ou encore sur l'entièreté du fichier en deux fenêtres : 
-![](assets/readme/toggleFileBlame.png)
-![](assets/readme/blameFile.png) 
- `DOC: mise à jour du readme section branches`
+* `DOC:` (Documentation) -> ex: `DOC: mise à jour du readme section branches`
 * `REFAC:` (Nettoyage du code) -> ex: `REFAC: renommage variables classe Individu`
 ![](assets/readme/commit.png)
 
@@ -71,25 +61,6 @@ Actualiser les pull et push des autres utilisateurs : **indispensables** avant d
 Une branche est une **copie de travail** isolée. On va travailler en parallèle.
 > [!CAUTION]
 > * **La branche `main` :** C'est le code "sacré". Il doit **toujours** être fonctionnel et ne jamais bugger. On ne travaille **jamai
-![](assets/readme/branches.png)
-
-#### Blame
-Une façon de visualiser l'**historique** du code modifié au fil du temps. \
-Vous pouvez le voir directement *à côté* de chaque ligne de code dans VSCode :
-![](assets/readme/blameInLine.png)
-Ou encore sur l'entièreté du fichier en deux fenêtres : 
-![](assets/readme/toggleFileBlame.png)
-![](assets/readme/blameFile.png) 
-s** directement dessus.
-> * **Les branches `feature` :** *Chaque membre* crée une branche pour **sa tâche** en cours.
-> * *Exemple :* `nom-du-dev/fonctionnalité` (ex: `thomas/moteur-genetique`).
-
-**Pourquoi faire ?**
-1. **Isolation :** Vous pouvez casser votre code sans bloquer l'équipe.
-2. **Revue de code :** Avant de fusionner (**Merge**) une branche dans `main`, les autres peuvent vérifier si tout est propre.
-3. **Multi-tâches :** Vous pouvez tester une idée des trucs foireux et abandonner la branche.
-
-**Utilisation** :
 ![](assets/readme/branches.png)
 
 #### Blame
