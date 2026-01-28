@@ -233,7 +233,7 @@ Conception et développement d'un environnement virtuel en 2D où évoluent des 
 ---
 
 Remarque finale :   
-**Si** la fiche projet n’était **pas assez convaincant** ou compréhensible, voici une version rédigée de nos notes (beaucoup plus denses). 
+**Si** la fiche projet n’était **pas assez convaincant** ou compréhensible, voici une version rédigée de nos notes (beaucoup plus concise). 
 
 - \-   \- \>    [lien](https://docs.google.com/document/d/1zbl-GMkQ7b7JMycH44RzKTMs6kIJbSqLNc5aoA7faTA/edit?usp=sharing)
 
