@@ -26,7 +26,8 @@ Votre écran ressemble normalement à ça :
 
 ### Guide d'utilisation
 > [!TIP]
-> Merci de regarder ces *10 minutes* de [vidéo](https://youtu.be/mJ-qvsxPHpY?si=ETC4dmSehuCjpySC&t=524) pour capter les **bases/grandes idées** de Git & GitHub. 
+> Merci de regarder ces *10 mx: `DOC: mise à jour du readme section branches`
+* `REFAC:` (Nettoyage du codeinutes* de [vidéo](https://youtu.be/mJ-qvsxPHpY?si=ETC4dmSehuCjpySC&t=524) pour capter les **bases/grandes idées** de Git & GitHub. 
 
 
 #### Commit
@@ -37,7 +38,17 @@ Un **commit** est une sauvegarde ("snapshot") de votre code à un instant T. \
 > - Utilisez des **mots-clés** pour s'y retrouver rapidement :
 * `FEAT:` (Nouvelle fonctionnalité)
 * `FIX:` (Correction d'un bug)
-* `DOC:` (Documentation) -> ex: `DOC: mise à jour du readme section branches`
+* `DOC:` (Documentation) -> ex:
+![](assets/readme/branches.png)
+
+#### Blame
+Une façon de visualiser l'**historique** du code modifié au fil du temps. \
+Vous pouvez le voir directement *à côté* de chaque ligne de code dans VSCode :
+![](assets/readme/blameInLine.png)
+Ou encore sur l'entièreté du fichier en deux fenêtres : 
+![](assets/readme/toggleFileBlame.png)
+![](assets/readme/blameFile.png) 
+ `DOC: mise à jour du readme section branches`
 * `REFAC:` (Nettoyage du code) -> ex: `REFAC: renommage variables classe Individu`
 ![](assets/readme/commit.png)
 
@@ -45,16 +56,25 @@ Un **commit** est une sauvegarde ("snapshot") de votre code à un instant T. \
 #### Pull & Push 
 Ces commandes permettent de faire circuler le code entre votre PC et GitHub.
 1. **PULL (Récupérer) :** Avant de taffer, faites **toujours** un `Pull`. Cela télécharge les modifications de vos camarades.
-[[[  SCREEN A RAJOUTER ]]]
 
 2. **PUSH (Envoyer) :** Une fois vos commits *terminés* **et** *testés* **localement**, faites un `Push` pour envoyer votre travail sur GitHub afin que les autres y aient accès.
-[[[  SCREEN A RAJOUTER  ]]]
 
+![](assets/readme/pushPullBlabla.png)
 
 #### Branches
 Une branche est une **copie de travail** isolée. On va travailler en parallèle.
 > [!CAUTION]
-> * **La branche `main` :** C'est le code "sacré". Il doit **toujours** être fonctionnel et ne jamais bugger. On ne travaille **jamais** directement dessus.
+> * **La branche `main` :** C'est le code "sacré". Il doit **toujours** être fonctionnel et ne jamais bugger. On ne travaille **jamai
+![](assets/readme/branches.png)
+
+#### Blame
+Une façon de visualiser l'**historique** du code modifié au fil du temps. \
+Vous pouvez le voir directement *à côté* de chaque ligne de code dans VSCode :
+![](assets/readme/blameInLine.png)
+Ou encore sur l'entièreté du fichier en deux fenêtres : 
+![](assets/readme/toggleFileBlame.png)
+![](assets/readme/blameFile.png) 
+s** directement dessus.
 > * **Les branches `feature` :** *Chaque membre* crée une branche pour **sa tâche** en cours.
 > * *Exemple :* `nom-du-dev/fonctionnalité` (ex: `thomas/moteur-genetique`).
 
@@ -64,8 +84,7 @@ Une branche est une **copie de travail** isolée. On va travailler en parallèle
 3. **Multi-tâches :** Vous pouvez tester une idée des trucs foireux et abandonner la branche.
 
 **Utilisation** :
-[[[[ SCREEN A RAJOUTER ]]]]
-
+![](assets/readme/branches.png)
 
 #### Blame
 Une façon de visualiser l'**historique** du code modifié au fil du temps. \
@@ -73,9 +92,7 @@ Vous pouvez le voir directement *à côté* de chaque ligne de code dans VSCode 
 ![](assets/readme/blameInLine.png)
 Ou encore sur l'entièreté du fichier en deux fenêtres : 
 ![](assets/readme/toggleFileBlame.png)
-![](assets/readme/blameFile.png)
-> [!IMPORTANT]  
-> Lorsque vous faites des *commits*, merci de laisser un message *concis* et *clair* (**mots clés**).
+![](assets/readme/blameFile.png) 
 
 
 #### Visualiser avec GitGraph
@@ -213,3 +230,5 @@ Remarque finale :
 **Si** la fiche projet n’était **pas assez convaincant** ou compréhensible, voici une version rédigée de nos notes (beaucoup plus denses). 
 
 - \-   \- \>    [lien](https://docs.google.com/document/d/1zbl-GMkQ7b7JMycH44RzKTMs6kIJbSqLNc5aoA7faTA/edit?usp=sharing)
+
+- \-   \- \>    [lien](https://docs.google.com/document/d/16k68Vo-HPmEy6mESIkwwFkaxOUr6pk0l6-nkWMPSHuM/edit?usp=sharing)
