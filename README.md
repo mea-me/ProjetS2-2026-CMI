@@ -61,6 +61,12 @@ Ces commandes permettent de faire circuler le code entre votre PC et GitHub.
 
 ![](assets/readme/pushPullBlabla.png)
 
+
+#### Fetch
+Actualiser les pull et push des autres utilisateurs : **indispensables** avant de push :
+![](assets/readme/fetch.png)
+
+
 #### Branches
 Une branche est une **copie de travail** isolée. On va travailler en parallèle.
 > [!CAUTION]
@@ -231,4 +237,6 @@ Remarque finale :
 
 - \-   \- \>    [lien](https://docs.google.com/document/d/1zbl-GMkQ7b7JMycH44RzKTMs6kIJbSqLNc5aoA7faTA/edit?usp=sharing)
 
-- \-   \- \>    [lien](https://docs.google.com/document/d/16k68Vo-HPmEy6mESIkwwFkaxOUr6pk0l6-nkWMPSHuM/edit?usp=sharing)
+---
+
+DOCS : \-   \- \>    [lien](https://docs.google.com/document/d/16k68Vo-HPmEy6mESIkwwFkaxOUr6pk0l6-nkWMPSHuM/edit?usp=sharing)
