@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, os
 
 pygame.init()
 
@@ -142,15 +142,12 @@ def jeu_de_la_vie(tableau):
     return rendu
 
 tableautest = []
-for i in range(5):
+for i in range(10):
     tableautest.append([])
-    for I in range(5):
+    for I in range(10):
         tableautest[i].append(random.randint(0,1))
 
-print(tableautest)
-print("")
-print(jeu_de_la_vie(tableautest))
-
+t = 0
 
 while running:
 
@@ -159,13 +156,23 @@ while running:
             running = False
 
     screen.fill("black")
+    for i in range(len(tableautest)):
+        for I in range(len(tableautest[0])):
+            if tableautest[i][I] == 1:
+                screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (65,65)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (65,65)).convert_alpha().get_rect(topleft=(65*i, 65*I)))
+
+    t+=1
+
+    if t == 90:
+        tableautest = jeu_de_la_vie(tableautest)
+        t = 0
 
     pygame.display.flip()
 
     # limits FPS to 30
     # dt is delta time in seconds since last frame, used for framerate-
     # independent physics.
-    dt = clock.tick(30) / 1000
+    dt = clock.tick(60) / 1000
 
 
 pygame.quit()
