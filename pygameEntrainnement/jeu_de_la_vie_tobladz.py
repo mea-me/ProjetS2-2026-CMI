@@ -141,10 +141,11 @@ def jeu_de_la_vie(tableau):
     
     return rendu
 
+n = 15
 tableautest = []
-for i in range(10):
+for i in range(n):
     tableautest.append([])
-    for I in range(10):
+    for I in range(n):
         tableautest[i].append(random.randint(0,1))
 
 t = 0
@@ -159,7 +160,7 @@ while running:
     for i in range(len(tableautest)):
         for I in range(len(tableautest[0])):
             if tableautest[i][I] == 1:
-                screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (65,65)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (65,65)).convert_alpha().get_rect(topleft=(65*i, 65*I)))
+                screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha().get_rect(topleft=((650/n)*i, (650/n)*I)))
 
     t+=1
 
