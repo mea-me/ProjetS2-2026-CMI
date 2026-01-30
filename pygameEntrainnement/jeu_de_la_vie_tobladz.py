@@ -160,11 +160,12 @@ while running:
     for i in range(len(tableautest)):
         for I in range(len(tableautest[0])):
             if tableautest[i][I] == 1:
-                screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha().get_rect(topleft=((650/n)*i, (650/n)*I)))
+                #screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha().get_rect(topleft=((650/n)*i, (650/n)*I)))
+                pygame.draw.rect(screen,(255,255,255),pygame.Rect(i*(650/n),I*(650/n),650/n,650/n))
 
     t+=1
 
-    if t == 90:
+    if t == 30:
         tableautest = jeu_de_la_vie(tableautest)
         t = 0
 
