@@ -18,3 +18,16 @@ class Allele:
     def __repr__(self):
         # formater le print
         return f"[{self.nom}: {self.valeur}]" 
+    
+
+######### Allèles de base
+
+dico_alleles = {
+    # "nom" : ["description", "type", is required True/False],
+    "vitesse" : ["La vitesse de déplacement de l'individu (0-100)", "int", True],
+    "masse" : ["La masse de l'individu (0-100)", "int", True],
+    "taille" : ["La taille de l'individu (0-100)", "int", True],
+    "régime" : ["Le régime alimentaire de l'individu (carnivore, omnivore, herbivore)", "str", True],
+    "couleur" : ["La couleur de l'individu (RGB)", "list", True]
+}
+

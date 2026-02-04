@@ -26,9 +26,7 @@ Votre écran ressemble normalement à ça :
 
 ### Guide d'utilisation
 > [!TIP]
-> Merci de regarder ces *10 mx: `DOC: mise à jour du readme section branches`
-* `REFAC:` (Nettoyage du codeinutes* de [vidéo](https://youtu.be/mJ-qvsxPHpY?si=ETC4dmSehuCjpySC&t=524) pour capter les **bases/grandes idées** de Git & GitHub. 
-
+> Merci de regarder ces *10 minutes* de [vidéo](https://youtu.be/mJ-qvsxPHpY?si=ETC4dmSehuCjpySC&t=524) pour capter les **bases/grandes idées** de Git & GitHub. 
 
 #### Commit
 Un **commit** est une sauvegarde ("snapshot") de votre code à un instant T. \
@@ -79,6 +77,7 @@ L'extension qui nous permet de voir de façon sympathique ce qui se passe sur le
 ---
 
 ### Résumé flux de travail quotidien :
+1. `Fetch` (actualiser le git)
 1. `Pull` (Je récupère le travail des autres).
 2. `Création de branche` (Si nouvelle tâche).
 3. **Travail sur le code.**

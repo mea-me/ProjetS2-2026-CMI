@@ -1,6 +1,6 @@
 import copy
 
-class Individual:
+class Individual:       # class qui va probablment beauuucoup changer
     def __init__(self, genome_parent):
         self.age = 0
         self.energie = 100 # Par défaut
