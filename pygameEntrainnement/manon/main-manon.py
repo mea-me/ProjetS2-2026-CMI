@@ -73,7 +73,7 @@ def count_neighbors(grid, x, y):
             count += grid[row][col]
     return count
 
-+
+
 def update_grid(grid):
     # IMPORTANT : On travaille sur une copie pour ne pas fausser les calculs en cours
     new_grid = copy.deepcopy(grid)
