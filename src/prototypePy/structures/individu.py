@@ -1,18 +1,15 @@
-import copy
-
-class Individual:       # class qui va probablment beauuucoup changer
-    def __init__(self, genome_parent):
+from genome import Genome
+class Individu:       # class qui va probablment beauuucoup changer
+    def __init__(self):
         self.age = 0
         self.energie = 100 # Par défaut
         self.is_alive = True
+        self.genome = Genome()
         
-        # On fait une COPIE pour qu'il ait ses propres gènes
-        self.genome = copy.deepcopy(genome_parent)
-        
-        # calc des stats max basées sur l'ADN
-        self.max_vitesse = self.genome.get_val("vitesse")
-        self.max_size = self.genome.get_val("taille")              # c'est juste pour l'idée
-        self.sense_radius = self.genome.get_val("perception")      # faut réfléchir a comment le faire
+#        # calc des stats max basées sur l'ADN
+#        self.max_vitesse = self.genome.get_val("vitesse")
+#        self.max_size = self.genome.get_val("taille")              # c'est juste pour l'idée
+#        self.sense_radius = self.genome.get_val("perception")      # faut réfléchir a comment le faire
 
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
