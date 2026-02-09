@@ -1,7 +1,7 @@
 import pygame
 from random import randint
 
-milieu_dico = {"marre":((x,y),(x,y))}
+milieu_dico = {"marre":((10,40),(30,100))}
 class Grenouille(pygame.sprite.Sprite):
     def __init__(self,x,y, image_path):
         super().__init__()
@@ -12,7 +12,7 @@ class Grenouille(pygame.sprite.Sprite):
         self.rect = self.image.get_rect() #récupere donner de l'image sur l'écran
         self.rect.x = x #récupère la position x
         self.rect.y = y #récupère la position y
-        self.milieu = milieu_dico.key if (self.rect.x,self.rect.y) in milieu_dico.values
+        #self.milieu = milieu_dico.key if (self.rect.x,self.rect.y) in milieu_dico.values
         #si milieu_pref == milieu => bonus
         
     
