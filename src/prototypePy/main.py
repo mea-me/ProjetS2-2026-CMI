@@ -5,16 +5,20 @@ import pygame
 #Initialisation de Pygame
 pygame.init()
 
-#Définition de la taille de la fenêtre du jeu
-screen_width = pygame.display.Info().current_w
-screen_height = pygame.display.Info().current_h
-playHeight = screen_height -  (1/5 * screen_height)
-screen = pygame.display.set_mode((screen_width, screen_height))
+
+# Setup écran
+info = pygame.display.Info()
+W, H = info.current_w, info.current_h
+# Pour tester sans être en plein écran total bloquant :
+screen = pygame.display.set_mode((W, H), pygame.RESIZABLE) 
+pygame.display.set_caption("NomQuiClaque | La Simulation")
 
 # Initialisation du framerate pour egaliser la vitesse de jeu sur toutes les machines
 framerate = 60
 clock = pygame.time.Clock()
 dt = clock.tick(framerate)
+
+running = True
 
 
 pygame.quit()

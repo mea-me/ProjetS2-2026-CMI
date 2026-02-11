@@ -1,5 +1,5 @@
-from random import randint
-from allele import Allele
+from random import randint,choice
+from allele import Allele, dico_alleles
 
 class Genome:
     def __init__(self):
@@ -29,15 +29,23 @@ class Genome:
         # formater le print
         li = ""
         for a in self.alleles :
-            li += f'{str(a)}; '
+            li += f'{str(a)};\n '
         return f'Genome({li[:-2]})'
+    
+    def craft_alleles(self):
+        for key,value in dico_alleles.items():
+            if value[1]:
+                if value[5] == "int":
+                    self.add_allele(Allele(key,value[0],True,randint(value[2][0],value[2][1]),randint(0,100),randint(value[3][0],value[3][1])))
 
-# ali = Genome()
-# a1, a2, a3  = Allele('C', True, 'Abby', 1, 22, 343), Allele('P', True, 'Bobby', 31, 98, 1), Allele('C', True, 'Coby', 321, 3, 32)
-# ali.add_allele(a1)
-# ali.add_allele(a2)
-# ali.add_allele(a3)
-# 
-# print(ali)
-# ali.muter()
-# print(ali)
+                if value[5] == "str":
+                    self.add_allele(Allele(key,value[0],True,choice(value[2]),randint(0,100),value[3]))
+                    
+                if key == "couleur":
+                    self.add_allele(Allele("couleur","P",True,[randint(0,255),randint(0,255),randint(0,255)],randint(0,100),randint(value[3][0],value[3][1])))
+
+
+    def show_alleles(self):
+        for i in self.alleles:
+            for y in i:
+                print(y)
