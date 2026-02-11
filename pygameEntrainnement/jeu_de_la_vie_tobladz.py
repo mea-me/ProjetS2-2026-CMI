@@ -2,7 +2,9 @@ import pygame, random, os
 
 pygame.init()
 
-screen = pygame.display.set_mode((650, 650))
+screen_h = 0.95*pygame.display.Info().current_h
+screen_w = screen_h
+screen = pygame.display.set_mode((screen_w, screen_h))
 clock = pygame.time.Clock()
 running = True
 dt = 0
@@ -141,7 +143,7 @@ def jeu_de_la_vie(tableau):
     
     return rendu
 
-n = 15
+n = 150
 tableautest = []
 for i in range(n):
     tableautest.append([])
@@ -160,11 +162,12 @@ while running:
     for i in range(len(tableautest)):
         for I in range(len(tableautest[0])):
             if tableautest[i][I] == 1:
-                screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha().get_rect(topleft=((650/n)*i, (650/n)*I)))
+                #screen.blit(pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha(),pygame.transform.scale(pygame.image.load(os.path.join("pygameEntrainnement","carr_blanc.png")), (650/n,650/n)).convert_alpha().get_rect(topleft=((650/n)*i, (650/n)*I)))
+                pygame.draw.rect(screen,(255,255,255),pygame.Rect(i*(screen_w/n),I*(screen_h/n),screen_w/n,screen_h/n))
 
     t+=1
 
-    if t == 90:
+    if t == 30:
         tableautest = jeu_de_la_vie(tableautest)
         t = 0
 
