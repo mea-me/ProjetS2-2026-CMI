@@ -57,7 +57,6 @@ class WorldMap:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.individus = [] #liste des individus
         self.biomes = [] # liste d'objets Biome
         self.background_biome = "plaine"
 
@@ -85,25 +84,3 @@ class WorldMap:
         for b in self.biomes:
             color = b.biome.color
             pygame.draw.rect(surface, color, (b.x, b.y))
-
-    def reproduction(self, individu1, individu2):
-        new_genome = Genome()
-
-        for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
-            parent_allele = choice([allele1, allele2]) # choisir l'allèle du parent 1 ou 2
-
-            new_allele = Allele(parent_allele.nom, 
-                                parent_allele.al_type, 
-                                parent_allele.req, 
-                                parent_allele.valeur, 
-                                parent_allele.mutation_rate, 
-                                parent_allele.mutation_step )
-            new_genome.add_allele(new_allele)
-
-        # Position du bébé entre les parents ça marche pas trop
-        x = (individu1.rect.x + individu2.rect.x) // 2
-        y = (individu1.rect.y + individu2.rect.y) // 2
-
-        bébé = Individu(x, y, new_genome) # Création du nouvel individu
-        self.individus.append(bébé) # Ajout à la population
-        return bébé

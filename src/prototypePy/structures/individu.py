@@ -1,6 +1,7 @@
 import pygame
 import random
 from genome import Genome
+
 class Individu:       # class qui va probablment beauuucoup changer
     def __init__(self, x, y, size):
         # width et height sont la taille de l'objet
@@ -10,11 +11,10 @@ class Individu:       # class qui va probablment beauuucoup changer
         self.is_alive = True
         self.genome = Genome()
 
-        """ Pour intégrer une image plus tard
-        def __init__(self, x, y): 
-            self.image = pygame.image.load("perso.png") 
-            self.rect = self.image.get_rect(topleft=(x, y))
-        """
+        #self.image = pygame.image.load("pygameEntrainnement/ufo.png").convert_alpha() 
+        #self.image = pygame.transform.scale(self.image, (size,size))
+
+
     def get_position(self):
         return (self.rect.x,self.rect.y)
 
@@ -28,6 +28,7 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def draw(self,screen):
         pygame.draw.rect(screen, self.genome.get_val("couleur"), self.rect)
+        #screen.blit(self.image, self.rect.topleft)
 
     def craft_individu(self):
         self.genome.craft_alleles()
