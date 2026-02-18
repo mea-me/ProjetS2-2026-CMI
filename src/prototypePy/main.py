@@ -6,6 +6,7 @@ from random import choice
 from structures.allele import Allele
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
+from structures.livings import Livings
 
 #Initialisation de Pygame
 pygame.init()
@@ -34,15 +35,17 @@ world.add_zone("desert", 500, 200, 200, 300)    # Désert à droite
 world.add_zone("montagne", 600, 250, 80, 80)    # Montagne DANS le désert
 
 #Création de grenouille
+Population = Livings()
 Froggy = Individu(400, 300, 30)  # position + taille
 Froggy.craft_individu()
+Population.add_individu(Froggy)
 grenouilles = [Individu(100, 100, 40), 
                Individu(200, 150, 30), 
                Individu(300, 250, 40), 
                Individu(400, 350, 35)]
 for g in grenouilles:
         g.craft_individu()
-
+        Population.add_individu(g)
 running = True
 
 while running:
@@ -63,12 +66,13 @@ while running:
     temp, hum, nom = world.get_infos_at(mx, my)
     text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
     screen.blit(text_surf, (mx + 10, my + 10))
-
-    Froggy.draw(screen)        # on dessine la grenouille =)
-    Froggy.deplacement()
-    for g in grenouilles:
+    
+    # on dessine la grenouille =)
+    for g in Population.populations:
         g.draw(screen)
         g.deplacement()
+        
+    Population.update(W,H)
 
     time.sleep(0.2)
     pygame.display.flip()

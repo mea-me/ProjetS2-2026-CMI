@@ -5,11 +5,17 @@ from .genome import Genome
 class Individu:       # class qui va probablment beauuucoup changer
     def __init__(self, x, y, size):
         # width et height sont la taille de l'objet
+        self.x = x
+        self.y = y
         self.rect = pygame.Rect(x, y, size, size)
         self.age = 0
         self.energie = 100 # Par défaut
         self.is_alive = True
         self.genome = Genome()
+
+        # Cooldown de collision 
+        self.collision_cooldown = 0 # temps restant avant nouvelle collision 
+        self.collision_delay = 0.5
 
         #self.image = pygame.image.load("pygameEntrainnement/ufo.png").convert_alpha() 
         #self.image = pygame.transform.scale(self.image, (size,size))
@@ -17,6 +23,9 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def get_position(self):
         return (self.rect.x,self.rect.y)
+
+    def give_genome(self,new_genome):
+        self.genome = new_genome
 
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
@@ -36,22 +45,18 @@ class Individu:       # class qui va probablment beauuucoup changer
     def get_individu(self):
         pass
 
-    def deplacement(self):
-        vitesse = self.genome.get_val("vitesse") 
-        # X peut être -vitesse, 0 ou +vitesse
-        if self.rect.x > vitesse and self.rect.x < pygame.display.Info().current_w + vitesse:
-            self.rect.x += random.choice([-vitesse, 0, vitesse])
-        elif self.rect.x > vitesse:
-            self.rect.x += random.choice([-vitesse,0])
-        else:
-            self.rect.x += random.choice([vitesse,0])
-        # Y peut être -vitesse, 0 ou +vitesse
-        if self.rect.y > vitesse and self.rect.y < pygame.display.Info().current_h + vitesse:
-            self.rect.y += random.choice([-vitesse, 0, vitesse])
-        elif self.rect.y > vitesse:
-            self.rect.y += random.choice([-vitesse,0])
-        else:
-            self.rect.y += random.choice([vitesse,0])
+    def collide_with(self,individu2):
+        return self.rect.colliderect(individu2.rect)
+
+    def deplacement(self): 
+        vitesse = self.genome.get_val("vitesse")
+
+        self.rect.x += random.choice([-vitesse, 0, vitesse])
+        self.rect.y += random.choice([-vitesse, 0, vitesse])
+
+        # Empêche automatiquement de sortir de l'écran
+        self.rect.clamp_ip(pygame.display.get_surface().get_rect())
+
 
 
     def __repr__(self): 

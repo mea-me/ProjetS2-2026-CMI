@@ -1,5 +1,6 @@
 from random import randint,choice
 from .allele import Allele, dico_alleles
+import copy
 
 class Genome:
     def __init__(self):
@@ -26,7 +27,7 @@ class Genome:
                     gene.valeur = 1 # borne anti négative (genre vitesse négative pas possible)
 
             elif isinstance(gene.valeur, list) and randint(1, 99) < gene.mutation_rate:
-                for i in range(len(gene.valeur)-1):
+                for i in range(len(gene.valeur)):
                     gene.valeur[i] += randint(-gene.mutation_step, gene.mutation_step)
                 
                     if gene.valeur[i] < 0: 
@@ -54,8 +55,10 @@ class Genome:
                 if key == "couleur":
                     self.add_allele(Allele("couleur","P",True,[randint(0,255),randint(0,255),randint(0,255)],randint(0,100),randint(value[3][0],value[3][1]),value[5]))
 
-
     def show_alleles(self):
         for i in self.alleles:
             for y in i:
                 print(y)
+                
+    def clone(self):
+        return copy.deepcopy(self)

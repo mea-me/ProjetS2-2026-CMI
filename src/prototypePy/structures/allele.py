@@ -1,5 +1,5 @@
 class Allele:
-    def __init__(self, nom:str, al_type:str, req:bool,  valeur,  mutation_rate:int, mutation_step:int, tipe:str):
+    def __init__(self, nom:str, al_type:str, req:bool,  valeur,  mutation_rate:int, mutation_step:int,tipe:str,):
         """
         :param al_type: Le type du gène comportement ou physique (ex: C / P)
         :param req: Si l'allèle est obligatoire (basique) ou pas (ex : vitesse)
