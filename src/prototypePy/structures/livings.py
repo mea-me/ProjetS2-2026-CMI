@@ -55,7 +55,7 @@ class Livings:
         y = (individu1.rect.y + individu2.rect.y) // 2
 
         #new_genome.muter() # Fait muter le génome
-        bébé = Individu(x, y) # Création du nouvel individu
+        bébé = Individu(x, y, individu1.indice_espece) # Création du nouvel individu
         bébé.give_genome(new_genome.clone())
         bébé.genome.muter()
         bébé.give_rect(bébé.genome.get_val("taille"))
@@ -64,7 +64,7 @@ class Livings:
         return bébé
 
     def on_collision(self, ind1, ind2):
-        if ind1.age >= 3 and ind2.age >=3 :
+        if ind1.age >= 3 and ind2.age >=3 and ind1.indice_espece == ind2.indice_espece :
             self.reproduction(ind1,ind2)
         # reproduction, combat, échange génétique, etc.
 
@@ -112,3 +112,8 @@ class Livings:
     def kill(self,ind):
         self.populations.pop(self.populations.index(ind))
         del ind
+
+
+class Espece() :
+    def __init__(self):
+        self.especes = []
