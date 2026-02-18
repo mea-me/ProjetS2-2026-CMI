@@ -28,7 +28,7 @@ dico_alleles = {
     # "nom" : [al_type, req, valeur (écart), mutStep, description, type]
     "vitesse" : ["P",True,(5,50), (1, 5), "La vitesse de déplacement de l'individu (0-100)", "int"],
     "masse" : ["P",True,(3,75), (1, 5), "La masse de l'individu (0-100)", "int"],
-    "taille" : ["P",True,(1,75), (1, 5), "La taille de l'individu (0-100)", "int"],
+    "taille" : ["P",True,(20,75), (1, 5), "La taille de l'individu (0-100)", "int"],
     "régime" : ["P", True, ["carnivore", "herbivore", "omnivore"], None, "Le régime alimentaire de l'individu (carnivore ou omnivore ou herbivore)", "str"],
     "couleur" : ["P",True,"couleur pas accéder", (1, 25), "La couleur de l'individu (RGB)", "list"],
     "agilité" : ["P",True,(0,100), (1, 5), "L'agilité de l'individu (résistance au terrain escarpé)", "int"],

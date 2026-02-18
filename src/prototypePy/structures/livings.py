@@ -55,9 +55,10 @@ class Livings:
         y = (individu1.rect.y + individu2.rect.y) // 2
 
         #new_genome.muter() # Fait muter le génome
-        bébé = Individu(x, y, 30) # Création du nouvel individu
+        bébé = Individu(x, y) # Création du nouvel individu
         bébé.give_genome(new_genome.clone())
         bébé.genome.muter()
+        bébé.give_rect(bébé.genome.get_val("taille"))
 
         self.populations.append(bébé) # Ajout à la population
         return bébé

@@ -3,11 +3,11 @@ import random
 from .genome import Genome
 
 class Individu:       # class qui va probablment beauuucoup changer
-    def __init__(self, x, y, size):
+    def __init__(self, x, y):
         # width et height sont la taille de l'objet
         self.x = x
         self.y = y
-        self.rect = pygame.Rect(x, y, size, size)
+        self.rect = pygame.Rect(x, y, 5, 5)
         self.age = 0
         self.energie = 100 # Par défaut
         self.alive = True
@@ -41,6 +41,10 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def craft_individu(self):
         self.genome.craft_alleles()
+        
+
+    def give_rect(self,size):
+        self.rect = pygame.Rect(self.x, self.y, size, size)
 
     def get_individu(self):
         pass

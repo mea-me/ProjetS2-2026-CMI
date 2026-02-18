@@ -14,8 +14,7 @@ pygame.init()
 
 # Setup écran
 info = pygame.display.Info()
-W, H = 1800, 1600
-#info.current_w, info.current_h
+W, H = info.current_w, info.current_h
 # Pour tester sans être en plein écran total bloquant :
 screen = pygame.display.set_mode((W, H), pygame.RESIZABLE) 
 pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
@@ -38,15 +37,18 @@ world.add_zone("montagne", 600, 250, 80, 80)    # Montagne DANS le désert
 
 #Création de grenouille-----------------------------------------------------------------
 Population = Livings()
-Froggy = Individu(400, 300, 30)  # position + taille
+Froggy = Individu(400, 300)  # position + taille
 Froggy.craft_individu()
+Froggy.give_rect(Froggy.genome.get_val("taille"))
+
 Population.add_individu(Froggy)
-grenouilles = [Individu(300, 100, 40), 
-               Individu(200, 100, 30), 
-               Individu(300, 100, 40), 
-               Individu(200, 100, 35)]
+grenouilles = [Individu(300, 100), 
+               Individu(200, 100), 
+               Individu(300, 100), 
+               Individu(200, 100)]
 for g in grenouilles:
         g.craft_individu()
+        g.give_rect(g.genome.get_val("taille"))
         Population.add_individu(g)
 #--------------------------------------------------------------------------------------- 
 
@@ -67,42 +69,40 @@ while running:
             temp, hum, nom = world.get_infos_at(mx, my)
             print(f"Zone: {nom.upper()} | Temp: {temp}°C | Hum: {hum}%")
 
-        if paused:
-            continue                
-            pygame.display.flip()
-            clock.tick(60)
-
-    # 2. Dessin
-    world.paint(screen)
-    
-    # (Optionnel) Afficher le climat sous la souris en temps réel
-    #mx, my = pygame.mouse.get_pos()
-    #temp, hum, nom = world.get_infos_at(mx, my)
-    #text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
-    #screen.blit(text_surf, (mx + 10, my + 10))
-
-    # on dessine la grenouille =)
-    for g in Population.populations:
-        g.draw(screen)
-        g.deplacement()
+    if paused:
+        continue                
+    else:
+        # 2. Dessin
+        world.paint(screen)
         
-    Population.update(W,H)
+        # (Optionnel) Afficher le climat sous la souris en temps réel
+        #mx, my = pygame.mouse.get_pos()
+        #temp, hum, nom = world.get_infos_at(mx, my)
+        #text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
+        #screen.blit(text_surf, (mx + 10, my + 10))
 
-    # infos
-    fps = round(clock.get_fps(),2)
-    fps_texte = font.render(f"FPS : {fps}", True, (0, 0, 0))
-    screen.blit(fps_texte, (W-200, 10))
+        # on dessine la grenouille =)
+        for g in Population.populations:
+            g.draw(screen)
+            g.deplacement()
+            
+        Population.update(W,H)
 
-    age += 1/60
-    age_texte = font.render(f"Années : {round(age, 1)}", True, (0, 0, 0))
-    screen.blit(age_texte, (W-200, 40))
+        # infos
+        fps = round(clock.get_fps(),2)
+        fps_texte = font.render(f"FPS : {fps}", True, (0, 0, 0))
+        screen.blit(fps_texte, (W*0.9, 10))
 
-    nbIndiv = len(Population.populations)
-    nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (0, 0, 0))
-    screen.blit(nbIndiv_texte, (W-200, 80))
+        age += 1/60
+        age_texte = font.render(f"Années : {round(age, 1)}", True, (0, 0, 0))
+        screen.blit(age_texte, (W*0.9, 40))
 
-    #time.sleep(0.2)
-    pygame.display.flip()
-    clock.tick(60)
+        nbIndiv = len(Population.populations)
+        nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (0, 0, 0))
+        screen.blit(nbIndiv_texte, (W*0.9, 80))
+
+        #time.sleep(0.2)
+        pygame.display.flip()
+        clock.tick(60)
 
 pygame.quit()
