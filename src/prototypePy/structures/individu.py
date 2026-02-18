@@ -1,6 +1,6 @@
 import pygame
 import random
-from genome import Genome
+from .genome import Genome
 
 class Individu:       # class qui va probablment beauuucoup changer
     def __init__(self, x, y, size):
