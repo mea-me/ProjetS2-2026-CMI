@@ -63,9 +63,9 @@ class Livings:
         return bébé
 
     def on_collision(self, ind1, ind2):
-            print("Collision entre", ind1, "et", ind2)
+        if ind1.age >= 3 and ind2.age >=3 :
             self.reproduction(ind1,ind2)
-            # reproduction, combat, échange génétique, etc.
+        # reproduction, combat, échange génétique, etc.
 
     def update(self, screen_width, screen_height):
         # Mettre à jour les cooldowns 
@@ -80,6 +80,9 @@ class Livings:
         #Insérer tous les individus
         for ind in self.populations:
             quad.insert(ind)
+            ind.update()
+            if not(ind.is_alive()):
+                self.kill(ind) 
 
         #  Gérer les interactions
         self.handle_collisions(quad)
@@ -105,4 +108,6 @@ class Livings:
                     ind.collision_cooldown = ind.collision_delay 
                     other.collision_cooldown = other.collision_delay
 
-
+    def kill(self,ind):
+        self.populations.pop(self.populations.index(ind))
+        del ind

@@ -10,7 +10,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         self.rect = pygame.Rect(x, y, size, size)
         self.age = 0
         self.energie = 100 # Par défaut
-        self.is_alive = True
+        self.alive = True
         self.genome = Genome()
 
         # Cooldown de collision 
@@ -29,11 +29,11 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
-        self.age += 1/360 
+        self.age += 1/60 
         self.energie -= 0.1 * self.genome.get_val("taille") # Plus on est gros, plus on consomme
         
-        if self.energie <= 0:
-            self.is_alive = False #bleurgh
+        """if self.energie <= 0:
+            self.is_alive = False #bleurgh"""
 
     def draw(self,screen):
         pygame.draw.rect(screen, self.genome.get_val("couleur"), self.rect)
@@ -44,6 +44,11 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def get_individu(self):
         pass
+
+    def is_alive(self):
+        if self.age >= 9:
+           return False 
+        return True
 
     def collide_with(self,individu2):
         return self.rect.colliderect(individu2.rect)
@@ -57,10 +62,11 @@ class Individu:       # class qui va probablment beauuucoup changer
         # Empêche automatiquement de sortir de l'écran
         self.rect.clamp_ip(pygame.display.get_surface().get_rect())
 
-
-
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 
+    
+    def __del__(self):
+        pass
     
 
     

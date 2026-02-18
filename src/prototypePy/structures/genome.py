@@ -29,7 +29,7 @@ class Genome:
             elif isinstance(gene.valeur, list) and randint(1, 99) < gene.mutation_rate:
                 for i in range(len(gene.valeur)):
                     gene.valeur[i] += randint(-gene.mutation_step, gene.mutation_step)
-                
+
                     if gene.valeur[i] < 0: 
                         gene.valeur[i] += 255 # borne anti négative (genre vitesse négative pas possible)
 
