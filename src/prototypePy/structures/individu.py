@@ -3,8 +3,7 @@ import random
 from .genome import Genome
 
 class Individu:       # class qui va probablment beauuucoup changer
-    def __init__(self, x, y):
-        # width et height sont la taille de l'objet
+    def __init__(self, x, y, espece):
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x, y, 5, 5)
@@ -12,6 +11,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         self.energie = 100 # Par défaut
         self.alive = True
         self.genome = Genome()
+        self.indice_espece = espece
 
         # Cooldown de collision 
         self.collision_cooldown = 0 # temps restant avant nouvelle collision 

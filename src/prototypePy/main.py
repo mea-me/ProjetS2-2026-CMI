@@ -6,7 +6,7 @@ from random import choice
 from structures.allele import Allele
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
-from structures.livings import Livings
+from structures.livings import Livings, Espece
 
 #Initialisation de Pygame
 pygame.init()
@@ -37,15 +37,15 @@ world.add_zone("montagne", 600, 250, 80, 80)    # Montagne DANS le désert
 
 #Création de grenouille-----------------------------------------------------------------
 Population = Livings()
-Froggy = Individu(400, 300)  # position + taille
+Froggy = Individu(400, 300,0)  # position + taille
 Froggy.craft_individu()
 Froggy.give_rect(Froggy.genome.get_val("taille"))
 
 Population.add_individu(Froggy)
-grenouilles = [Individu(300, 100), 
-               Individu(200, 100), 
-               Individu(300, 100), 
-               Individu(200, 100)]
+grenouilles = [Individu(300, 100,0), 
+               Individu(200, 100,0), 
+               Individu(300, 100,0), 
+               Individu(200, 100,0)]
 for g in grenouilles:
         g.craft_individu()
         g.give_rect(g.genome.get_val("taille"))

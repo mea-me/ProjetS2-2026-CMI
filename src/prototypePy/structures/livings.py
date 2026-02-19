@@ -55,7 +55,7 @@ class Livings:
         y = (individu1.rect.y + individu2.rect.y) // 2
 
         #new_genome.muter() # Fait muter le génome
-        bébé = Individu(x, y) # Création du nouvel individu
+        bébé = Individu(x, y, individu1.indice_espece) # Création du nouvel individu
         bébé.give_genome(new_genome.clone())
         bébé.genome.muter()
         self.populations.append(bébé) # Ajout à la population
@@ -134,3 +134,8 @@ class Livings:
     def kill(self,ind):
         self.populations.pop(self.populations.index(ind))
         del ind
+
+
+class Espece() :
+    def __init__(self):
+        self.especes = []
