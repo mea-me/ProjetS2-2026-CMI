@@ -50,7 +50,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         pass
 
     def is_alive(self):
-        if self.age >= 9:
+        if self.age >= 15:
            return False 
         return True
 

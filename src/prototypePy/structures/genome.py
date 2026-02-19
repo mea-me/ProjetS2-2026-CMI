@@ -62,3 +62,4 @@ class Genome:
                 
     def clone(self):
         return copy.deepcopy(self)
+    

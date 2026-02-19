@@ -1,10 +1,10 @@
 import pygame
 from .genome import Genome
-from random import choice
+from random import choice, randint
 from .allele import Allele
 from .individu import Individu
 from .optimisation import QuadTree
-
+from .environnement import WorldMap
 
 
 class Livings:
@@ -14,7 +14,7 @@ class Livings:
     def add_individu(self,individu):
         self.populations.append(individu)
     
-    def reproduction(self, individu1, individu2):
+    def reproduction(self, individu1, individu2,world):
         new_genome = Genome()
 
         for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
@@ -58,17 +58,39 @@ class Livings:
         bébé = Individu(x, y) # Création du nouvel individu
         bébé.give_genome(new_genome.clone())
         bébé.genome.muter()
-        bébé.give_rect(bébé.genome.get_val("taille"))
-
         self.populations.append(bébé) # Ajout à la population
-        return bébé
+        #test d'environement
+        bébé.give_rect(bébé.genome.get_val("taille"))
+        temp = bébé.genome.get_val("température")
+        hum = bébé.genome.get_val("humidité")
+        env = world.get_infos_at(bébé.x,bébé.y)
+        if abs(env[1]-temp) >= 5:
+            if randint(0,100)<5:
+                self.kill(bébé)
+        elif abs(env[1]-temp) >= 10:
+            if randint(0,100)<20:
+                self.kill(bébé)
+        
 
-    def on_collision(self, ind1, ind2):
-        if ind1.age >= 3 and ind2.age >=3 :
-            self.reproduction(ind1,ind2)
+    def on_collision(self, ind1, ind2, world):
+        env1 = world.get_infos_at(ind1.x,ind1.y)
+        env2 = world.get_infos_at(ind2.x,ind2.y)
+        temp1 = ind1.genome.get_val("température")
+        temp2 = ind2.genome.get_val("température")
+        hum1 = ind1.genome.get_val("humidité")
+        hum2 = ind2.genome.get_val("humidité")
+        if ind1.age >= 3 and ind2.age >=3 and ind1.age <= 8 and ind2.age <= 8:
+            if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
+                self.reproduction(ind1,ind2,world)
+            elif abs(env1[1]-temp1) < 10 and abs(env2[1]-temp2) < 10:
+                if randint(0,100)<75:
+                    self.reproduction(ind1,ind2,world)
+            elif abs(env1[1]-temp1) < 15 and abs(env2[1]-temp2) < 20:
+                if randint(0,100)<20:
+                    self.reproduction(ind1,ind2,world)
         # reproduction, combat, échange génétique, etc.
 
-    def update(self, screen_width, screen_height):
+    def update(self, screen_width, screen_height, world):
         # Mettre à jour les cooldowns 
         for ind in self.populations: 
             if ind.collision_cooldown > 0: 
@@ -86,9 +108,9 @@ class Livings:
                 self.kill(ind) 
 
         #  Gérer les interactions
-        self.handle_collisions(quad)
+        self.handle_collisions(quad, world)
 
-    def handle_collisions(self, quad):
+    def handle_collisions(self, quad, world):
         for ind in self.populations:
             #récupére uniquement les individus proches
             voisins = quad.retrieve(ind.rect)
@@ -103,7 +125,7 @@ class Livings:
 
                 #Collision
                 if ind.rect.colliderect(other.rect):
-                    self.on_collision(ind, other)
+                    self.on_collision(ind, other, world)
 
                     # Activer cooldown pour les deux
                     ind.collision_cooldown = ind.collision_delay 

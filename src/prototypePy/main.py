@@ -86,23 +86,23 @@ while running:
             g.draw(screen)
             g.deplacement()
             
-        Population.update(W,H)
+        Population.update(W,H,world)
 
         # infos
         fps = round(clock.get_fps(),2)
         fps_texte = font.render(f"FPS : {fps}", True, (0, 0, 0))
-        screen.blit(fps_texte, (W*0.9, 10))
+        screen.blit(fps_texte, (W*0.8, 10))
 
         age += 1/60
         age_texte = font.render(f"Années : {round(age, 1)}", True, (0, 0, 0))
-        screen.blit(age_texte, (W*0.9, 40))
+        screen.blit(age_texte, (W*0.8, 40))
 
         nbIndiv = len(Population.populations)
         nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (0, 0, 0))
-        screen.blit(nbIndiv_texte, (W*0.9, 80))
+        screen.blit(nbIndiv_texte, (W*0.8, 80))
 
         #time.sleep(0.2)
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(15)
 
 pygame.quit()
