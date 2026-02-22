@@ -11,7 +11,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         self.energie = 100 # Par défaut
         self.alive = True
         self.genome = Genome()
-        self.indice_espece = espece
+        self.id_espece = espece
 
         # Cooldown de collision 
         self.collision_cooldown = 0 # temps restant avant nouvelle collision 
@@ -29,7 +29,7 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
-        self.age += 1/60 
+        self.age += 1
         self.energie -= 0.1 * self.genome.get_val("taille") # Plus on est gros, plus on consomme
         
         """if self.energie <= 0:
@@ -50,7 +50,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         pass
 
     def is_alive(self):
-        if self.age >= 15:
+        if self.age >= 900:
            return False 
         return True
 

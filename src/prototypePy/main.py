@@ -6,7 +6,7 @@ from random import choice
 from structures.allele import Allele
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
-from structures.livings import Livings, Espece
+from structures.livings import Livings, Espece, Population
 
 #Initialisation de Pygame
 pygame.init()
@@ -36,7 +36,6 @@ world.add_zone("desert", 500, 200, 200, 300)    # Désert à droite
 world.add_zone("montagne", 600, 250, 80, 80)    # Montagne DANS le désert
 
 #Création de grenouille-----------------------------------------------------------------
-Population = Livings()
 Froggy = Individu(400, 300,0)  # position + taille
 Froggy.craft_individu()
 Froggy.give_rect(Froggy.genome.get_val("taille"))
@@ -50,6 +49,9 @@ for g in grenouilles:
         g.craft_individu()
         g.give_rect(g.genome.get_val("taille"))
         Population.add_individu(g)
+
+
+grenouille = Espece(0,0)
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
@@ -93,8 +95,10 @@ while running:
         fps_texte = font.render(f"FPS : {fps}", True, (0, 0, 0))
         screen.blit(fps_texte, (W*0.8, 10))
 
-        age += 1/60
-        age_texte = font.render(f"Années : {round(age, 1)}", True, (0, 0, 0))
+        age += 1
+        if age %300 == 0:
+            grenouille.update()
+        age_texte = font.render(f"Années : {round(age/60, 1)}", True, (0, 0, 0))
         screen.blit(age_texte, (W*0.8, 40))
 
         nbIndiv = len(Population.populations)
