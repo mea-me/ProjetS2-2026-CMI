@@ -26,12 +26,14 @@ def moyenne_des_differences(individu1, individu2):
         a = individu1.genome.get_val(k)
         b = individu2.genome.get_val(k)
         if dico_alleles[k][5] == "int":
-            t += abs((a-b)/((a+b)/2))
+            if not a+b == 0:
+                t += abs((a-b)/((a+b)/2))
         
         if k == "couleur":
             t_bis = 0
             for i in range(3):
-                t_bis += abs((a[i]-b[i])/((a[i]+b[i])/2))
+                if not a[i] + b[i] == 0:
+                    t_bis += abs((a[i]-b[i])/((a[i]+b[i])/2))
             
             t += t_bis/3
     
@@ -40,7 +42,7 @@ def moyenne_des_differences(individu1, individu2):
 
 
 def NouvelleEspecePointDInterrogation(popu):
-    '''renvoie un agent si les conditions requises pour une nouvelle espece sont vraies, None sinon
+    '''renvoie un agent si les conditions requises pour une nouvelle espece sont atteintes, None sinon
     arg : popu est la liste population mais ne contenant que des individus d'une meme espece'''
     deja_teste = []
     for agent in popu:
@@ -54,13 +56,12 @@ def NouvelleEspecePointDInterrogation(popu):
                 if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.25:
                     differents += 1
 
-            if len(popu)>8 and similaires >= len(popu)/4 and differents >= len(popu)/2:
+            if len(popu)>4 and similaires >= len(popu)/4 and differents >= len(popu)/2:
                 return agent
             else:
                 deja_teste.append(agent)
 
     return None
-
 
 
 
@@ -108,6 +109,10 @@ for g in grenouilles:
 
 
 grenouille = Espece(0,0)
+
+liste_especes = [grenouille]
+#     clé : espece;0 : parent ; 1 : date d'apparition
+suivi_espece = {0 : [None,0]}
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
@@ -154,10 +159,26 @@ while running:
         age += 1
         if age %300 == 0:
             grenouille.update()
-            if len(Population.populations)>1:
-                print(moyenne_des_differences(Population.populations[0],Population.populations[1]))
-            if NouvelleEspecePointDInterrogation(Population.populations) is not None:
-                print("content")
+            liste_especes_bis = liste_especes[:]
+            deja_fait = []
+            for e in liste_especes_bis:
+                if e.id_espece not in deja_fait:
+                    popu = []
+                    for indi in Population.populations:
+                        if indi.id_espece == e.id_espece:
+                            popu.append(indi)
+                    agent = NouvelleEspecePointDInterrogation(popu)
+                    if agent is not None:
+                        deja_fait.append(agent.id_espece)
+                        liste_especes.append(Espece(liste_especes[-1].id_espece + 1,age))
+                        suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece,age]
+                        for indiv in popu:
+                            if moyenne_des_differences(agent,indi) <= 2:
+                                indiv.id_espece = liste_especes[-1].id_espece
+                        
+            print(suivi_espece)
+
+
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (0, 0, 0))
         screen.blit(age_texte, (W*0.8, 40))
 
