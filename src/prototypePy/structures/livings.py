@@ -79,7 +79,7 @@ class Livings:
         temp2 = ind2.genome.get_val("température")
         hum1 = ind1.genome.get_val("humidité")
         hum2 = ind2.genome.get_val("humidité")
-        if ind1.age >= 180 and ind2.age >=180 and ind1.age <= 480 and ind2.age <= 480:
+        if ind1.age >= 180 and ind2.age >=180 and ind1.age <= 720 and ind2.age <= 720:
             if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
                 self.reproduction(ind1,ind2,world)
             elif abs(env1[1]-temp1) < 10 and abs(env2[1]-temp2) < 10:
