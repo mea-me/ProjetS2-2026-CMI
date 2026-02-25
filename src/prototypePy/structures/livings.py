@@ -208,7 +208,7 @@ class Espece() :
                 if n!=0:
                     self.dico_evolution_alleles[k].append([t[0]/n,t[1]/n,t[2]/n])
         
-        for k in self.dico_evolution_alleles.keys():
+        # for k in self.dico_evolution_alleles.keys():
 
-            print(f'{k} : {self.dico_evolution_alleles[k]}')
-        print(f'Effectif : {self.effectif}')
+        #     print(f'{k} : {self.dico_evolution_alleles[k]}')
+        # print(f'Effectif : {self.effectif}')

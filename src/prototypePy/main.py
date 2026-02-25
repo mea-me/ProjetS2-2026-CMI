@@ -3,10 +3,64 @@
 import pygame,os,sys,time
 from structures.genome import Genome
 from random import choice
-from structures.allele import Allele
+from structures.allele import Allele, dico_alleles
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
 from structures.livings import Livings, Espece, Population
+
+
+#Fonctions utilisées plus tard =)
+
+def moyenne_des_differences(individu1, individu2):
+    nb_alleles_etudiees = 0
+    for k in dico_alleles.keys():
+        if dico_alleles[k][5] == "int":
+            nb_alleles_etudiees += 1
+        
+        if k == "couleur":
+            nb_alleles_etudiees += 1
+
+    
+    t = 0
+    for k in dico_alleles.keys():
+        if dico_alleles[k][5] == "int":
+            t += min(individu1.genome.get_val(k)/individu2.genome.get_val(k), individu2.genome.get_val(k)/individu1.genome.get_val(k))
+        
+        if k == "couleur":
+            t_bis = 0
+            for i in range(3):
+                t_bis += min(individu1.genome.get_val(k)[i]/individu2.genome.get_val(k)[i], individu2.genome.get_val(k)[i]/individu1.genome.get_val(k)[i])
+            
+            t += t_bis/3
+    
+
+    return t/nb_alleles_etudiees
+
+
+def NouvelleEspecePointDInterrogation(popu):
+    '''renvoie un agent si les conditions requises pour une nouvelle espece sont vraies, None sinon
+    popu est la liste population mais ne contenant que des individus d'une meme espece'''
+    deja_teste = []
+    for agent in popu:
+        if agent not in deja_teste:
+            similaires = 0
+            for agent_bis in popu:
+                if agent != agent_bis and moyenne_des_differences(agent,agent_bis)<=0.2:
+                    similaires += 1
+            differents = 0
+            for agent_bis in popu:
+                if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.25:
+                    differents += 1
+
+            if len(popu)>8 and similaires >= len(popu)/4 and differents >= len(popu)/2:
+                return agent
+            else:
+                deja_teste.append(agent)
+
+    return None
+
+
+
 
 #Initialisation de Pygame
 pygame.init()
@@ -98,6 +152,10 @@ while running:
         age += 1
         if age %300 == 0:
             grenouille.update()
+            if len(Population.populations)>1:
+                print(moyenne_des_differences(Population.populations[0],Population.populations[1]))
+            if NouvelleEspecePointDInterrogation(Population.populations) is not None:
+                print("content")
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (0, 0, 0))
         screen.blit(age_texte, (W*0.8, 40))
 
@@ -107,6 +165,6 @@ while running:
 
         #time.sleep(0.2)
         pygame.display.flip()
-        clock.tick(15)
+        clock.tick(60)
 
 pygame.quit()
