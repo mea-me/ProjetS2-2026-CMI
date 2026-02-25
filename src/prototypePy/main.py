@@ -44,22 +44,18 @@ def moyenne_des_differences(individu1, individu2):
 def NouvelleEspecePointDInterrogation(popu):
     '''renvoie un agent si les conditions requises pour une nouvelle espece sont atteintes, None sinon
     arg : popu est la liste population mais ne contenant que des individus d'une meme espece'''
-    deja_teste = []
     for agent in popu:
-        if agent not in deja_teste:
-            similaires = 0
-            for agent_bis in popu:
-                if agent != agent_bis and moyenne_des_differences(agent,agent_bis)<=0.2:
-                    similaires += 1
-            differents = 0
-            for agent_bis in popu:
-                if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.25:
-                    differents += 1
+        similaires = 0
+        for agent_bis in popu:
+            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)<=0.2:
+                similaires += 1
+        differents = 0
+        for agent_bis in popu:
+            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.25:
+                differents += 1
 
-            if len(popu)>4 and similaires >= len(popu)/4 and differents >= len(popu)/2:
-                return agent
-            else:
-                deja_teste.append(agent)
+        if len(popu)>4 and similaires >= len(popu)/4 and differents >= len(popu)/2:
+            return agent
 
     return None
 
@@ -158,24 +154,23 @@ while running:
 
         age += 1
         if age %300 == 0:
-            grenouille.update()
             liste_especes_bis = liste_especes[:]
-            deja_fait = []
             for e in liste_especes_bis:
-                if e.id_espece not in deja_fait:
-                    popu = []
-                    for indi in Population.populations:
-                        if indi.id_espece == e.id_espece:
-                            popu.append(indi)
-                    agent = NouvelleEspecePointDInterrogation(popu)
-                    if agent is not None:
-                        deja_fait.append(agent.id_espece)
-                        liste_especes.append(Espece(liste_especes[-1].id_espece + 1,age))
-                        suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece,age]
-                        for indiv in popu:
-                            if moyenne_des_differences(agent,indi) <= 2:
-                                indiv.id_espece = liste_especes[-1].id_espece
-                        
+                popu = []
+                for indi in Population.populations:
+                    if indi.id_espece == e.id_espece:
+                        popu.append(indi)
+                agent = NouvelleEspecePointDInterrogation(popu)
+                if agent is not None:
+                    liste_especes.append(Espece(liste_especes[-1].id_espece + 1,age))
+                    suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece,age]
+                    for indiv in popu:
+                        if moyenne_des_differences(agent,indi) <= 0.2:
+                            indiv.id_espece = liste_especes[-1].id_espece
+
+                
+                e.update()
+                    
             print(suivi_espece)
 
 

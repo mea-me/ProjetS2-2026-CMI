@@ -211,4 +211,4 @@ class Espece() :
         # for k in self.dico_evolution_alleles.keys():
 
         #     print(f'{k} : {self.dico_evolution_alleles[k]}')
-        # print(f'Effectif : {self.effectif}')
+        print(f'Effectif de l espèce {self.id_espece} : {self.effectif}')
