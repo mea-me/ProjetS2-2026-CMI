@@ -107,6 +107,6 @@ while running:
 
         #time.sleep(0.2)
         pygame.display.flip()
-        clock.tick(15)
+        clock.tick(20)
 
 pygame.quit()

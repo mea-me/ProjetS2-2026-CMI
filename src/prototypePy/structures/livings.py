@@ -138,7 +138,7 @@ class Livings:
 Population = Livings()
 
 class Espece() :
-    def __init__(self,id_espece,date_apparition):
+    def __init__(self, id_espece, date_apparition):
         self.id_espece = id_espece
         self.date_apparition = date_apparition
         self.dico_evolution_alleles = {}
