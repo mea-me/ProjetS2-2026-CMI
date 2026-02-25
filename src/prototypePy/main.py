@@ -23,13 +23,15 @@ def moyenne_des_differences(individu1, individu2):
     
     t = 0
     for k in dico_alleles.keys():
+        a = individu1.genome.get_val(k)
+        b = individu2.genome.get_val(k)
         if dico_alleles[k][5] == "int":
-            t += min(individu1.genome.get_val(k)/individu2.genome.get_val(k), individu2.genome.get_val(k)/individu1.genome.get_val(k))
+            t += abs((a-b)/((a+b)/2))
         
         if k == "couleur":
             t_bis = 0
             for i in range(3):
-                t_bis += min(individu1.genome.get_val(k)[i]/individu2.genome.get_val(k)[i], individu2.genome.get_val(k)[i]/individu1.genome.get_val(k)[i])
+                t_bis += abs((a[i]-b[i])/((a[i]+b[i])/2))
             
             t += t_bis/3
     
