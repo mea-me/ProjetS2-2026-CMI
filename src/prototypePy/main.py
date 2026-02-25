@@ -41,7 +41,7 @@ def moyenne_des_differences(individu1, individu2):
 
 def NouvelleEspecePointDInterrogation(popu):
     '''renvoie un agent si les conditions requises pour une nouvelle espece sont vraies, None sinon
-    popu est la liste population mais ne contenant que des individus d'une meme espece'''
+    arg : popu est la liste population mais ne contenant que des individus d'une meme espece'''
     deja_teste = []
     for agent in popu:
         if agent not in deja_teste:
