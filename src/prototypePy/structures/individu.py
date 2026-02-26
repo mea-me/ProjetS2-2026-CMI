@@ -65,6 +65,7 @@ class Individu:       # class qui va probablment beauuucoup changer
 
         # Empêche automatiquement de sortir de l'écran
         self.rect.clamp_ip(pygame.display.get_surface().get_rect())
+        # self.rect.clamp_ip(pygame.draw.ellispe(pygame.display.get_surface().get_rect(),(0,0,0),self.rect,-1))
 
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 

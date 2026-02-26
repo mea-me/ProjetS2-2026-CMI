@@ -28,12 +28,8 @@ age = 0
 font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
-# On "Peint" le monde avec des rectangles (Tes zones)
-# args : nom, x, y, largeur, hauteur
-world.add_zone("plaine", 50, 50, 400, 300)      # Gros continent
-world.add_zone("foret",  100, 100, 150, 150)    # Forêt DANS la plaine
-world.add_zone("desert", 500, 200, 200, 300)    # Désert à droite
-world.add_zone("montagne", 600, 250, 80, 80)    # Montagne DANS le désert
+# génération de la map procédurale
+world.procedural_generation(50)
 
 #Création de grenouille-----------------------------------------------------------------
 Froggy = Individu(400, 300,0)  # position + taille
