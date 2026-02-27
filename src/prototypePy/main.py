@@ -29,7 +29,7 @@ font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
 # génération de la map procédurale
-world.procedural_generation(50)
+world.procedural_generation(80)
 
 #Création de grenouille-----------------------------------------------------------------
 Froggy = Individu(400, 300,0)  # position + taille

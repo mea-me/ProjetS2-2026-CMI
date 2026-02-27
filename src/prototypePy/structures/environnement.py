@@ -32,7 +32,7 @@ class Biome:
 
 # Format : "nom": {"temperature": T, "humidite": H, "color": (R, G, B), "affinites" : dictionnaire des affinités entre biomes}
 dico_biomes = {
-    "ocean":    {"temperature": 10,  "humidite": 100, "color": (30, 144, 255),  "affinites": {"ocean": 100, "plaine": 50, "desert": 5}},
+    "ocean":    {"temperature": 10,  "humidite": 100, "color": (30, 144, 255),  "affinites": {"ocean": 100, "plaine": 20, "desert": 5}},
     "plaine":   {"temperature": 15,  "humidite": 30,  "color": (144, 238, 144), "affinites": {"ocean": 60, "plaine": 100, "foret": 80, "desert": 20, "montagne": 40}},
     "foret":    {"temperature": 25,  "humidite": 80,  "color": (34, 139, 34),   "affinites": {"plaine": 100, "foret": 100, "montagne": 30}},
     "desert":   {"temperature": 40,  "humidite": 0,   "color": (237, 201, 175), "affinites": {"plaine": 30, "desert": 100, "ocean": 5}},
@@ -54,11 +54,11 @@ class WorldMap:
 
     def procedural_generation(self, nb_zones=50):
         # gros continent de base (Plaine) au centre
-        w_base, h_base = int(self.width * 0.8), int(self.height * 0.8)
+        w_base, h_base = int(self.width * 0.6), int(self.height * 0.6)
         x_base, y_base = (self.width - w_base) // 2, (self.height - h_base) // 2
         self.add_zone("plaine", x_base, y_base, w_base, h_base)
 
-        biomes_a_placer = ["foret", "desert", "montagne", "neige"]
+        biomes_a_placer = list(dico_biomes.keys())
 
         tentatives_max = nb_zones * 4 # sécu
         zones_placees = 0
@@ -78,10 +78,13 @@ class WorldMap:
                                                           # si pas d'affinité définie --> 0
             
             if random.randint(0, 100) <= affinite:
-                if biome_candidat == "montagne" or biome_candidat == "neige":
-                    bw = random.randint(40, 150)
-                else:
-                    bw = random.randint(100, 300)
+                match biome_candidat :
+                    case "ocean" :
+                        bw = random.randint( int(0.02 * self.width), int(0.1 * self.width) )
+                    case "montagne" | "neige" :
+                        bw = random.randint( int(0.05 * self.width), int(0.12 * self.width) )
+                    case _:
+                        bw = random.randint( int(0.02 * self.width), int(0.2 * self.width) )
                 
                 bh = int(bw * random.uniform(0.6, 1.4)) # variation rectangulaire (pas carré)
                 
