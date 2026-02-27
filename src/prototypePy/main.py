@@ -51,7 +51,7 @@ def NouvelleEspecePointDInterrogation(popu):
                 similaires += 1
         differents = 0
         for agent_bis in popu:
-            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.25:
+            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.3:
                 differents += 1
 
         if len(popu)>4 and similaires >= len(popu)/4 and differents >= len(popu)/2:
@@ -153,7 +153,7 @@ while running:
         screen.blit(fps_texte, (W*0.8, 10))
 
         age += 1
-        if age %300 == 0:
+        if age %180 == 0:
             liste_especes_bis = liste_especes[:]
             for e in liste_especes_bis:
                 popu = []
@@ -162,10 +162,12 @@ while running:
                         popu.append(indi)
                 agent = NouvelleEspecePointDInterrogation(popu)
                 if agent is not None:
-                    liste_especes.append(Espece(liste_especes[-1].id_espece + 1,age))
+                    a = Espece(liste_especes[-1].id_espece + 1,age)
+                    liste_especes.append(a)
                     suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece,age]
+                    agent.id_espece = liste_especes[-1].id_espece
                     for indiv in popu:
-                        if moyenne_des_differences(agent,indi) <= 0.2:
+                        if moyenne_des_differences(agent,indiv) <= 0.2 and agent != indiv:
                             indiv.id_espece = liste_especes[-1].id_espece
 
                 
