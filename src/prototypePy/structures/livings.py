@@ -246,5 +246,5 @@ class Espece() :
         
         for k in self.dico_evolution_alleles.keys():
             pass
-            #print(f'{k} : {self.dico_evolution_alleles[k]}')
-        #print(f'Effectif : {self.effectif}')
+            print(f'{k} : {self.dico_evolution_alleles[k]}')
+        print(f'Effectif : {self.effectif}')

@@ -32,12 +32,12 @@ class Biome:
 
 # Format : "nom": {"temperature": T, "humidite": H, "color": (R, G, B)}
 dico_biomes = {
-    "foret":    {"temperature": 25, "humidite": 80,  "color": (34, 139, 34)},   # Vert Fonc
-    "plaine":   {"temperature": 15, "humidite": 30,  "color": (144, 238, 144)}, # Vert Clair
-    "ocean":    {"temperature": 10, "humidite": 100, "color": (30, 144, 255)},  # Bleu
-    "desert":   {"temperature": 40, "humidite": 0,   "color": (237, 201, 175)}, # Sable
-    "montagne": {"temperature": -5, "humidite": 20,  "color": (128, 128, 128)}, # Gris
-    "neige":    {"temperature": -20, "humidite": 60, "color": (255, 250, 250)}  # Blanc
+    "ocean":    {"temperature": 10,  "humidite": 100, "color": (30, 144, 255),  "affinites": {"ocean": 100, "plaine": 20, "desert": 5}},
+    "plaine":   {"temperature": 15,  "humidite": 30,  "color": (144, 238, 144), "affinites": {"ocean": 60, "plaine": 100, "foret": 80, "desert": 20, "montagne": 40}},
+    "foret":    {"temperature": 25,  "humidite": 80,  "color": (34, 139, 34),   "affinites": {"plaine": 100, "foret": 100, "montagne": 30}},
+    "desert":   {"temperature": 40,  "humidite": 0,   "color": (237, 201, 175), "affinites": {"plaine": 30, "desert": 100, "ocean": 5}},
+    "montagne": {"temperature": -5,  "humidite": 20,  "color": (128, 128, 128), "affinites": {"plaine": 50, "foret": 40, "montagne": 100, "neige": 90}},
+    "neige":    {"temperature": -20, "humidite": 60,  "color": (255, 250, 250), "affinites": {"montagne": 100, "neige": 100, "plaine": 10}}
 }
 
 class WorldMap:
