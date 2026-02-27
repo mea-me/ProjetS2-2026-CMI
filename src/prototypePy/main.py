@@ -85,6 +85,7 @@ while running:
         # on dessine la population =)
         for g in Population.populations:
             g.draw(screen)
+            g.deplacement_random()
             #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
 
         Population.update(W,H,world)

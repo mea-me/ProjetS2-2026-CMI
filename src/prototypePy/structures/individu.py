@@ -29,11 +29,11 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
-        self.age += 1/60
+        self.age += 1
         self.energie -= 0.1 * self.genome.get_val("taille") # Plus on est gros, plus on consomme
-        
+
         if self.energie <= 0:
-            self.is_alive = False #bleurgh
+            self.alive = False #bleurgh##
 
     def draw(self,screen):
         pygame.draw.rect(screen, self.genome.get_val("couleur"), self.rect)
@@ -50,7 +50,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         pass
 
     def is_alive(self):
-        if self.age >= 900:
+        if self.age >= 15:
            return False 
         return True
 
