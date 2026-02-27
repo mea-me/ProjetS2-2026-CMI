@@ -50,7 +50,7 @@ class Individu:       # class qui va probablment beauuucoup changer
         pass
 
     def is_alive(self):
-        if self.age >= 15:
+        if self.age >= 900:
            return False 
         return True
 
@@ -81,6 +81,19 @@ class Individu:       # class qui va probablment beauuucoup changer
     def droite(self):
         vitesse = self.genome.get_val("vitesse")
         self.rect.x += vitesse
+
+    def get_close(self,x,y):
+        if x < self.x:
+            self.gauche()
+        elif x > self.x:
+            self.droite()
+
+        if y < self.y:
+            self.haut()
+        elif y > self.y:
+            self.bas()
+
+
 
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 

@@ -114,6 +114,37 @@ class Livings:
 
         #  Gérer les interactions
         self.handle_collisions(quad, world)
+        #self.handle_déplacement(quad)
+
+    def get_closest_neighbor(self, ind, close_people):
+        LePlusProche = None
+        best_dist = float('inf') #très grand nombre
+
+        for other in close_people:
+            if other is ind:
+                continue
+
+            # distance euclidienne
+            dist = (ind.x - other.x)**2 + (ind.y - other.y)**2
+            
+            if dist < best_dist:
+                best_dist = dist
+                LePlusProche = other
+
+        return LePlusProche
+
+    def handle_déplacement(self,quad):
+        for ind in self.populations:
+            #récupére uniquement les individus proches
+            voisins = quad.retrieve(ind.rect)
+
+            for other in voisins:
+                if other is ind:
+                    continue
+                close = self.get_closest_neighbor(ind,voisins)
+                x,y = close.get_position()
+                ind.get_close(x,y)
+
 
     def handle_collisions(self, quad, world):
         for ind in self.populations:
@@ -214,6 +245,6 @@ class Espece() :
                     self.dico_evolution_alleles[k].append([t[0]/n,t[1]/n,t[2]/n])
         
         for k in self.dico_evolution_alleles.keys():
-
-            print(f'{k} : {self.dico_evolution_alleles[k]}')
-        print(f'Effectif : {self.effectif}')
+            pass
+            #print(f'{k} : {self.dico_evolution_alleles[k]}')
+        #print(f'Effectif : {self.effectif}')

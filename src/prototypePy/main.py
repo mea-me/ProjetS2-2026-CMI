@@ -71,7 +71,8 @@ while running:
             print(f"Zone: {nom.upper()} | Temp: {temp}°C | Hum: {hum}%")
 
     if paused:
-        continue                
+        continue     
+               
     else:
         # 2. Dessin
         world.paint(screen)
