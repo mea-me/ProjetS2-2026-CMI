@@ -29,11 +29,11 @@ class Individu:       # class qui va probablment beauuucoup changer
 
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
-        self.age += 1
+        self.age += 1/60
         self.energie -= 0.1 * self.genome.get_val("taille") # Plus on est gros, plus on consomme
         
-        """if self.energie <= 0:
-            self.is_alive = False #bleurgh"""
+        if self.energie <= 0:
+            self.is_alive = False #bleurgh
 
     def draw(self,screen):
         pygame.draw.rect(screen, self.genome.get_val("couleur"), self.rect)
@@ -57,7 +57,7 @@ class Individu:       # class qui va probablment beauuucoup changer
     def collide_with(self,individu2):
         return self.rect.colliderect(individu2.rect)
 
-    def deplacement(self): 
+    def deplacement_random(self): 
         vitesse = self.genome.get_val("vitesse")
 
         self.rect.x += random.choice([-vitesse, 0, vitesse])
@@ -65,6 +65,22 @@ class Individu:       # class qui va probablment beauuucoup changer
 
         # Empêche automatiquement de sortir de l'écran
         self.rect.clamp_ip(pygame.display.get_surface().get_rect())
+    
+    def haut(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.x -= vitesse 
+
+    def bas(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.x += vitesse
+
+    def gauche(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.y -= vitesse
+
+    def droite(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.x += vitesse
 
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 

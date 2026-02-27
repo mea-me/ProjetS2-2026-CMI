@@ -6,7 +6,7 @@ from random import choice
 from structures.allele import Allele
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
-from structures.livings import Livings, Espece, Population
+from structures.livings import Livings,Espece,Population
 
 #Initialisation de Pygame
 pygame.init()
@@ -25,6 +25,7 @@ clock = pygame.time.Clock()
 dt = clock.tick(framerate)
 age = 0
 
+grenouille = Espece(0,0)
 font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
@@ -50,8 +51,6 @@ for g in grenouilles:
         g.give_rect(g.genome.get_val("taille"))
         Population.add_individu(g)
 
-
-grenouille = Espece(0,0)
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
@@ -83,11 +82,11 @@ while running:
         #text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
         #screen.blit(text_surf, (mx + 10, my + 10))
 
-        # on dessine la grenouille =)
+        # on dessine la population =)
         for g in Population.populations:
             g.draw(screen)
-            g.deplacement()
-            
+            #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
+
         Population.update(W,H,world)
 
         # infos
@@ -98,6 +97,7 @@ while running:
         age += 1
         if age %300 == 0:
             grenouille.update()
+            pass
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (0, 0, 0))
         screen.blit(age_texte, (W*0.8, 40))
 
