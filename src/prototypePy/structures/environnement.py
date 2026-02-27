@@ -1,4 +1,5 @@
 import pygame
+import random
 
 class Biome:
     def __init__(self, nom, x, y, width, height):
@@ -39,16 +40,57 @@ dico_biomes = {
     "neige":    {"temperature": -20, "humidite": 60, "color": (255, 250, 250)}  # Blanc
 }
 
-
 class WorldMap:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.biomes = [] # liste d'objets Biome
-        self.background_biome = "plaine"
+        self.background_biome = "ocean"
 
     def add_zone(self, nom, x, y, width, height): # add a la liste de biomes
         self.biomes.append(Biome(nom, x, y, width, height))
+
+    def procedural_generation(self, nb_zones=50):
+        # gros continent de base (Plaine) au centre
+        w_base, h_base = int(self.width * 0.6), int(self.height * 0.6)
+        x_base, y_base = (self.width - w_base) // 2, (self.height - h_base) // 2
+        self.add_zone("plaine", x_base, y_base, w_base, h_base)
+
+        biomes_a_placer = list(dico_biomes.keys())
+
+        tentatives_max = nb_zones * 4 # sécu
+        zones_placees = 0
+
+        while zones_placees < nb_zones and tentatives_max > 0:
+            tentatives_max -= 1
+            
+            biome_candidat = random.choice(biomes_a_placer)
+            
+            # random coordonnée sur la map
+            temp_x, temp_y  = random.randint(0, self.width), random.randint(0, self.height)
+
+            _, _, biome_actuel = self.get_infos_at(temp_x, temp_y)
+            
+            # LOGIQUE DE POIDS (Affinité)
+            affinite = dico_biomes[biome_candidat]["affinites"].get(biome_actuel, 0)
+                                                          # si pas d'affinité définie --> 0
+            
+            if random.randint(0, 100) <= affinite:
+                match biome_candidat :
+                    case "ocean" :
+                        bw = random.randint( int(0.02 * self.width), int(0.1 * self.width) )
+                    case "montagne" | "neige" :
+                        bw = random.randint( int(0.05 * self.width), int(0.12 * self.width) )
+                    case _:
+                        bw = random.randint( int(0.02 * self.width), int(0.2 * self.width) )
+                
+                bh = int(bw * random.uniform(0.6, 1.4)) # variation rectangulaire (pas carré)
+                
+                # On centre le rectangle sur le point temporaire
+                final_x, final_y = temp_x - (bw // 2), temp_y - (bh // 2)
+                
+                self.add_zone(biome_candidat, final_x, final_y, bw, bh)
+                zones_placees += 1
 
     def get_infos_at(self, x, y):
         # On cherche de la dernière zone ajoutée vers la première (logique de calques)
@@ -61,10 +103,8 @@ class WorldMap:
         return bg["temperature"], bg["humidite"], self.background_biome
     
     def paint(self, surface):
-        # fond
         bg_color = dico_biomes[self.background_biome]["color"]
         surface.fill(bg_color)
 
-        # faire les autres layers
         for b in self.biomes:
             b.draw_biome(surface)

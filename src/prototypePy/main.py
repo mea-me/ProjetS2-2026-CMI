@@ -51,6 +51,7 @@ for g in grenouilles:
         g.give_rect(g.genome.get_val("taille"))
         Population.add_individu(g)
 
+world.procedural_generation(80)
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
