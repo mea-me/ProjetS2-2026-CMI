@@ -57,14 +57,18 @@ class Individu:       # class qui va probablment beauuucoup changer
     def collide_with(self,individu2):
         return self.rect.colliderect(individu2.rect)
 
-    def deplacement(self): 
+    def deplacement(self,mask): 
         vitesse = self.genome.get_val("vitesse")
+        
+        nv_x = self.rect.x + random.choice([-vitesse, 0, vitesse])
+        nv_y = self.rect.y + random.choice([-vitesse, 0, vitesse])
 
-        self.rect.x += random.choice([-vitesse, 0, vitesse])
-        self.rect.y += random.choice([-vitesse, 0, vitesse])
-
-        # Empêche automatiquement de sortir de l'écran
-        self.rect.clamp_ip(pygame.display.get_surface().get_rect())
+        try:
+            if mask.get_at((nv_x + self.rect.width//2, nv_y + self.rect.height//2)):
+                self.rect.x = nv_x
+                self.rect.y = nv_y
+        except IndexError:
+            pass # si ils sont débilent et essayent d'aller la ou ils ont pas le droit
 
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 

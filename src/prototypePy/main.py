@@ -57,6 +57,18 @@ grenouille = Espece(0,0)
 paused = False        
 running = True
 
+mask_surface = pygame.Surface((W, H), pygame.SRCALPHA) # -> SRCALPHA = transparent
+mask_surface.fill((0, 0, 0, 0)) # no no zone
+
+overlay = pygame.Surface((W, H), pygame.SRCALPHA)
+overlay.fill((0, 0, 0, 255)) # ca c'est pour qu'on puisse voir le tour de l'ellipse
+
+playable_rect = pygame.Rect(20, 20, W - 40, H - 40)
+pygame.draw.ellipse(mask_surface, (255, 255, 255, 255), playable_rect)
+pygame.draw.ellipse(overlay, (0, 0, 0, 0), playable_rect)
+
+allowed_mask = pygame.mask.from_surface(mask_surface)
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -86,7 +98,9 @@ while running:
         # on dessine la grenouille =)
         for g in Population.populations:
             g.draw(screen)
-            g.deplacement()
+            g.deplacement(allowed_mask)
+
+        screen.blit(overlay, (0, 0))
             
         Population.update(W,H,world)
 
