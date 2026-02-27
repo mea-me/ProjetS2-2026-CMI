@@ -164,7 +164,7 @@ while running:
                 if agent is not None:
                     a = Espece(liste_especes[-1].id_espece + 1,age)
                     liste_especes.append(a)
-                    suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece,age]
+                    suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece, age, None]
                     agent.id_espece = liste_especes[-1].id_espece
                     for indiv in popu:
                         if moyenne_des_differences(agent,indiv) <= 0.2 and agent != indiv:
