@@ -107,8 +107,8 @@ for g in grenouilles:
 grenouille = Espece(0,0)
 
 liste_especes = [grenouille]
-#     clé : espece;0 : parent ; 1 : date d'apparition
-suivi_espece = {0 : [None,0]}
+#     clé : espece;0 : parent ; 1 : date d'apparition ; 2 : date de mort
+suivi_espece = {0 : [None,0,None]}
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
@@ -172,6 +172,11 @@ while running:
 
                 
                 e.update()
+            
+            for e in liste_especes:
+                if len(e.effectif)>1 and e.effectif[-1] == 0 and not e.morte:
+                    e.morte = True
+                    suivi_espece[e.id_espece][2] = age
                     
             print(suivi_espece)
 
