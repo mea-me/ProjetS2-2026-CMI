@@ -16,7 +16,7 @@ pygame.init()
 info = pygame.display.Info()
 W, H = info.current_w, info.current_h
 # Pour tester sans être en plein écran total bloquant :
-screen = pygame.display.set_mode((W, H), pygame.RESIZABLE) 
+screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN) 
 pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
 
 # Initialisation du framerate pour egaliser la vitesse de jeu sur toutes les machines
@@ -29,7 +29,7 @@ font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
 # génération de la map procédurale
-world.procedural_generation(80)
+world.procedural_generation()
 
 #Création de grenouille-----------------------------------------------------------------
 Froggy = Individu(400, 300,0)  # position + taille
@@ -37,9 +37,10 @@ Froggy.craft_individu()
 Froggy.give_rect(Froggy.genome.get_val("taille"))
 
 Population.add_individu(Froggy)
-grenouilles = [Individu(300, 100,0), 
-               Individu(200, 100,0), 
-               Individu(300, 100,0), 
+grenouilles = [
+               #Individu(300, 100,0), 
+               #Individu(200, 100,0), 
+               #Individu(300, 100,0), 
                Individu(200, 100,0)]
 for g in grenouilles:
         g.craft_individu()
@@ -56,12 +57,19 @@ running = True
 mask_surface = pygame.Surface((W, H), pygame.SRCALPHA) # -> SRCALPHA = transparent
 mask_surface.fill((0, 0, 0, 0)) # no no zone
 
-overlay = pygame.Surface((W, H), pygame.SRCALPHA)
-overlay.fill((0, 0, 0, 255)) # ca c'est pour qu'on puisse voir le tour de l'ellipse
+overlay = pygame.Surface((W, H)) 
+overlay.fill((10, 10, 10)) # Couleur de l'extérieur du globe (gris très foncé/noir)
 
-playable_rect = pygame.Rect(20, 20, W - 40, H - 40)
-pygame.draw.ellipse(mask_surface, (255, 255, 255, 255), playable_rect)
-pygame.draw.ellipse(overlay, (0, 0, 0, 0), playable_rect)
+playable_rect = pygame.Rect(20, 20, W - 40, H - 40) # ellipse magenta qui servira de trou
+pygame.draw.ellipse(overlay, (255, 0, 255), playable_rect) 
+overlay.set_colorkey((255, 0, 255)) # le magenta = 100% transparent
+
+# Masque de collision (rétréci de 40px de chaque côté)
+movement_rect = playable_rect.inflate(-80, -80) 
+
+mask_surface = pygame.Surface((W, H), pygame.SRCALPHA)
+# ellipse de déplacement autorisée 
+pygame.draw.ellipse(mask_surface, (255, 255, 255, 255), movement_rect)
 
 allowed_mask = pygame.mask.from_surface(mask_surface)
 
@@ -70,9 +78,11 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.KEYDOWN: #mettre en pause appuyant sur entré
-            if event.key == pygame.K_RETURN:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN: # PAUSE SUR ENTREE
                 paused = not(paused)
+            if event.key == pygame.K_ESCAPE: # Sécurité Plein Écran
+                running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()

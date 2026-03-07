@@ -1,8 +1,69 @@
+"""!
+@file environnement.py
+@brief Module de gestion et de génération procédurale de l'environnement (WorldMap et Biomes).
+"""
+
+import os
+from random import choices, gauss, randint, uniform
+
 import pygame
-import random 
+
+
+class AssetManager:
+    """!
+    @brief Charge et stocke les images des biomes en gérant les probabilités d'apparition.
+    @param tile_size Taille des tile_size en pixels (a priori ça restera 16).
+    """
+
+    def __init__(self, tile_size=16):
+        self.tile_size = tile_size
+        self.assets = {}  # Format: {"foret": {"images": [...], "poids": []}}
+        self.load_all_assets()
+
+    def load_all_assets(self):
+        base_path = "assets/map"
+
+        # Poids associés aux préfixes des fichiers (1_, 2_, 3_)
+        poids_prefixe = {"1": 100, "2": 15, "3": 2}
+
+        for nom_biome in dico_biomes.keys():
+            chemin = os.path.join(base_path, nom_biome)
+            self.assets[nom_biome] = {"images": [], "poids": []}
+
+            target_size = 32 if nom_biome == "foret" else self.tile_size
+
+            for fichier in os.listdir(chemin):
+                if fichier.endswith(".png"):
+                    img = pygame.image.load(
+                        os.path.join(chemin, fichier)
+                    ).convert_alpha()
+                    img = pygame.transform.scale(img, (self.tile_size, self.tile_size))
+
+                    img = pygame.transform.scale(img, (target_size, target_size))
+                    poids = poids_prefixe[fichier[0]]
+
+                    self.assets[nom_biome]["images"].append(img)
+                    self.assets[nom_biome]["poids"].append(poids)
+
+
+# ----------------------------------------
+
 
 class Biome:
+    """!
+    @brief Représente une zone rectangulaire (un biome) sur la carte.
+    @details Contient les données géométriques et climatiques de la zone.
+    """
+
     def __init__(self, nom, x, y, width, height):
+        """!
+        @brief Constructeur de la classe Biome.
+        @param nom Nom du biome (doit exister dans dico_biomes).
+        @param x Position X du coin supérieur gauche.
+        @param y Position Y du coin supérieur gauche.
+        @param width Largeur du biome.
+        @param height Hauteur du biome.
+        """
         self.nom = nom
         self.x = x
         self.y = y
@@ -16,98 +77,292 @@ class Biome:
 
         self.rect = pygame.Rect(x, y, width, height)
 
-    def draw_biome(self, surface): 
-        pygame.draw.rect(surface, self.color, self.rect) 
-   
-    def contains(self, x, y): # position d'un clic de souris 
-        # ou un individu (si on passe ses coords : Individu.get_position)
-        return self.rect.collidepoint(x, y) 
-    
+    def draw_biome(self, surface, asset_manager):
+        """!
+        @brief Dessine le biome sur la surface donnée, avec textures si disponibles.
+        @param surface Objet pygame.Surface sur lequel dessiner.
+        @param asset_manager Le gestionnaire d'images (objet).
+        """
+        if self.nom != "foret":
+            pygame.draw.rect(surface, self.color, self.rect)  # couleur de fond # couleur de fond
+
+        if asset_manager and self.nom in asset_manager.assets:  # si y a des images
+            data = asset_manager.assets[self.nom]  # "foret": {"images": [...], "poids": []}
+            if data["images"]:  # pas une liste vide
+
+                if not self.nom == "foret":
+                    surface.set_clip(self.rect)  # pas déborder
+                
+                tile_size = asset_manager.tile_size
+                step = tile_size
+                if self.nom == "foret":
+                    tile_size *= 2 
+
+                # force alignement sur une même "grille" proportionnelle a tile_size (toubienaligné)
+                start_x = (int(self.rect.left) // tile_size) * tile_size
+                start_y = (int(self.rect.top) // tile_size) * tile_size
+
+                # parcours par cases                     pas = tile_size
+                
+                for pX in range(start_x, self.rect.right, step):  #  →
+                    for pY in range(start_y, self.rect.bottom, step):  #  ↓
+                        # choix avec nos pondérations
+                        img = choices(data["images"], weights=data["poids"])[0]
+                        surface.blit(img, (pX, pY))  # on la place sur sa case
+
+                surface.set_clip(None)  # pas oublier d'enlever le clipping pour les tiles suivantes
+
+    def contains(self, x, y):
+        """!
+        @brief Vérifie si un point (x, y) se trouve à l'intérieur du biome.
+        @param x Coordonnée X à tester.
+        @param y Coordonnée Y à tester.
+        @return True si le point est dans le biome, False sinon.
+        """
+        return self.rect.collidepoint(x, y)
+
     def get_pos(self):
-        return (self.x,self.y)
-    
-    def __repr__(self): 
+        """!
+        @brief Récupère la position d'origine du biome.
+        @return Un tuple (x, y).
+        """
+        return (self.x, self.y)
+
+    def __repr__(self):
         return f"{self.nom} [Pos: {self.x},{self.y}] (T={self.temperature}, H={self.humidite})"
 
 
-# Format : "nom": {"temperature": T, "humidite": H, "color": (R, G, B), "affinites" : dictionnaire des affinités entre biomes}
+# Format : "nom": {"temperature": T, "humidite": H, "color": (R, G, B)}
 dico_biomes = {
-    "ocean":    {"temperature": 10,  "humidite": 100, "color": (30, 144, 255),  "affinites": {"ocean": 100, "plaine": 20, "desert": 5}},
-    "plaine":   {"temperature": 15,  "humidite": 30,  "color": (144, 238, 144), "affinites": {"ocean": 60, "plaine": 100, "foret": 80, "desert": 20, "montagne": 40}},
-    "foret":    {"temperature": 25,  "humidite": 80,  "color": (34, 139, 34),   "affinites": {"plaine": 100, "foret": 100, "montagne": 30}},
-    "desert":   {"temperature": 40,  "humidite": 0,   "color": (237, 201, 175), "affinites": {"plaine": 30, "desert": 100, "ocean": 5}},
-    "montagne": {"temperature": -5,  "humidite": 20,  "color": (128, 128, 128), "affinites": {"plaine": 50, "foret": 40, "montagne": 100, "neige": 90}},
-    "neige":    {"temperature": -20, "humidite": 60,  "color": (255, 250, 250), "affinites": {"montagne": 100, "neige": 100, "plaine": 10}}
+    "ocean": {"temperature": 10, "humidite": 100, "color": (66, 172, 175)},
+    "lagon": {"temperature": 12, "humidite": 100, "color": (119, 192, 180)},
+    "plaine": {"temperature": 15, "humidite": 30, "color": (177, 211, 84)},
+    "foret": {"temperature": 25, "humidite": 80, "color": (118, 202, 109)},
+    "desert": {"temperature": 40, "humidite": 0, "color": (231, 213, 147)},
+    "montagne": {"temperature": -5, "humidite": 20, "color": (128, 128, 128)},
+    "neige": {"temperature": -20, "humidite": 60, "color": (247, 255, 255)},
 }
 
 
-
 class WorldMap:
+    """!
+    @brief Gestionnaire principal de la carte et de la génération procédurale.
+    """
+
     def __init__(self, width, height):
+        """!
+        @brief Constructeur de la carte du monde.
+        @param width Largeur totale de la carte (écran).
+        @param height Hauteur totale de la carte (écran).
+        @param biomes Liste des objets Biome.
+        @param background_biome Biome de fond.
+        @param merge_img Image de la map pré-calculée.
+        """
         self.width = width
         self.height = height
-        self.biomes = [] # liste d'objets Biome
+        self.biomes = []
         self.background_biome = "ocean"
+        self.merge_img = None
+        self.asset_manager = AssetManager(tile_size=16)
 
-    def add_zone(self, nom, x, y, width, height): # add a la liste de biomes
+    def add_zone(self, nom, x, y, width, height):
+        """!
+        @brief Instancie et ajoute un nouveau biome à la liste.
+        """
         self.biomes.append(Biome(nom, x, y, width, height))
 
-    def procedural_generation(self, nb_zones=50):
-        # gros continent de base (Plaine) au centre
-        w_base, h_base = int(self.width * 0.6), int(self.height * 0.6)
-        x_base, y_base = (self.width - w_base) // 2, (self.height - h_base) // 2
-        self.add_zone("plaine", x_base, y_base, w_base, h_base)
-
-        biomes_a_placer = list(dico_biomes.keys())
-
-        tentatives_max = nb_zones * 4 # sécu
-        zones_placees = 0
-
-        while zones_placees < nb_zones and tentatives_max > 0:
-            tentatives_max -= 1
-            
-            biome_candidat = random.choice(biomes_a_placer)
-            
-            # random coordonnée sur la map
-            temp_x, temp_y  = random.randint(0, self.width), random.randint(0, self.height)
-
-            _, _, biome_actuel = self.get_infos_at(temp_x, temp_y)
-            
-            # LOGIQUE DE POIDS (Affinité)
-            affinite = dico_biomes[biome_candidat]["affinites"].get(biome_actuel, 0)
-                                                          # si pas d'affinité définie --> 0
-            
-            if random.randint(0, 100) <= affinite:
-                match biome_candidat :
-                    case "ocean" :
-                        bw = random.randint( int(0.02 * self.width), int(0.1 * self.width) )
-                    case "montagne" | "neige" :
-                        bw = random.randint( int(0.05 * self.width), int(0.12 * self.width) )
-                    case _:
-                        bw = random.randint( int(0.02 * self.width), int(0.2 * self.width) )
-                
-                bh = int(bw * random.uniform(0.6, 1.4)) # variation rectangulaire (pas carré)
-                
-                # On centre le rectangle sur le point temporaire
-                final_x, final_y = temp_x - (bw // 2), temp_y - (bh // 2)
-                
-                self.add_zone(biome_candidat, final_x, final_y, bw, bh)
-                zones_placees += 1
-
     def get_infos_at(self, x, y):
-        # On cherche de la dernière zone ajoutée vers la première (logique de calques)
+        """!
+        @brief Récupère les données climatiques au point donné.
+        @details Parcourt la liste à l'envers (logique de calques : le dernier ajouté est au-dessus).
+        @param x Coordonnée X.
+        @param y Coordonnée Y.
+        @return Tuple (température, humidité, nom_biome).
+        """
         for b in reversed(self.biomes):
             if b.contains(x, y):
                 return b.temperature, b.humidite, b.nom
-        
-        # Si aucun biome trouvé, c'est le fond
+
         bg = dico_biomes[self.background_biome]
         return bg["temperature"], bg["humidite"], self.background_biome
-    
-    def paint(self, surface):
-        bg_color = dico_biomes[self.background_biome]["color"]
-        surface.fill(bg_color)
 
+    def procedural_generation(self, taille=80, complx=3):
+        """
+        @brief Génère une carte complète avec continents, plages, et biomes internes.
+        @param taille Nombre de base définissant le volume de l'ossature (continents).
+        @param complx Facteur de complexité [1 à 5] modifiant la densité et l'éparpillement.
+        """
+        complx = max(1, min(int(complx), 5))
+
+        ###### Gération de la couche terrestre de 1er niveau
+        ossature = []
+
+        for _ in range(taille):
+            # génération aléatoire de son volume
+            bW = uniform(0.05, 0.25) * self.width
+            bH = uniform(0.05, 0.25) * self.height
+
+            # gauss concentre les valeurs vers le centre
+            bX = gauss(self.width / 2, self.width / 5) - bW / 2
+            bY = gauss(self.height / 2, self.height / 5) - bH / 2
+
+            ossature.append(Biome("plaine", bX, bY, bW, bH))
+
+        ###### Création du dégradé d'eau (Eaux peu profondes)
+        self._shallow_water_maker(ossature)
+
+        ###### Création des plages
+        self._beach_maker(ossature)
+
+        ###### Génération des biomes intra couche terrestre de 1er niveau
+        # racine carrée de complx pour réduire la taille --> optimiser
+        # et ça force a se chevaucher = anti-grouillère
+        reduc = complx**0.5
+
+        intra_biomes = {
+            "foret": {
+                "clusters": randint(1, int(complx * 1.3)),
+                "rects": int(8 * complx**1.5),
+                "t_min": 0.04 / reduc,
+                "t_max": 0.12 / reduc,
+                "spread": 0.12 / reduc,
+            },
+            "desert": {
+                "clusters": randint(1, int(complx * 1.2)),
+                "rects": int(5 * complx**1.5),
+                "t_min": 0.08 / reduc,
+                "t_max": 0.18 / reduc,
+                "spread": 0.08 / reduc,
+            },
+            "neige": {
+                "clusters": randint(1, int(complx * 1.2)),
+                "rects": int(6 * complx**1.5),
+                "t_min": 0.03 / reduc,
+                "t_max": 0.12 / reduc,
+                "spread": 0.10 / reduc,
+            },
+            "montagne": {
+                "clusters": randint(1, 2),
+                "rects": int(taille * 0.15),  # 15% du total des zones
+                "t_min": 0.03,
+                "t_max": 0.08,
+                "spread": 0.05,
+            },
+        }
+
+        # mémoriser les épicentres --> éparpiller
+        epicentres_utilises = []
+
+        # Pré-calcul des distances pour éviter les recalculs dans la boucle
+        dist_x_min = 0.2 * self.width
+        dist_y_min = 0.2 * self.height
+
+        for nom_biome, cfg in intra_biomes.items():
+            for _ in range(cfg["clusters"]):
+                # choisir un épicentre pour la zone dans la map
+                centreX = uniform(0.2, 0.8) * self.width
+                centreY = uniform(0.2, 0.8) * self.height
+
+                # s'éloigner des autres clusters (10 essais max)
+                for _ in range(10):
+                    trop_proche = False
+                    for (eX, eY) in epicentres_utilises:
+                        # - de 20% d'un autre épicente
+                        if (
+                            abs(centreX - eX) < dist_x_min
+                            and abs(centreY - eY) < dist_y_min
+                        ):
+                            trop_proche = True
+                            break
+
+                    if not trop_proche:
+                        break  # si c'est bon on arrete la boucle
+
+                    # sinon nouveau épicentre
+                    centreX = uniform(0.2, 0.8) * self.width
+                    centreY = uniform(0.2, 0.8) * self.height
+
+                # on add la position finale
+                epicentres_utilises.append((centreX, centreY))
+
+                # ANTI-TROUS : gros bloc "noyau" au centre
+                noyau_W = cfg["t_max"] * self.width
+                noyau_H = cfg["t_max"] * self.height
+                self.add_zone(
+                    nom_biome,
+                    centreX - noyau_W / 2,
+                    centreY - noyau_H / 2,
+                    noyau_W,
+                    noyau_H,
+                )
+
+                for _ in range(cfg["rects"]):
+                    bX = gauss(centreX, cfg["spread"] * self.width)
+                    bY = gauss(centreY, cfg["spread"] * self.height)
+
+                    # terre ferme
+                    _, _, nom_actuel = self.get_infos_at(bX, bY)
+
+                    # montagnes = indépendantes --> pas besoin d'être sur la plaine
+                    if nom_actuel == "plaine" or nom_biome == "montagne":
+                        bW = uniform(cfg["t_min"], cfg["t_max"]) * self.width
+                        bH = bW * uniform(0.6, 1.4)  # pas de carrés parfaits
+
+                        self.add_zone(nom_biome, bX - bW / 2, bY - bH / 2, bW, bH)
+
+        self.map_merge()
+
+    def _shallow_water_maker(self, ossature):
+        """!
+        @brief Génère une sous-couche d'eau claire pour faire un dégradé topologique.
+        """
+        epaisseur = 0.02 * self.width  # 2% de l'écran, plus large que la plage
+        for t in ossature:
+            pX, pY = t.x - epaisseur, t.y - epaisseur
+            pW, pH = t.width + (epaisseur * 2), t.height + (epaisseur * 2)
+            self.add_zone("lagon", pX, pY, pW, pH)
+
+    def _beach_maker(self, ossature):
+        """!
+        @brief Génère une couche de sable aux extrémités des continent.
+        """
+        epaisseur = 0.008 * self.width
+        for t in ossature:
+            pX, pY = t.x - epaisseur, t.y - epaisseur
+            pW, pH = t.width + (epaisseur * 2), t.height + (epaisseur * 2)
+            self.add_zone("desert", pX, pY, pW, pH)
+
+        for t in ossature:
+            self.biomes.append(t)
+
+    def map_merge(self):
+        """!
+        @brief Pré-calcule le rendu de la carte sur une surface unique
+        @details Élimine le goulot d'étranglement des appels de dessin multiples par frame.
+        """
+        self.merge_img = pygame.Surface((self.width, self.height))
+
+        bg_color = dico_biomes[self.background_biome]["color"]
+        self.merge_img.fill(bg_color)
+
+        # tiles de vagues sur l'ocean
+        data = self.asset_manager.assets["ocean"]
+        tile_size = self.asset_manager.tile_size
+        for px in range(0, self.width, tile_size):
+            for py in range(0, self.height, tile_size):
+                img = choices(data["images"], weights=data["poids"])[0]
+                self.merge_img.blit(img, (px, py))
+
+        # PAR DESSUS, le reste du monde
         for b in self.biomes:
-            b.draw_biome(surface)
-    
+            b.draw_biome(self.merge_img, self.asset_manager)
+
+    def paint(self, surface):
+        """!
+        @brief Affiche la carte pré-calculée sur l'écran.
+        @param surface Pygame surface principale (l'écran).
+        """
+        if not self.merge_img:
+            self.map_merge()
+
+        surface.blit(self.merge_img, (0, 0))
