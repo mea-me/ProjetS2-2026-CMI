@@ -3,10 +3,63 @@
 import pygame,os,sys,time
 from structures.genome import Genome
 from random import choice
-from structures.allele import Allele
+from structures.allele import Allele, dico_alleles
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
 from structures.livings import Livings, Espece, Population
+
+
+#Fonctions utilisées plus tard =)
+
+def moyenne_des_differences(individu1, individu2):
+    nb_alleles_etudiees = 0
+    for k in dico_alleles.keys():
+        if dico_alleles[k][5] == "int":
+            nb_alleles_etudiees += 1
+        
+        if k == "couleur":
+            nb_alleles_etudiees += 1
+
+    
+    t = 0
+    for k in dico_alleles.keys():
+        a = individu1.genome.get_val(k)
+        b = individu2.genome.get_val(k)
+        if dico_alleles[k][5] == "int":
+            if not a+b == 0:
+                t += abs((a-b)/((a+b)/2))
+        
+        if k == "couleur":
+            t_bis = 0
+            for i in range(3):
+                if not a[i] + b[i] == 0:
+                    t_bis += abs((a[i]-b[i])/((a[i]+b[i])/2))
+            
+            t += t_bis/3
+    
+
+    return t/nb_alleles_etudiees
+
+
+def NouvelleEspecePointDInterrogation(popu):
+    '''renvoie un agent si les conditions requises pour une nouvelle espece sont atteintes, None sinon
+    arg : popu est la liste population mais ne contenant que des individus d'une meme espece'''
+    for agent in popu:
+        similaires = 0
+        for agent_bis in popu:
+            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)<=0.2:
+                similaires += 1
+        differents = 0
+        for agent_bis in popu:
+            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.3:
+                differents += 1
+
+        if len(popu)>4 and similaires >= len(popu)/4 and differents >= len(popu)/2:
+            return agent
+
+    return None
+
+
 
 #Initialisation de Pygame
 pygame.init()
@@ -49,6 +102,10 @@ for g in grenouilles:
 
 
 grenouille = Espece(0,0)
+
+liste_especes = [grenouille]
+#     clé : espece;0 : parent ; 1 : date d'apparition ; 2 : date de mort
+suivi_espece = {0 : [None,0,None]}
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
@@ -116,8 +173,34 @@ while running:
         screen.blit(fps_texte, (W*0.8, 10))
 
         age += 1
-        if age %300 == 0:
-            grenouille.update()
+        if age %180 == 0:
+            liste_especes_bis = liste_especes[:]
+            for e in liste_especes_bis:
+                popu = []
+                for indi in Population.populations:
+                    if indi.id_espece == e.id_espece:
+                        popu.append(indi)
+                agent = NouvelleEspecePointDInterrogation(popu)
+                if agent is not None:
+                    a = Espece(liste_especes[-1].id_espece + 1,age)
+                    liste_especes.append(a)
+                    suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece, age, None]
+                    agent.id_espece = liste_especes[-1].id_espece
+                    for indiv in popu:
+                        if moyenne_des_differences(agent,indiv) <= 0.2 and agent != indiv:
+                            indiv.id_espece = liste_especes[-1].id_espece
+
+                
+                e.update()
+            
+            for e in liste_especes:
+                if len(e.effectif)>1 and e.effectif[-1] == 0 and not e.morte:
+                    e.morte = True
+                    suivi_espece[e.id_espece][2] = age
+                    
+            print(suivi_espece)
+
+
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (0, 0, 0))
         screen.blit(age_texte, (W*0.8, 40))
 
@@ -127,6 +210,6 @@ while running:
 
         #time.sleep(0.2)
         pygame.display.flip()
-        clock.tick(20)
+        clock.tick(60)
 
 pygame.quit()

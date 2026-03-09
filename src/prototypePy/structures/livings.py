@@ -79,7 +79,7 @@ class Livings:
         temp2 = ind2.genome.get_val("température")
         hum1 = ind1.genome.get_val("humidité")
         hum2 = ind2.genome.get_val("humidité")
-        if ind1.age >= 180 and ind2.age >=180 and ind1.age <= 480 and ind2.age <= 480:
+        if ind1.age >= 60 and ind2.age >=60 and ind1.age <= 600 and ind2.age <= 600 and len(self.populations) < 200:
             if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
                 self.reproduction(ind1,ind2,world)
             elif abs(env1[1]-temp1) < 10 and abs(env2[1]-temp2) < 10:
@@ -143,6 +143,7 @@ class Espece() :
         self.date_apparition = date_apparition
         self.dico_evolution_alleles = {}
         self.effectif = []
+        self.morte = False
 
         e = 0
         for l in Population.populations :
@@ -178,37 +179,38 @@ class Espece() :
     
     def update(self):
 
-        e = 0
-        for l in Population.populations :
-            if l.id_espece == self.id_espece :
-                e += 1
-        self.effectif.append(e)
+        if not self.morte :
+            e = 0
+            for l in Population.populations :
+                if l.id_espece == self.id_espece :
+                    e += 1
+            self.effectif.append(e)
 
-        for k in dico_alleles.keys() :
-            if dico_alleles[k][5] == "int":
-                t = 0
-                n = 0
-                for l in Population.populations :
-                    if l.id_espece == self.id_espece :
-                        t += l.genome.get_val(k)
-                        n += 1
-                
-                if n!=0:
-                    self.dico_evolution_alleles[k].append(t/n)
+            for k in dico_alleles.keys() :
+                if dico_alleles[k][5] == "int":
+                    t = 0
+                    n = 0
+                    for l in Population.populations :
+                        if l.id_espece == self.id_espece :
+                            t += l.genome.get_val(k)
+                            n += 1
+                    
+                    if n!=0:
+                        self.dico_evolution_alleles[k].append(t/n)
 
-            elif dico_alleles[k][5] == "list":
-                t = [0,0,0]
-                n = 0
-                for l in Population.populations :
-                    if l.id_espece == self.id_espece :
-                        for i in range(3):
-                            t[i] += l.genome.get_val(k)[i]
-                        n += 1
-                
-                if n!=0:
-                    self.dico_evolution_alleles[k].append([t[0]/n,t[1]/n,t[2]/n])
-        
-        for k in self.dico_evolution_alleles.keys():
+                elif dico_alleles[k][5] == "list":
+                    t = [0,0,0]
+                    n = 0
+                    for l in Population.populations :
+                        if l.id_espece == self.id_espece :
+                            for i in range(3):
+                                t[i] += l.genome.get_val(k)[i]
+                            n += 1
+                    
+                    if n!=0:
+                        self.dico_evolution_alleles[k].append([t[0]/n,t[1]/n,t[2]/n])
+            
+            # for k in self.dico_evolution_alleles.keys():
 
-            print(f'{k} : {self.dico_evolution_alleles[k]}')
-        print(f'Effectif : {self.effectif}')
+            #     print(f'{k} : {self.dico_evolution_alleles[k]}')
+            print(f'Effectif de l espèce {self.id_espece} : {self.effectif}')
