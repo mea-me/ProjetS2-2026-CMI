@@ -1,8 +1,9 @@
 import pygame
 import random
 from .genome import Genome
+from .__init__ import W, H, ALLOWED_MASK
 
-class Individu:       # class qui va probablment beauuucoup changer
+class Individu:       
     def __init__(self, x, y, espece):
         self.x = x
         self.y = y
@@ -16,9 +17,6 @@ class Individu:       # class qui va probablment beauuucoup changer
         # Cooldown de collision 
         self.collision_cooldown = 0 # temps restant avant nouvelle collision 
         self.collision_delay = 0.5
-
-        #self.image = pygame.image.load("pygameEntrainnement/ufo.png").convert_alpha() 
-        #self.image = pygame.transform.scale(self.image, (size,size))
 
 
     def get_position(self):
@@ -57,14 +55,14 @@ class Individu:       # class qui va probablment beauuucoup changer
     def collide_with(self,individu2):
         return self.rect.colliderect(individu2.rect)
 
-    def deplacement(self, mask): 
+    def deplacement_random(self): 
         vitesse = self.genome.get_val("vitesse")
         
         nv_x = self.rect.x + random.choice([-vitesse, 0, vitesse])
         nv_y = self.rect.y + random.choice([-vitesse, 0, vitesse])
         
         try:
-            if mask.get_at((nv_x + self.rect.width//2, nv_y + self.rect.height//2)):
+            if ALLOWED_MASK.get_at((nv_x + self.rect.width//2, nv_y + self.rect.height//2)):
                 self.rect.x = nv_x
                 self.rect.y = nv_y
         except IndexError:

@@ -1,8 +1,8 @@
 #Importation des librairies
 
 import pygame,os,sys,time
+from random import randint
 from structures.genome import Genome
-from random import choice
 from structures.allele import Allele, dico_alleles
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
@@ -78,40 +78,7 @@ clock = pygame.time.Clock()
 dt = clock.tick(framerate)
 age = 0
 
-grenouille = Espece(0,0)
-font = pygame.font.SysFont("Arial", 18)
-world = WorldMap(W, H)
-
-# génération de la map procédurale
-world.procedural_generation()
-
-#Création de grenouille-----------------------------------------------------------------
-Froggy = Individu(400, 300,0)  # position + taille
-Froggy.craft_individu()
-Froggy.give_rect(Froggy.genome.get_val("taille"))
-
-Population.add_individu(Froggy)
-grenouilles = [
-               #Individu(300, 100,0), 
-               #Individu(200, 100,0), 
-               #Individu(300, 100,0), 
-               Individu(200, 100,0)]
-for g in grenouilles:
-        g.craft_individu()
-        g.give_rect(g.genome.get_val("taille"))
-        Population.add_individu(g)
-
-
-grenouille = Espece(0,0)
-
-liste_especes = [grenouille]
-#     clé : espece;0 : parent ; 1 : date d'apparition ; 2 : date de mort
-suivi_espece = {0 : [None,0,None]}
-#--------------------------------------------------------------------------------------- 
-
-paused = False        
-running = True
-
+#ellipse
 mask_surface = pygame.Surface((W, H), pygame.SRCALPHA) # -> SRCALPHA = transparent
 mask_surface.fill((0, 0, 0, 0)) # no no zone
 
@@ -130,6 +97,44 @@ mask_surface = pygame.Surface((W, H), pygame.SRCALPHA)
 pygame.draw.ellipse(mask_surface, (255, 255, 255, 255), movement_rect)
 
 allowed_mask = pygame.mask.from_surface(mask_surface)
+
+grenouille = Espece(0,0)
+font = pygame.font.SysFont("Arial", 18)
+world = WorldMap(W, H)
+
+# génération de la map procédurale
+world.procedural_generation()
+
+#Création de grenouille-----------------------------------------------------------------
+grenouilles = []
+
+for i in range(5):
+    valide = False
+    
+    while not valide:
+        x, y = randint(0, W), randint(0, H)
+        if allowed_mask.get_at((x, y)):
+            valide = True
+            
+    grenouilles.append(Individu(x, y, 0))
+
+for g in grenouilles:
+        g.craft_individu()
+        g.give_rect(g.genome.get_val("taille"))
+        Population.add_individu(g)
+
+
+grenouille = Espece(0,0)
+
+liste_especes = [grenouille]
+#     clé : espece;0 : parent ; 1 : date d'apparition ; 2 : date de mort
+suivi_espece = {0 : [None,0,None]}
+#--------------------------------------------------------------------------------------- 
+
+paused = False        
+running = True
+
+
 
 while running:
     for event in pygame.event.get():
@@ -163,7 +168,7 @@ while running:
         # on dessine la population =)
         for g in Population.populations:
             g.draw(screen)
-            g.deplacement_random(allowed_mask)
+            g.deplacement_random()
             #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
 
         screen.blit(overlay, (0, 0)) # ellipse
@@ -172,8 +177,8 @@ while running:
 
         # infos
         fps = round(clock.get_fps(),2)
-        fps_texte = font.render(f"FPS : {fps}", True, (0, 0, 0))
-        screen.blit(fps_texte, (W*0.8, 10))
+        fps_texte = font.render(f"FPS : {fps}", True, (255, 255, 255))
+        screen.blit(fps_texte, (W*0.01, H*0.01))
 
         age += 1
         if age %180 == 0:
@@ -204,12 +209,12 @@ while running:
             print(suivi_espece)
 
 
-        age_texte = font.render(f"Années : {round(age/60, 1)}", True, (0, 0, 0))
-        screen.blit(age_texte, (W*0.8, 40))
+        age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
+        screen.blit(age_texte, (W*0.01, H*0.035))
 
         nbIndiv = len(Population.populations)
-        nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (0, 0, 0))
-        screen.blit(nbIndiv_texte, (W*0.8, 80))
+        nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (255, 255, 255))
+        screen.blit(nbIndiv_texte, (W*0.01, H*0.06))
 
         #time.sleep(0.2)
         pygame.display.flip()

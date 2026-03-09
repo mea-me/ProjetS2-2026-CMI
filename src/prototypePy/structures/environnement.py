@@ -5,9 +5,7 @@
 
 import os
 from random import choices, gauss, randint, uniform
-
 import pygame
-
 
 class AssetManager:
     """!
