@@ -24,7 +24,7 @@ class AssetManager:
         base_path = "assets/map"
 
         # Poids associés aux préfixes des fichiers (1_, 2_, 3_)
-        poids_prefixe = {"1": 100, "2": 15, "3": 2}
+        poids_prefixe = {"1": 0.70, "2": 0.25, "3": 0.05}
 
         for nom_biome in dico_biomes.keys():
             chemin = os.path.join(base_path, nom_biome)
@@ -34,11 +34,7 @@ class AssetManager:
 
             for fichier in os.listdir(chemin):
                 if fichier.endswith(".png"):
-                    img = pygame.image.load(
-                        os.path.join(chemin, fichier)
-                    ).convert_alpha()
-                    img = pygame.transform.scale(img, (self.tile_size, self.tile_size))
-
+                    img = pygame.image.load( os.path.join(chemin, fichier) ).convert_alpha()
                     img = pygame.transform.scale(img, (target_size, target_size))
                     poids = poids_prefixe[fichier[0]]
 
@@ -215,34 +211,32 @@ class WorldMap:
         self._beach_maker(ossature)
 
         ###### Génération des biomes intra couche terrestre de 1er niveau
-        # racine carrée de complx pour réduire la taille --> optimiser
-        # et ça force a se chevaucher = anti-grouillère
-        reduc = complx**0.5
+        reduc = complx**0.5 #réduire taille et forcer a se chevaucher -> anti-trous
 
         intra_biomes = {
             "foret": {
-                "clusters": randint(1, int(complx * 1.3)),
+                "clusters": randint(1, complx),
                 "rects": int(8 * complx**1.5),
                 "t_min": 0.04 / reduc,
                 "t_max": 0.12 / reduc,
                 "spread": 0.12 / reduc,
             },
             "desert": {
-                "clusters": randint(1, int(complx * 1.2)),
+                "clusters": randint(1, complx),
                 "rects": int(5 * complx**1.5),
                 "t_min": 0.08 / reduc,
                 "t_max": 0.18 / reduc,
                 "spread": 0.08 / reduc,
             },
             "neige": {
-                "clusters": randint(1, int(complx * 1.2)),
-                "rects": int(6 * complx**1.5),
+                "clusters": randint(1, complx),
+                "rects": int(4 * complx**1.5),
                 "t_min": 0.03 / reduc,
                 "t_max": 0.12 / reduc,
-                "spread": 0.10 / reduc,
+                "spread": 0.07 / reduc,
             },
             "montagne": {
-                "clusters": randint(1, 2),
+                "clusters": randint(1, complx),
                 "rects": int(taille * 0.15),  # 15% du total des zones
                 "t_min": 0.03,
                 "t_max": 0.08,
@@ -254,48 +248,39 @@ class WorldMap:
         epicentres_utilises = []
 
         # Pré-calcul des distances pour éviter les recalculs dans la boucle
-        dist_x_min = 0.2 * self.width
-        dist_y_min = 0.2 * self.height
+        dist_x_min = 0.13 * self.width
+        dist_y_min = 0.13 * self.height
 
         for nom_biome, cfg in intra_biomes.items():
             for _ in range(cfg["clusters"]):
                 # choisir un épicentre pour la zone dans la map
-                centreX = uniform(0.2, 0.8) * self.width
-                centreY = uniform(0.2, 0.8) * self.height
+                centreX = uniform(0.1, 0.9) * self.width
+                centreY = uniform(0.1, 0.9) * self.height
 
                 # s'éloigner des autres clusters (10 essais max)
-                for _ in range(10):
-                    trop_proche = False
+                essais = 10
+                trop_proche = True
+                while trop_proche and essais > 0:
                     for (eX, eY) in epicentres_utilises:
                         # - de 20% d'un autre épicente
-                        if (
-                            abs(centreX - eX) < dist_x_min
-                            and abs(centreY - eY) < dist_y_min
-                        ):
+                        if (abs(centreX - eX) < dist_x_min and
+                            abs(centreY - eY) < dist_y_min):
                             trop_proche = True
-                            break
+                            break 
 
-                    if not trop_proche:
-                        break  # si c'est bon on arrete la boucle
+                        else:
+                            trop_proche = False
 
                     # sinon nouveau épicentre
-                    centreX = uniform(0.2, 0.8) * self.width
-                    centreY = uniform(0.2, 0.8) * self.height
+                    centreX = uniform(0.1, 0.9) * self.width
+                    centreY = uniform(0.1, 0.9) * self.height
+
+                    essais -= 1
 
                 # on add la position finale
                 epicentres_utilises.append((centreX, centreY))
-
-                # ANTI-TROUS : gros bloc "noyau" au centre
-                noyau_W = cfg["t_max"] * self.width
-                noyau_H = cfg["t_max"] * self.height
-                self.add_zone(
-                    nom_biome,
-                    centreX - noyau_W / 2,
-                    centreY - noyau_H / 2,
-                    noyau_W,
-                    noyau_H,
-                )
-
+                
+                noyau_W = None
                 for _ in range(cfg["rects"]):
                     bX = gauss(centreX, cfg["spread"] * self.width)
                     bY = gauss(centreY, cfg["spread"] * self.height)
@@ -305,6 +290,12 @@ class WorldMap:
 
                     # montagnes = indépendantes --> pas besoin d'être sur la plaine
                     if nom_actuel == "plaine" or nom_biome == "montagne":
+                        if noyau_W is not None:
+                            # ANTI-TROUS : gros bloc "noyau" au centre
+                            noyau_W = cfg["t_max"] * self.width
+                            noyau_H = cfg["t_max"] * self.height
+                            self.add_zone( nom_biome, centreX - noyau_W / 2, centreY - noyau_H / 2, noyau_W, noyau_H )
+
                         bW = uniform(cfg["t_min"], cfg["t_max"]) * self.width
                         bH = bW * uniform(0.6, 1.4)  # pas de carrés parfaits
 
@@ -332,7 +323,7 @@ class WorldMap:
             pW, pH = t.width + (epaisseur * 2), t.height + (epaisseur * 2)
             self.add_zone("desert", pX, pY, pW, pH)
 
-        for t in ossature:
+        for t in ossature: # remettre la terre par dessus
             self.biomes.append(t)
 
     def map_merge(self):
@@ -350,7 +341,7 @@ class WorldMap:
         tile_size = self.asset_manager.tile_size
         for px in range(0, self.width, tile_size):
             for py in range(0, self.height, tile_size):
-                img = choices(data["images"], weights=data["poids"])[0]
+                img = choices(data["images"], weights= data["poids"])[0]
                 self.merge_img.blit(img, (px, py))
 
         # PAR DESSUS, le reste du monde
