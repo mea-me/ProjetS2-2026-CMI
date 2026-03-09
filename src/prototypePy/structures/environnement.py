@@ -139,7 +139,6 @@ dico_biomes = {
     "neige": {"temperature": -20, "humidite": 60, "color": (247, 255, 255)},
 }
 
-
 class WorldMap:
     """!
     @brief Gestionnaire principal de la carte et de la génération procédurale.

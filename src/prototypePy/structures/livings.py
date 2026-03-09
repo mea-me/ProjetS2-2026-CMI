@@ -57,6 +57,7 @@ class Livings:
         #new_genome.muter() # Fait muter le génome
         bébé = Individu(x, y, individu1.id_espece) # Création du nouvel individu
         bébé.give_genome(new_genome.clone())
+        bébé.give_rect(bébé.genome.get_val("taille"))
         bébé.genome.muter()
         self.populations.append(bébé) # Ajout à la population
         #test d'environement
@@ -64,11 +65,14 @@ class Livings:
         temp = bébé.genome.get_val("température")
         hum = bébé.genome.get_val("humidité")
         env = world.get_infos_at(bébé.x,bébé.y)
-        if abs(env[1]-temp) >= 5:
-            if randint(0,100)<5:
+        if abs(env[0]-temp) >= 5:
+            if randint(0,100)<10:
                 self.kill(bébé)
-        elif abs(env[1]-temp) >= 10:
+        elif abs(env[0]-temp) >= 10:
             if randint(0,100)<20:
+                self.kill(bébé)
+        elif abs(env[0]-temp) >= 20:
+            if randint(0,100)<30:
                 self.kill(bébé)
         
 
@@ -82,33 +86,65 @@ class Livings:
         if ind1.age >= 60 and ind2.age >=60 and ind1.age <= 600 and ind2.age <= 600 and len(self.populations) < 200:
             if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
                 self.reproduction(ind1,ind2,world)
-            elif abs(env1[1]-temp1) < 10 and abs(env2[1]-temp2) < 10:
+            elif abs(env1[0]-temp1) <= 10 and abs(env2[0]-temp2) <= 10:
                 if randint(0,100)<75:
                     self.reproduction(ind1,ind2,world)
-            elif abs(env1[1]-temp1) < 15 and abs(env2[1]-temp2) < 20:
+            else:
                 if randint(0,100)<20:
                     self.reproduction(ind1,ind2,world)
         # reproduction, combat, échange génétique, etc.
 
     def update(self, screen_width, screen_height, world):
-        # Mettre à jour les cooldowns 
-        for ind in self.populations: 
-            if ind.collision_cooldown > 0: 
-                ind.collision_cooldown -= 1/60
-
         # Créer le QuadTree
         quad = QuadTree(0, pygame.Rect(0, 0, screen_width, screen_height))
-        quad.clear()
+        quad.clear() 
 
         #Insérer tous les individus
         for ind in self.populations:
             quad.insert(ind)
             ind.update()
-            if not(ind.is_alive()):
-                self.kill(ind) 
+            if not ind.is_alive():
+                self.kill(ind)
+
+        # Mettre à jour les cooldowns 
+        for ind in self.populations:
+            ind.deplacement_random() 
+            if ind.collision_cooldown > 0: 
+                ind.collision_cooldown -= 1/60
 
         #  Gérer les interactions
         self.handle_collisions(quad, world)
+        #self.handle_déplacement(quad)
+
+    def get_closest_neighbor(self, ind, close_people):
+        LePlusProche = None
+        best_dist = float('inf') #très grand nombre
+
+        for other in close_people:
+            if other is ind:
+                continue
+
+            # distance euclidienne
+            dist = (ind.x - other.x)**2 + (ind.y - other.y)**2
+            
+            if dist < best_dist:
+                best_dist = dist
+                LePlusProche = other
+
+        return LePlusProche
+
+    def handle_déplacement(self,quad):
+        for ind in self.populations:
+            #récupére uniquement les individus proches
+            voisins = quad.retrieve(ind.rect)
+
+            for other in voisins:
+                if other is ind:
+                    continue
+                close = self.get_closest_neighbor(ind,voisins)
+                x,y = close.get_position()
+                ind.get_close(x,y)
+
 
     def handle_collisions(self, quad, world):
         for ind in self.populations:

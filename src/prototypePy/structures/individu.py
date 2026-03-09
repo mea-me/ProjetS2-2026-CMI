@@ -31,9 +31,9 @@ class Individu:       # class qui va probablment beauuucoup changer
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
         self.age += 1
         self.energie -= 0.1 * self.genome.get_val("taille") # Plus on est gros, plus on consomme
-        
-        """if self.energie <= 0:
-            self.is_alive = False #bleurgh"""
+
+        if self.energie <= 0:
+            self.alive = False #bleurgh##
 
     def draw(self,screen):
         pygame.draw.rect(screen, self.genome.get_val("couleur"), self.rect)
@@ -57,18 +57,45 @@ class Individu:       # class qui va probablment beauuucoup changer
     def collide_with(self,individu2):
         return self.rect.colliderect(individu2.rect)
 
-    def deplacement(self,mask): 
+    def deplacement(self, mask): 
         vitesse = self.genome.get_val("vitesse")
         
         nv_x = self.rect.x + random.choice([-vitesse, 0, vitesse])
         nv_y = self.rect.y + random.choice([-vitesse, 0, vitesse])
-
+        
         try:
             if mask.get_at((nv_x + self.rect.width//2, nv_y + self.rect.height//2)):
                 self.rect.x = nv_x
                 self.rect.y = nv_y
         except IndexError:
             pass # si ils sont débilent et essayent d'aller la ou ils ont pas le droit
+
+    def haut(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.y -= vitesse 
+
+    def bas(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.y += vitesse
+
+    def gauche(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.x -= vitesse
+
+    def droite(self):
+        vitesse = self.genome.get_val("vitesse")
+        self.rect.x += vitesse
+
+    def get_close(self,x,y):
+        if x < self.x:
+            self.gauche()
+        elif x > self.x:
+            self.droite()
+
+        if y < self.y:
+            self.haut()
+        elif y > self.y:
+            self.bas()
 
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 

@@ -78,6 +78,7 @@ clock = pygame.time.Clock()
 dt = clock.tick(framerate)
 age = 0
 
+grenouille = Espece(0,0)
 font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
@@ -147,7 +148,8 @@ while running:
             print(f"Zone: {nom.upper()} | Temp: {temp}°C | Hum: {hum}%")
 
     if paused:
-        continue                
+        continue     
+               
     else:
         # 2. Dessin
         world.paint(screen)
@@ -158,12 +160,13 @@ while running:
         #text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
         #screen.blit(text_surf, (mx + 10, my + 10))
 
-        # on dessine la grenouille =)
+        # on dessine la population =)
         for g in Population.populations:
             g.draw(screen)
-            g.deplacement(allowed_mask)
+            g.deplacement_random(allowed_mask)
+            #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
 
-        screen.blit(overlay, (0, 0))
+        screen.blit(overlay, (0, 0)) # ellipse
             
         Population.update(W,H,world)
 
