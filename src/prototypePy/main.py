@@ -192,7 +192,8 @@ while running:
                     deletion.append(plante)
             
         for plante in deletion:
-            Liste_plantes.remove(plante)
+            if plante in Liste_plantes:
+                Liste_plantes.remove(plante)
             del(plante)
 
         screen.blit(overlay, (0, 0)) # ellipse
