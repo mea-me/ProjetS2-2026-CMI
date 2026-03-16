@@ -140,7 +140,7 @@ for i in range(50):
         if allowed_mask.get_at((x, y)):
             valide = True
             
-    Liste_plantes.append(Plante(x, y, 1000, 0))
+    Liste_plantes.append(Plante(x, y, 200, 0))
 #--------------------------------------------------------------------------------------- 
 
 paused = False        
@@ -186,6 +186,7 @@ while running:
         deletion = []
         for plante in Liste_plantes:
             plante.draw(screen)
+            plante.age += 1
             for P in Population.populations:
                 if P.collide_with(plante):
                     P.energie += plante.manger()
@@ -242,10 +243,8 @@ while running:
                     if allowed_mask.get_at((x, y)):
                         valide = True
                         
-                Liste_plantes.append(Plante(x, y, 1000, 0))
+                Liste_plantes.append(Plante(x, y, 200, 0))
 
-            for p in Population.populations:
-                print(p.energie)
 
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
         screen.blit(age_texte, (W*0.01, H*0.035))

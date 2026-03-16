@@ -16,7 +16,8 @@ class Plante:
 
 
     def grow(self):
-        if self.age > 2:
+        if self.age > 180:
+            print("test")
             self.energie += 100
 
     def manger(self):

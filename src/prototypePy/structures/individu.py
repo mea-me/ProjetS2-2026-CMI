@@ -49,6 +49,8 @@ class Individu:
 
     def is_alive(self):
         if self.age >= 900 or self.energie <= 0:
+           if self.energie <= 0:
+               print("mort de faim (la honte)")
            return False 
         return True
 
