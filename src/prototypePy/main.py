@@ -16,6 +16,7 @@ from especes.requin import Requin
 
 def moyenne_des_differences(individu1, individu2):
     nb_alleles_etudiees = 0
+    t = 0
     for k in dico_alleles.keys():
         if dico_alleles[k][5] == "int":
             nb_alleles_etudiees += 1
@@ -24,8 +25,6 @@ def moyenne_des_differences(individu1, individu2):
             nb_alleles_etudiees += 1
 
     
-    t = 0
-    for k in dico_alleles.keys():
         a = individu1.genome.get_val(k)
         b = individu2.genome.get_val(k)
         if dico_alleles[k][5] == "int":
