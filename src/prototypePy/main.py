@@ -7,6 +7,9 @@ from structures.allele import Allele, dico_alleles
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
 from structures.livings import Livings, Espece, Population
+from structures.menu import Menu
+from info_panel import InfoPanel
+from especes.requin import Requin
 
 
 #Fonctions utilisées plus tard =)
@@ -60,10 +63,42 @@ def NouvelleEspecePointDInterrogation(popu):
     return None
 
 
+radial_options = [
+    {"name": "Random", "color": (120, 180, 255)},
+    {"name": "Requin", "color": (255, 80, 80)}
+]
+
+def draw_radial_menu(screen, pos, options):
+    x, y = pos
+    radius = 70
+    button_positions = []
+
+    pygame.draw.circle(screen, (50, 50, 50), (x, y), radius)
+    pygame.draw.circle(screen, (200, 200, 200), (x, y), radius, 3)
+
+    angle_step = 360 / len(options)
+
+    for i, opt in enumerate(options):
+        angle = i * angle_step
+        vec = pygame.math.Vector2(1, 0).rotate(angle)
+        ox = x + int(vec.x * radius * 0.6)
+        oy = y + int(vec.y * radius * 0.6)
+
+        pygame.draw.circle(screen, opt["color"], (ox, oy), 22)
+
+        font = pygame.font.SysFont(None, 20)
+        txt = font.render(opt["name"], True, (0, 0, 0))
+        screen.blit(txt, (ox - txt.get_width()//2, oy - txt.get_height()//2))
+
+        button_positions.append((ox, oy, 22, opt["name"]))
+
+    return button_positions
+
+
+
 
 #Initialisation de Pygame
 pygame.init()
-
 
 # Setup écran
 info = pygame.display.Info()
@@ -131,83 +166,163 @@ liste_especes = [grenouille]
 suivi_espece = {0 : [None,0,None]}
 #--------------------------------------------------------------------------------------- 
 
-paused = False        
-running = True
+# --- AJOUT : état global du jeu ---
+game_state = {
+    "paused": False,
+    "running": True,
+    "reset": False,
+    "selected": None,
+    "placing_mode" : False,
+    "radial_open" : False,
+    "radial_pos" : (0, 0),
+    "speed": 1,
+    "skip": 0
+}
+
+menu = Menu(screen, game_state)
+info_panel = InfoPanel(screen)
 
 
 
-while running:
+shark = Requin(500, 500)
+Population.add_individu(shark)
+
+
+while game_state["running"]:
+
+    # --- Gestion des événements ---
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
-            running = False
+            game_state["running"] = False
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN: # PAUSE SUR ENTREE
-                paused = not(paused)
-            if event.key == pygame.K_ESCAPE: # Sécurité Plein Écran
-                running = False
+            if event.key == pygame.K_ESCAPE:
+                game_state["running"] = False
+
+            if event.key == pygame.K_RETURN:
+                game_state["paused"] = not game_state["paused"]
+            
+            if event.key == pygame.K_p:  # touche P
+                game_state["placing_mode"] = not game_state["placing_mode"]
+                game_state["radial_open"] = False
+                print("Mode pose :", game_state["placing_mode"])
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
-            temp, hum, nom = world.get_infos_at(mx, my)
-            print(f"Zone: {nom.upper()} | Temp: {temp}°C | Hum: {hum}%")
 
-    if paused:
-        continue     
-               
-    else:
-        # 2. Dessin
-        world.paint(screen)
-        
-        # (Optionnel) Afficher le climat sous la souris en temps réel
-        #mx, my = pygame.mouse.get_pos()
-        #temp, hum, nom = world.get_infos_at(mx, my)
-        #text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
-        #screen.blit(text_surf, (mx + 10, my + 10))
+            # Vérifier si on clique un individu
+            clicked = None
+            for indi in Population.populations:
+                if indi.rect.collidepoint(mx, my):
+                    clicked = indi
+                    break
 
-        # on dessine la population =)
-        for g in Population.populations:
-            g.draw(screen)
-            g.deplacement_random()
-            #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
-
-        screen.blit(overlay, (0, 0)) # ellipse
+            if clicked:
+                game_state["selected"] = clicked
+            else:
+                # Sinon, afficher les infos du biome comme avant
+                temp, hum, nom = world.get_infos_at(mx, my)
+                print(f"Zone: {nom.upper()} | Temp: {temp}°C | Hum: {hum}%")
             
-        Population.update(W,H,world)
+        # --- Clic droit : ouvrir le menu radial ---
+        if game_state["placing_mode"] and event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 3:  # clic droit
+                game_state["radial_open"] = True
+                game_state["radial_pos"] = pygame.mouse.get_pos()
+        
+        # --- Clic gauche : sélectionner une option du menu ---
+        if game_state["placing_mode"] and event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and game_state["radial_open"]:
+                mx, my = pygame.mouse.get_pos()
 
-        # infos
-        fps = round(clock.get_fps(),2)
+                for ox, oy, r, name in game_state["radial_buttons"]:
+                    if (mx - ox)**2 + (my - oy)**2 <= r*r:
+
+                        if name == "Random":
+                            new = Individu(mx, my, espece=0)
+                            new.craft_individu()
+                            new.give_rect(new.genome.get_val("taille"))
+                            Population.add_individu(new)
+
+                        elif name == "Requin":
+                            shark = Requin(mx, my)
+                            Population.add_individu(shark)
+
+                        print(f"{name} ajouté en", mx, my)
+
+                game_state["radial_open"] = False
+
+
+
+
+        # Boutons du menu
+        menu.handle_event(event)
+
+
+    # --- SAUT DANS LE TEMPS PROGRESSIF ---
+    if game_state["skip"] > 0:
+        step = min(10, game_state["skip"])  # 10 frames simulées par tick
+
+        for _ in range(step):
+
+            # Simuler la vie normalement (sans affichage)
+            for g in Population.populations:
+                g.deplacement_random()
+
+            Population.update(W, H, world)
+            age += 1
+
+        game_state["skip"] -= step
+
+    # --- RESET ---
+    if game_state["reset"]:
+        # Réinitialiser le monde
+        world = WorldMap(W, H)
+        world.procedural_generation()
+
+        # Réinitialiser la population
+        Population.populations = []
+        grenouilles = []
+
+        for i in range(5):
+            valide = False
+            while not valide:
+                x, y = randint(0, W), randint(0, H)
+                if allowed_mask.get_at((x, y)):
+                    valide = True
+
+            grenouilles.append(Individu(x, y, 0))
+
+        for g in grenouilles:
+            g.craft_individu()
+            g.give_rect(g.genome.get_val("taille"))
+            Population.add_individu(g)
+
+        # Réinitialiser les espèces
+        grenouille = Espece(0, 0)
+        liste_especes = [grenouille]
+        suivi_espece = {0: [None, 0, None]}
+
+        # Réinitialiser le temps
+        age = 0
+
+        # Fin du reset
+        game_state["reset"] = False
+
+
+    if game_state["paused"]:
+        world.paint(screen)
+        screen.blit(overlay, (0, 0))
+
+        # --- DESSINER LES INDIVIDUS MÊME EN PAUSE ---
+        for g in Population.populations:
+            g.draw(screen)   # pas de déplacement ici
+
+        # --- AFFICHER LES INFOS MÊME EN PAUSE ---
+        fps = round(clock.get_fps(), 2)
         fps_texte = font.render(f"FPS : {fps}", True, (255, 255, 255))
         screen.blit(fps_texte, (W*0.01, H*0.01))
-
-        age += 1
-        if age %180 == 0:
-            liste_especes_bis = liste_especes[:]
-            for e in liste_especes_bis:
-                popu = []
-                for indi in Population.populations:
-                    if indi.id_espece == e.id_espece:
-                        popu.append(indi)
-                agent = NouvelleEspecePointDInterrogation(popu)
-                if agent is not None:
-                    a = Espece(liste_especes[-1].id_espece + 1,age)
-                    liste_especes.append(a)
-                    suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece, age, None]
-                    agent.id_espece = liste_especes[-1].id_espece
-                    for indiv in popu:
-                        if moyenne_des_differences(agent,indiv) <= 0.2 and agent != indiv:
-                            indiv.id_espece = liste_especes[-1].id_espece
-
-                
-                e.update()
-            
-            for e in liste_especes:
-                if len(e.effectif)>1 and e.effectif[-1] == 0 and not e.morte:
-                    e.morte = True
-                    suivi_espece[e.id_espece][2] = age
-                    
-            print(suivi_espece)
-
 
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
         screen.blit(age_texte, (W*0.01, H*0.035))
@@ -216,8 +331,96 @@ while running:
         nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (255, 255, 255))
         screen.blit(nbIndiv_texte, (W*0.01, H*0.06))
 
-        #time.sleep(0.2)
+        # --- AFFICHER LE MENU ---
+        menu.draw()
+
+        # --- AFFICHER LE PANNEAU D’INFO SI UN INDIVIDU EST SÉLECTIONNÉ ---
+        if game_state["selected"] is not None:
+            info_panel.draw(game_state["selected"], world)
+
+        # --- AFFICHAGE DU MENU RADIAL ---
+        if game_state["placing_mode"] and game_state["radial_open"]:
+            game_state["radial_buttons"] = draw_radial_menu(
+                screen,
+                game_state["radial_pos"],
+                radial_options
+            )
+
+
         pygame.display.flip()
         clock.tick(60)
+        continue
+
+
+
+    # --- MODE NORMAL ---
+    world.paint(screen)
+
+    for g in Population.populations:
+        g.draw(screen)
+        g.deplacement_random()
+
+    screen.blit(overlay, (0, 0))
+
+    Population.update(W, H, world)  
+
+    # FPS
+    fps = round(clock.get_fps(), 2)
+    fps_texte = font.render(f"FPS : {fps}", True, (255, 255, 255))
+    screen.blit(fps_texte, (W*0.01, H*0.01))
+
+    # Accélération du temps
+    age += game_state["speed"]
+
+    # Gestion des espèces (inchangé)
+    if age % 180 == 0:
+        liste_especes_bis = liste_especes[:]
+        for e in liste_especes_bis:
+            popu = [indi for indi in Population.populations if indi.id_espece == e.id_espece]
+            agent = NouvelleEspecePointDInterrogation(popu)
+
+            if agent is not None:
+                a = Espece(liste_especes[-1].id_espece + 1, age)
+                liste_especes.append(a)
+                suivi_espece[a.id_espece] = [agent.id_espece, age, None]
+                agent.id_espece = a.id_espece
+
+                for indiv in popu:
+                    if moyenne_des_differences(agent, indiv) <= 0.2 and agent != indiv:
+                        indiv.id_espece = a.id_espece
+
+            e.update()
+
+        for e in liste_especes:
+            if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
+                e.morte = True
+                suivi_espece[e.id_espece][2] = age
+
+        print(suivi_espece)
+
+    # Infos
+    age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
+    screen.blit(age_texte, (W*0.01, H*0.035))
+
+    nbIndiv = len(Population.populations)
+    nbIndiv_texte = font.render(f"Population : {nbIndiv}", True, (255, 255, 255))
+    screen.blit(nbIndiv_texte, (W*0.01, H*0.06))
+
+    # --- AFFICHAGE DU MENU EN PERMANENCE ---
+    menu.draw()
+
+    # Affichage du panneau si un individu est sélectionné
+    if game_state["selected"] is not None:
+        info_panel.draw(game_state["selected"], world)
+
+    # --- AFFICHAGE DU MENU RADIAL ---
+    if game_state["placing_mode"] and game_state["radial_open"]:
+        game_state["radial_buttons"] = draw_radial_menu(
+            screen,
+            game_state["radial_pos"],
+            radial_options
+        )
+    pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()

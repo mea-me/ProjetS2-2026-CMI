@@ -14,6 +14,9 @@ class Individu:
         self.genome = Genome()
         self.id_espece = espece
 
+        self.vx = 0  # vitesse horizontale
+        self.vy = 0  # vitesse verticale
+
         # Cooldown de collision 
         self.collision_cooldown = 0 # temps restant avant nouvelle collision 
         self.collision_delay = 0.5
@@ -68,6 +71,23 @@ class Individu:
         except IndexError:
             pass # si ils sont débilent et essayent d'aller la ou ils ont pas le droit
 
+    def move_towards(self, target_x, target_y):
+        vitesse = self.genome.get_val("vitesse")
+
+        dx = target_x - self.rect.x
+        dy = target_y - self.rect.y
+
+        # distance
+        dist = max(1, (dx*dx + dy*dy)**0.5)
+
+        # attraction douce
+        self.rect.x += int((dx / dist) * vitesse * 0.5)
+        self.rect.y += int((dy / dist) * vitesse * 0.5)
+
+        # petit bruit aléatoire pour éviter les clusters
+        self.rect.x += random.choice([-1, 0, 1])
+        self.rect.y += random.choice([-1, 0, 1])
+
     def haut(self):
         vitesse = self.genome.get_val("vitesse")
         self.rect.y -= vitesse 
@@ -84,16 +104,17 @@ class Individu:
         vitesse = self.genome.get_val("vitesse")
         self.rect.x += vitesse
 
-    def get_close(self,x,y):
-        if x < self.x:
+    def get_close(self, x, y):
+        if x < self.rect.x:
             self.gauche()
-        elif x > self.x:
+        elif x > self.rect.x:
             self.droite()
 
-        if y < self.y:
+        if y < self.rect.y:
             self.haut()
-        elif y > self.y:
+        elif y > self.rect.y:
             self.bas()
+
 
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 

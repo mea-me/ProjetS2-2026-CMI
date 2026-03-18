@@ -11,165 +11,273 @@ class Livings:
     def __init__(self):
         self.populations = []
 
-    def add_individu(self,individu):
+    def add_individu(self, individu):
         self.populations.append(individu)
     
-    def reproduction(self, individu1, individu2,world):
+    def reproduction(self, individu1, individu2, world):
         new_genome = Genome()
 
         for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
-            
             if allele1.type in ('str', 'list'):
-                parent_allele = choice([allele1, allele2]) # choisir l'allèle du parent 1 ou 2
+                parent_allele = choice([allele1, allele2])
 
                 if isinstance(parent_allele.valeur, list): 
-                    valeur = parent_allele.valeur.copy() 
+                    valeur = parent_allele.valeur.copy()
                 else: 
                     valeur = parent_allele.valeur
 
-                new_allele = Allele(parent_allele.nom,
-                                    parent_allele.al_type, 
-                                    parent_allele.req, 
-                                    valeur, 
-                                    parent_allele.mutation_rate, 
-                                    parent_allele.mutation_step,
-                                    parent_allele.type)
+                new_allele = Allele(
+                    parent_allele.nom,
+                    parent_allele.al_type, 
+                    parent_allele.req, 
+                    valeur, 
+                    parent_allele.mutation_rate, 
+                    parent_allele.mutation_step,
+                    parent_allele.type
+                )
                 
-            if allele1.type == 'int':
+            elif allele1.type == 'int':
                 gosse_value = (allele1.valeur + allele2.valeur)//2
-                parent_allele = choice([allele1, allele2]) # choisir l'allèle du parent 1 ou 2
+                parent_allele = choice([allele1, allele2])
 
-                new_allele = Allele(parent_allele.nom, 
-                                    parent_allele.al_type, 
-                                    parent_allele.req, 
-                                    gosse_value, 
-                                    parent_allele.mutation_rate, 
-                                    parent_allele.mutation_step,
-                                    parent_allele.type)
-                
+                new_allele = Allele(
+                    parent_allele.nom, 
+                    parent_allele.al_type, 
+                    parent_allele.req, 
+                    gosse_value, 
+                    parent_allele.mutation_rate, 
+                    parent_allele.mutation_step,
+                    parent_allele.type
+                )
                 
             new_genome.add_allele(new_allele)
 
-        # Position du bébé entre les parents ça marche pas trop
         x = (individu1.rect.x + individu2.rect.x) // 2
         y = (individu1.rect.y + individu2.rect.y) // 2
 
-        #new_genome.muter() # Fait muter le génome
-        bébé = Individu(x, y, individu1.id_espece) # Création du nouvel individu
+        bébé = Individu(x, y, individu1.id_espece)
         bébé.give_genome(new_genome.clone())
         bébé.give_rect(bébé.genome.get_val("taille"))
         bébé.genome.muter()
-        self.populations.append(bébé) # Ajout à la population
-        #test d'environement
-        bébé.give_rect(bébé.genome.get_val("taille"))
+        self.populations.append(bébé)
+
         temp = bébé.genome.get_val("température")
         hum = bébé.genome.get_val("humidité")
-        env = world.get_infos_at(bébé.x,bébé.y)
+        env = world.get_infos_at(bébé.rect.x, bébé.rect.y)
         if abs(env[0]-temp) >= 5:
-            if randint(0,100)<10:
+            if randint(0,100) < 10:
                 self.kill(bébé)
         elif abs(env[0]-temp) >= 10:
-            if randint(0,100)<20:
+            if randint(0,100) < 20:
                 self.kill(bébé)
         elif abs(env[0]-temp) >= 20:
-            if randint(0,100)<30:
+            if randint(0,100) < 30:
                 self.kill(bébé)
         
 
     def on_collision(self, ind1, ind2, world):
-        env1 = world.get_infos_at(ind1.x,ind1.y)
-        env2 = world.get_infos_at(ind2.x,ind2.y)
+        env1 = world.get_infos_at(ind1.rect.x, ind1.rect.y)
+        env2 = world.get_infos_at(ind2.rect.x, ind2.rect.y)
         temp1 = ind1.genome.get_val("température")
         temp2 = ind2.genome.get_val("température")
         hum1 = ind1.genome.get_val("humidité")
         hum2 = ind2.genome.get_val("humidité")
-        if ind1.age >= 60 and ind2.age >=60 and ind1.age <= 600 and ind2.age <= 600 and len(self.populations) < 200:
+
+        if ind1.age >= 60 and ind2.age >= 60 and ind1.age <= 600 and ind2.age <= 600 and len(self.populations) < 200:
             if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
-                self.reproduction(ind1,ind2,world)
+                self.reproduction(ind1, ind2, world)
             elif abs(env1[0]-temp1) <= 10 and abs(env2[0]-temp2) <= 10:
-                if randint(0,100)<75:
-                    self.reproduction(ind1,ind2,world)
+                if randint(0,100) < 75:
+                    self.reproduction(ind1, ind2, world)
             else:
-                if randint(0,100)<20:
-                    self.reproduction(ind1,ind2,world)
-        # reproduction, combat, échange génétique, etc.
+                if randint(0,100) < 20:
+                    self.reproduction(ind1, ind2, world)
 
     def update(self, screen_width, screen_height, world):
-        # Créer le QuadTree
         quad = QuadTree(0, pygame.Rect(0, 0, screen_width, screen_height))
         quad.clear() 
 
-        #Insérer tous les individus
         for ind in self.populations:
             quad.insert(ind)
             ind.update()
             if not ind.is_alive():
                 self.kill(ind)
 
-        # Mettre à jour les cooldowns 
+        # cooldown collisions
         for ind in self.populations:
-            ind.deplacement_random() 
             if ind.collision_cooldown > 0: 
                 ind.collision_cooldown -= 1/60
 
-        #  Gérer les interactions
+        # déplacement Boids
+        self.handle_déplacement(quad, world)
+
+        # collisions / reproduction
         self.handle_collisions(quad, world)
-        #self.handle_déplacement(quad)
 
-    def get_closest_neighbor(self, ind, close_people):
-        LePlusProche = None
-        best_dist = float('inf') #très grand nombre
+    # ---------- BOIDS ----------
 
-        for other in close_people:
-            if other is ind:
+    def get_neighbors(self, ind, quad):
+        perception = ind.genome.get_val("perception")  # distance de vision
+        zone = pygame.Rect(
+            ind.rect.x - perception,
+            ind.rect.y - perception,
+            perception*2,
+            perception*2
+        )
+        candidats = quad.retrieve(zone)
+        voisins = [o for o in candidats if o is not ind]
+        return voisins
+
+    def rule_separation(self, ind, neighbors):
+        taille = ind.genome.get_val("taille")
+        agressivite = ind.genome.get_val("aggréssivité")
+        min_dist = taille * 1.0  # distance de confort
+        force_x = 0
+        force_y = 0
+        count = 0
+
+        for other in neighbors:
+            dx = ind.rect.x - other.rect.x
+            dy = ind.rect.y - other.rect.y
+            dist2 = dx*dx + dy*dy
+            if dist2 == 0:
                 continue
+            dist = dist2**0.5
 
-            # distance euclidienne
-            dist = (ind.x - other.x)**2 + (ind.y - other.y)**2
-            
-            if dist < best_dist:
-                best_dist = dist
-                LePlusProche = other
+            # trop proche → on repousse
+            if dist < min_dist * 0.8:  # on laisse une petite marge pour le contact
+                force_x += dx / dist
+                force_y += dy / dist
+                count += 1
 
-        return LePlusProche
+        if count > 0:
+            force_x /= count
+            force_y /= count
 
-    def handle_déplacement(self,quad):
+            # agressivité augmente la force de séparation
+            coef = 0.02 + agressivite / 2000  # 0.02 à ~0.06
+            force_x *= coef
+            force_y *= coef
+
+        return force_x, force_y
+
+    def rule_alignment(self, ind, neighbors):
+        adapt = ind.genome.get_val("adaptabilité")
+        agilite = ind.genome.get_val("agilité")
+        avg_vx = 0
+        avg_vy = 0
+        count = 0
+
+        for other in neighbors:
+            avg_vx += other.vx
+            avg_vy += other.vy
+            count += 1
+
+        if count == 0:
+            return 0, 0
+
+        avg_vx /= count
+        avg_vy /= count
+
+        # on se rapproche doucement de la vitesse moyenne
+        force_x = (avg_vx - ind.vx)
+        force_y = (avg_vy - ind.vy)
+
+        coef = (adapt / 100) * (agilite / 100) * 0.05
+        force_x *= coef
+        force_y *= coef
+
+        return force_x, force_y
+
+    def rule_cohesion(self, ind, neighbors):
+        perception = ind.genome.get_val("perception")
+        vitesse = ind.genome.get_val("vitesse")
+        center_x = 0
+        center_y = 0
+        count = 0
+
+        for other in neighbors:
+            center_x += other.rect.x
+            center_y += other.rect.y
+            count += 1
+
+        if count == 0:
+            return 0, 0
+
+        center_x /= count
+        center_y /= count
+
+        dx = center_x - ind.rect.x
+        dy = center_y - ind.rect.y
+        dist = max(1, (dx*dx + dy*dy)**0.5)
+
+        force_x = dx / dist
+        force_y = dy / dist
+
+        coef = (perception / 100) * 0.03
+        force_x *= coef
+        force_y *= coef
+
+        return force_x, force_y
+
+    def apply_boids(self, ind, quad):
+        neighbors = self.get_neighbors(ind, quad)
+        if not neighbors:
+            return
+
+        sep_x, sep_y = self.rule_separation(ind, neighbors)
+        ali_x, ali_y = self.rule_alignment(ind, neighbors)
+        coh_x, coh_y = self.rule_cohesion(ind, neighbors)
+
+        # combinaison des forces
+        fx = sep_x + ali_x + coh_x
+        fy = sep_y + ali_y + coh_y
+
+        # mise à jour de la vitesse
+        ind.vx += fx
+        ind.vy += fy
+
+        # limite de vitesse
+        vitesse_max = ind.genome.get_val("vitesse")
+        speed = (ind.vx*ind.vx + ind.vy*ind.vy)**0.5
+        if speed > vitesse_max:
+            ind.vx = ind.vx / speed * vitesse_max
+            ind.vy = ind.vy / speed * vitesse_max
+
+        # déplacement
+        nv_x = ind.rect.x + int(ind.vx)
+        nv_y = ind.rect.y + int(ind.vy)
+
+        ind.rect.x = nv_x
+        ind.rect.y = nv_y
+
+    def handle_déplacement(self, quad, world):
         for ind in self.populations:
-            #récupére uniquement les individus proches
-            voisins = quad.retrieve(ind.rect)
+            self.apply_boids(ind, quad)
 
-            for other in voisins:
-                if other is ind:
-                    continue
-                close = self.get_closest_neighbor(ind,voisins)
-                x,y = close.get_position()
-                ind.get_close(x,y)
-
+    # ---------- COLLISIONS / REPRO ----------
 
     def handle_collisions(self, quad, world):
         for ind in self.populations:
-            #récupére uniquement les individus proches
             voisins = quad.retrieve(ind.rect)
 
             for other in voisins:
                 if other is ind:
                     continue
 
-                #Ignore si cooldon actif 
                 if ind.collision_cooldown > 0 or other.collision_cooldown > 0: 
                     continue
 
-                #Collision
                 if ind.rect.colliderect(other.rect):
                     self.on_collision(ind, other, world)
-
-                    # Activer cooldown pour les deux
                     ind.collision_cooldown = ind.collision_delay 
                     other.collision_cooldown = other.collision_delay
 
-    def kill(self,ind):
-        self.populations.pop(self.populations.index(ind))
+    def kill(self, ind):
+        if ind in self.populations:
+            self.populations.remove(ind)
         del ind
+
 
 Population = Livings()
 
