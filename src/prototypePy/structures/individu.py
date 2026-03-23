@@ -3,6 +3,12 @@ import random
 from .genome import Genome
 from .__init__ import W, H, ALLOWED_MASK
 
+def colorize(surface, color):
+    colored = surface.copy()
+    r, g, b = color
+    colored.fill((r, g, b, 255), None, pygame.BLEND_RGBA_MULT)
+    return colored
+
 class Individu:       
     def __init__(self, x, y, espece):
         self.x = x
@@ -21,6 +27,9 @@ class Individu:
         self.collision_cooldown = 0 # temps restant avant nouvelle collision 
         self.collision_delay = 0.5
 
+        self.base_sprite = pygame.image.load("src/asset/sprite/random.png").convert_alpha()
+
+
 
     def get_position(self):
         return (self.rect.x,self.rect.y)
@@ -36,9 +45,15 @@ class Individu:
         if self.energie <= 0:
             self.alive = False #bleurgh##
 
-    def draw(self,screen):
-        pygame.draw.rect(screen, self.genome.get_val("couleur"), self.rect)
-        #screen.blit(self.image, self.rect.topleft)
+    def draw(self, screen):
+        color = self.genome.get_val("couleur")
+        sprite = colorize(self.base_sprite, color)
+
+        # redimensionner selon la taille génétique
+        taille = self.genome.get_val("taille")
+        sprite = pygame.transform.scale(sprite, (taille, taille))
+
+        screen.blit(sprite, self.rect.topleft)
 
     def craft_individu(self):
         self.genome.craft_alleles()

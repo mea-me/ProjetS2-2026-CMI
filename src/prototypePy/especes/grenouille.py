@@ -1,5 +1,0 @@
-
-class Grenouille:
-    pass
-
-

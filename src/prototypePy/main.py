@@ -10,6 +10,9 @@ from structures.livings import Livings, Espece, Population
 from structures.menu import Menu
 from info_panel import InfoPanel
 from especes.requin import Requin
+from especes.blob import Blob
+from especes.dragon import Dragon
+from especes.licorne import Licorne
 
 
 #Fonctions utilisées plus tard =)
@@ -64,7 +67,10 @@ def NouvelleEspecePointDInterrogation(popu):
 
 radial_options = [
     {"name": "Random", "color": (120, 180, 255)},
-    {"name": "Requin", "color": (255, 80, 80)}
+    {"name": "Requin", "color": (255, 80, 80)},
+    {"name": "Licorne", "color": (255, 150, 255)},
+    {"name": "Blob", "color": (180, 0, 255)},
+    {"name": "Dragon", "color": (255, 60, 60)}
 ]
 
 def draw_radial_menu(screen, pos, options):
@@ -221,6 +227,7 @@ while game_state["running"]:
                 game_state["selected"] = clicked
             else:
                 # Sinon, afficher les infos du biome comme avant
+                game_state["selected"] = None
                 temp, hum, nom = world.get_infos_at(mx, my)
                 print(f"Zone: {nom.upper()} | Temp: {temp}°C | Hum: {hum}%")
             
@@ -247,6 +254,18 @@ while game_state["running"]:
                         elif name == "Requin":
                             shark = Requin(mx, my)
                             Population.add_individu(shark)
+
+                        elif name == "Licorne":
+                            licorne = Licorne(mx, my)
+                            Population.add_individu(licorne)
+
+                        elif name == "Blob":
+                            blob = Blob(mx, my)
+                            Population.add_individu(blob)
+
+                        elif name == "Dragon":
+                            dragon = Dragon(mx, my)
+                            Population.add_individu(dragon)
 
                         print(f"{name} ajouté en", mx, my)
 
@@ -358,6 +377,7 @@ while game_state["running"]:
     for g in Population.populations:
         g.draw(screen)
         g.deplacement_random()
+        print(g.id_espece)
 
     screen.blit(overlay, (0, 0))
 

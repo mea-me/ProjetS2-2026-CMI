@@ -11,9 +11,9 @@ class Genome:
 
     def get_val(self, nom_allele):
         #  récupérer une valeur par son nom d'allele
-        for a in self.alleles:
-            if a.nom == nom_allele:
-                return a.valeur
+        for allele in self.alleles:
+            if allele.nom == nom_allele:
+                return allele.valeur
         return 1 # code d'erreur si echec
 
     def muter(self):

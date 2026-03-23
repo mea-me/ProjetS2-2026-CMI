@@ -17,62 +17,80 @@ class Livings:
     def reproduction(self, individu1, individu2, world):
         new_genome = Genome()
 
+        # --- Génération du génome de l'enfant ---
         for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
+
             if allele1.type in ('str', 'list'):
                 parent_allele = choice([allele1, allele2])
 
-                if isinstance(parent_allele.valeur, list): 
+                if isinstance(parent_allele.valeur, list):
                     valeur = parent_allele.valeur.copy()
-                else: 
+                else:
                     valeur = parent_allele.valeur
 
                 new_allele = Allele(
                     parent_allele.nom,
-                    parent_allele.al_type, 
-                    parent_allele.req, 
-                    valeur, 
-                    parent_allele.mutation_rate, 
+                    parent_allele.al_type,
+                    parent_allele.req,
+                    valeur,
+                    parent_allele.mutation_rate,
                     parent_allele.mutation_step,
                     parent_allele.type
                 )
-                
+
             elif allele1.type == 'int':
-                gosse_value = (allele1.valeur + allele2.valeur)//2
+                gosse_value = (allele1.valeur + allele2.valeur) // 2
                 parent_allele = choice([allele1, allele2])
 
                 new_allele = Allele(
-                    parent_allele.nom, 
-                    parent_allele.al_type, 
-                    parent_allele.req, 
-                    gosse_value, 
-                    parent_allele.mutation_rate, 
+                    parent_allele.nom,
+                    parent_allele.al_type,
+                    parent_allele.req,
+                    gosse_value,
+                    parent_allele.mutation_rate,
                     parent_allele.mutation_step,
                     parent_allele.type
                 )
-                
+
             new_genome.add_allele(new_allele)
 
+        # --- Position du bébé ---
         x = (individu1.rect.x + individu2.rect.x) // 2
         y = (individu1.rect.y + individu2.rect.y) // 2
 
-        bébé = Individu(x, y, individu1.id_espece)
+        # --- CRÉATION DU BÉBÉ AVEC LA CLASSE DU PREMIER IND ---
+        # Si le parent est une espèce dérivée (Licorne, Blob, etc.)
+        if individu1.__class__ is not Individu:
+            bébé = individu1.__class__(x, y)
+
+        # Si le parent est un Individu normal(random)
+        else:
+            bébé = Individu(x, y, individu1.id_espece)
+
+
+        # --- Application du génome ---
         bébé.give_genome(new_genome.clone())
         bébé.give_rect(bébé.genome.get_val("taille"))
         bébé.genome.muter()
+
+        # --- Ajout à la population ---
         self.populations.append(bébé)
 
+        # --- Mort environnementale(PAS FINI) --- 
         temp = bébé.genome.get_val("température")
         hum = bébé.genome.get_val("humidité")
         env = world.get_infos_at(bébé.rect.x, bébé.rect.y)
-        if abs(env[0]-temp) >= 5:
-            if randint(0,100) < 10:
+
+        if abs(env[0] - temp) >= 20:
+            if randint(0, 100) < 30:
                 self.kill(bébé)
-        elif abs(env[0]-temp) >= 10:
-            if randint(0,100) < 20:
+        elif abs(env[0] - temp) >= 10:
+            if randint(0, 100) < 20:
                 self.kill(bébé)
-        elif abs(env[0]-temp) >= 20:
-            if randint(0,100) < 30:
+        elif abs(env[0] - temp) >= 5:
+            if randint(0, 100) < 10:
                 self.kill(bébé)
+
         
 
     def on_collision(self, ind1, ind2, world):
@@ -125,7 +143,11 @@ class Livings:
             perception*2
         )
         candidats = quad.retrieve(zone)
-        voisins = [o for o in candidats if o is not ind]
+        #Filtre : même espèce uniquement
+        voisins = [
+            o for o in candidats
+            if o is not ind and o.id_espece == ind.id_espece
+        ]
         return voisins
 
     def rule_separation(self, ind, neighbors):

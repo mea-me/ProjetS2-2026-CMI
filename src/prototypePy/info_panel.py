@@ -21,8 +21,8 @@ class InfoPanel:
             y += 30
 
         write("=== Individu ===")
-        write(f"ID : George")
-        write(f"Espèce : grenouille")
+        write(f"ID : {"Stephanie parola"}")
+        write(f"Espèce : {indi.id_espece}")
 
         # Caractéristiques génétiques
         write("")
