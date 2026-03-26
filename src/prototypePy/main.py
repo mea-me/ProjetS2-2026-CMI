@@ -377,7 +377,6 @@ while game_state["running"]:
     for g in Population.populations:
         g.draw(screen)
         g.deplacement_random()
-        print(g.id_espece)
 
     screen.blit(overlay, (0, 0))
 

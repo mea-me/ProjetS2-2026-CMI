@@ -16,80 +16,81 @@ class Livings:
     
     def reproduction(self, individu1, individu2, world):
         new_genome = Genome()
+        if individu1.id_espece == individu2.id_espece:
+            
+            # --- Génération du génome de l'enfant ---
+            for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
 
-        # --- Génération du génome de l'enfant ---
-        for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
+                if allele1.type in ('str', 'list'):
+                    parent_allele = choice([allele1, allele2])
 
-            if allele1.type in ('str', 'list'):
-                parent_allele = choice([allele1, allele2])
+                    if isinstance(parent_allele.valeur, list):
+                        valeur = parent_allele.valeur.copy()
+                    else:
+                        valeur = parent_allele.valeur
 
-                if isinstance(parent_allele.valeur, list):
-                    valeur = parent_allele.valeur.copy()
-                else:
-                    valeur = parent_allele.valeur
+                    new_allele = Allele(
+                        parent_allele.nom,
+                        parent_allele.al_type,
+                        parent_allele.req,
+                        valeur,
+                        parent_allele.mutation_rate,
+                        parent_allele.mutation_step,
+                        parent_allele.type
+                    )
 
-                new_allele = Allele(
-                    parent_allele.nom,
-                    parent_allele.al_type,
-                    parent_allele.req,
-                    valeur,
-                    parent_allele.mutation_rate,
-                    parent_allele.mutation_step,
-                    parent_allele.type
-                )
+                elif allele1.type == 'int':
+                    gosse_value = (allele1.valeur + allele2.valeur) // 2
+                    parent_allele = choice([allele1, allele2])
 
-            elif allele1.type == 'int':
-                gosse_value = (allele1.valeur + allele2.valeur) // 2
-                parent_allele = choice([allele1, allele2])
+                    new_allele = Allele(
+                        parent_allele.nom,
+                        parent_allele.al_type,
+                        parent_allele.req,
+                        gosse_value,
+                        parent_allele.mutation_rate,
+                        parent_allele.mutation_step,
+                        parent_allele.type
+                    )
 
-                new_allele = Allele(
-                    parent_allele.nom,
-                    parent_allele.al_type,
-                    parent_allele.req,
-                    gosse_value,
-                    parent_allele.mutation_rate,
-                    parent_allele.mutation_step,
-                    parent_allele.type
-                )
+                new_genome.add_allele(new_allele)
 
-            new_genome.add_allele(new_allele)
+            # --- Position du bébé ---
+            x = (individu1.rect.x + individu2.rect.x) // 2
+            y = (individu1.rect.y + individu2.rect.y) // 2
 
-        # --- Position du bébé ---
-        x = (individu1.rect.x + individu2.rect.x) // 2
-        y = (individu1.rect.y + individu2.rect.y) // 2
+            # --- CRÉATION DU BÉBÉ AVEC LA CLASSE DU PREMIER IND ---
+            # Si le parent est une espèce dérivée (Licorne, Blob, etc.)
+            if individu1.__class__ is not Individu:
+                bébé = individu1.__class__(x, y)
 
-        # --- CRÉATION DU BÉBÉ AVEC LA CLASSE DU PREMIER IND ---
-        # Si le parent est une espèce dérivée (Licorne, Blob, etc.)
-        if individu1.__class__ is not Individu:
-            bébé = individu1.__class__(x, y)
-
-        # Si le parent est un Individu normal(random)
-        else:
-            bébé = Individu(x, y, individu1.id_espece)
+            # Si le parent est un Individu normal(random)
+            else:
+                bébé = Individu(x, y, individu1.id_espece)
 
 
-        # --- Application du génome ---
-        bébé.give_genome(new_genome.clone())
-        bébé.give_rect(bébé.genome.get_val("taille"))
-        bébé.genome.muter()
+            # --- Application du génome ---
+            bébé.give_genome(new_genome.clone())
+            bébé.give_rect(bébé.genome.get_val("taille"))
+            bébé.genome.muter()
 
-        # --- Ajout à la population ---
-        self.populations.append(bébé)
+            # --- Ajout à la population ---
+            self.populations.append(bébé)
 
-        # --- Mort environnementale(PAS FINI) --- 
-        temp = bébé.genome.get_val("température")
-        hum = bébé.genome.get_val("humidité")
-        env = world.get_infos_at(bébé.rect.x, bébé.rect.y)
+            # --- Mort environnementale(PAS FINI) --- 
+            temp = bébé.genome.get_val("température")
+            hum = bébé.genome.get_val("humidité")
+            env = world.get_infos_at(bébé.rect.x, bébé.rect.y)
 
-        if abs(env[0] - temp) >= 20:
-            if randint(0, 100) < 30:
-                self.kill(bébé)
-        elif abs(env[0] - temp) >= 10:
-            if randint(0, 100) < 20:
-                self.kill(bébé)
-        elif abs(env[0] - temp) >= 5:
-            if randint(0, 100) < 10:
-                self.kill(bébé)
+            if abs(env[0] - temp) >= 20:
+                if randint(0, 100) < 30:
+                    self.kill(bébé)
+            elif abs(env[0] - temp) >= 10:
+                if randint(0, 100) < 20:
+                    self.kill(bébé)
+            elif abs(env[0] - temp) >= 5:
+                if randint(0, 100) < 10:
+                    self.kill(bébé)
 
         
 
@@ -101,7 +102,7 @@ class Livings:
         hum1 = ind1.genome.get_val("humidité")
         hum2 = ind2.genome.get_val("humidité")
 
-        if ind1.age >= 60 and ind2.age >= 60 and ind1.age <= 600 and ind2.age <= 600 and len(self.populations) < 200:
+        if ind1.age >= 60 and ind2.age >= 60 and ind1.age <= 600 and ind2.age <= 600:
             if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
                 self.reproduction(ind1, ind2, world)
             elif abs(env1[0]-temp1) <= 10 and abs(env2[0]-temp2) <= 10:

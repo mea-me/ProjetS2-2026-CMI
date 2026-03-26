@@ -31,10 +31,10 @@ class Genome:
                     gene.valeur[i] += randint(-gene.mutation_step, gene.mutation_step)
 
                     if gene.valeur[i] < 0: 
-                        gene.valeur[i] += 255 # borne anti négative (genre vitesse négative pas possible)
+                        gene.valeur[i] = 1 # borne anti négative (genre vitesse négative pas possible)
 
                     elif gene.valeur[i] > 255: 
-                        gene.valeur[i] -= 255 # borne anti positron (genre vitesse négative pas possible)
+                        gene.valeur[i] = 255 # borne anti positron (genre vitesse négative pas possible)
 
     def __repr__(self):
         # formater le print
