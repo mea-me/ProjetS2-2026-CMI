@@ -7,13 +7,13 @@ from structures.allele import Allele, dico_alleles
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
 from structures.livings import Livings, Espece, Population
+from nourriture.plantes import Plante,Liste_plantes
 from structures.menu import Menu
 from info_panel import InfoPanel
 from especes.requin import Requin
 from especes.blob import Blob
 from especes.dragon import Dragon
 from especes.licorne import Licorne
-
 
 #Fonctions utilisées plus tard =)
 
@@ -169,6 +169,18 @@ grenouille = Espece(0,0)
 liste_especes = [grenouille]
 #     clé : espece;0 : parent ; 1 : date d'apparition ; 2 : date de mort
 suivi_espece = {0 : [None,0,None]}
+
+
+
+for i in range(50):
+    valide = False
+    
+    while not valide:
+        x, y = randint(0, W-1), randint(0, H-1)
+        if allowed_mask.get_at((x, y)):
+            valide = True
+            
+    Liste_plantes.append(Plante(x, y, 200, 0))
 #--------------------------------------------------------------------------------------- 
 
 # --- AJOUT : état global du jeu ---
@@ -335,7 +347,26 @@ while game_state["running"]:
 
         # --- DESSINER LES INDIVIDUS MÊME EN PAUSE ---
         for g in Population.populations:
-            g.draw(screen)   # pas de déplacement ici
+            g.draw(screen)
+            g.deplacement_random()
+            #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
+
+        deletion = []
+        for plante in Liste_plantes:
+            plante.draw(screen)
+            plante.age += 1
+            for P in Population.populations:
+                if P.collide_with(plante) and P.genome.get_val("régime") != "carnivore":
+                    P.energie += plante.manger()
+                    deletion.append(plante)
+            
+        for plante in deletion:
+            if plante in Liste_plantes:
+                Liste_plantes.remove(plante)
+            del(plante)
+        screen.blit(overlay, (0, 0)) # ellipse
+            
+        Population.update(W,H,world)
 
         # --- AFFICHER LES INFOS MÊME EN PAUSE ---
         fps = round(clock.get_fps(), 2)
@@ -416,6 +447,16 @@ while game_state["running"]:
 
         print(suivi_espece)
 
+        for i in range(50-len(Liste_plantes)):
+                valide = False
+                
+                while not valide:
+                    x, y = randint(0, W-1), randint(0, H-1)
+                    if allowed_mask.get_at((x, y)):
+                        valide = True
+                        
+                Liste_plantes.append(Plante(x, y, 200, 0))
+        
     # Infos
     age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
     screen.blit(age_texte, (W*0.01, H*0.035))
