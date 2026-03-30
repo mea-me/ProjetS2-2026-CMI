@@ -348,6 +348,9 @@ while game_state["running"]:
         for g in Population.populations:
             g.draw(screen)
 
+        for plante in Liste_plantes:
+            plante.draw(screen)
+
         # --- AFFICHER LES INFOS MÊME EN PAUSE ---
         fps = round(clock.get_fps(), 2)
         fps_texte = font.render(f"FPS : {fps}", True, (255, 255, 255))
