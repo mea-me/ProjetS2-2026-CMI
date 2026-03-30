@@ -340,7 +340,6 @@ while game_state["running"]:
         # Fin du reset
         game_state["reset"] = False
 
-
     if game_state["paused"]:
         world.paint(screen)
         screen.blit(overlay, (0, 0))
@@ -348,25 +347,6 @@ while game_state["running"]:
         # --- DESSINER LES INDIVIDUS MÊME EN PAUSE ---
         for g in Population.populations:
             g.draw(screen)
-            g.deplacement_random()
-            #deplacement en soustrayant le x des dux individu besoin de trouver le pplus proche voisin avant
-
-        deletion = []
-        for plante in Liste_plantes:
-            plante.draw(screen)
-            plante.age += 1
-            for P in Population.populations:
-                if P.collide_with(plante) and P.genome.get_val("régime") != "carnivore":
-                    P.energie += plante.manger()
-                    deletion.append(plante)
-            
-        for plante in deletion:
-            if plante in Liste_plantes:
-                Liste_plantes.remove(plante)
-            del(plante)
-        screen.blit(overlay, (0, 0)) # ellipse
-            
-        Population.update(W,H,world)
 
         # --- AFFICHER LES INFOS MÊME EN PAUSE ---
         fps = round(clock.get_fps(), 2)
@@ -404,6 +384,21 @@ while game_state["running"]:
 
     # --- MODE NORMAL ---
     world.paint(screen)
+
+    deletion = []
+    for plante in Liste_plantes:
+        plante.draw(screen)
+        plante.age += 1
+        for P in Population.populations:
+            if P.collide_with(plante) and P.genome.get_val("régime") != "carnivore":
+                P.energie += plante.manger()
+                deletion.append(plante)
+        
+    for plante in deletion:
+        if plante in Liste_plantes:
+            Liste_plantes.remove(plante)
+        del(plante)
+    screen.blit(overlay, (0, 0)) # ellipse
 
     for g in Population.populations:
         g.draw(screen)
