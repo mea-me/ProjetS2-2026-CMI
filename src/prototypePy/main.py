@@ -188,7 +188,7 @@ while running:
             plante.draw(screen)
             plante.age += 1
             for P in Population.populations:
-                if P.collide_with(plante):
+                if P.collide_with(plante) and P.genome.get_val("régime") != "carnivore":
                     P.energie += plante.manger()
                     deletion.append(plante)
             
