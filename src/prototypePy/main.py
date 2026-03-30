@@ -119,7 +119,7 @@ def NouvelleEspecePointDInterrogation(popu):
         # l'agent compte dans sa famille maintenant
         distance = moyenne_des_differences(agent_eloigne, agent)
 
-        if distance <= 0.15:
+        if distance <= 0.2:
             similaires += 1
         elif distance > 0.25:
             differents += 1
@@ -128,7 +128,8 @@ def NouvelleEspecePointDInterrogation(popu):
     if similaires >= taille_pop *0.205 and  differents >= taille_pop *0.35:
         return agent_eloigne
 
-    if moyenne_des_differences(archetype,suivi_espece[popu[0].id_espece][3]) >= 0.1:
+    if moyenne_des_differences(archetype,suivi_espece[popu[0].id_espece][3]) >= 0.2:
+        print("floup")
         distance = 1
         agent_proche = None
         for agent in popu:
@@ -279,6 +280,9 @@ while running:
         screen.blit(fps_texte, (W*0.01, H*0.01))
 
         age += 1
+        if age%600 == 0:
+            for i in range(len(liste_especes)):
+                print(i,":",liste_especes[i].effectif)
         if age%60 == 0:
             liste_especes_bis = liste_especes[:]
             for e in liste_especes_bis:
@@ -294,7 +298,7 @@ while running:
                     agent.id_espece = liste_especes[-1].id_espece
                     popu_bis = []
                     for indiv in popu:
-                        if moyenne_des_differences(agent,indiv) <= 0.15 and agent != indiv:
+                        if moyenne_des_differences(agent,indiv) <= 0.2 and agent != indiv:
                             indiv.id_espece = liste_especes[-1].id_espece
                             popu_bis.append(indiv)
                     suivi_espece[liste_especes[-1].id_espece].append(agentArchetype(popu_bis))
@@ -311,6 +315,8 @@ while running:
                         for I in range(3):
                             print(suivi_espece[i][I],end=" ")
                         print("")
+                    for i in range(len(liste_especes)):
+                        print(i ,":", liste_especes[i].effectif)
 
                 
                 e.update()
@@ -319,7 +325,14 @@ while running:
                 if len(e.effectif)>1 and e.effectif[-1] == 0 and not e.morte:
                     e.morte = True
                     suivi_espece[e.id_espece][2] = age
-                    print(f"Changement : {suivi_espece}")
+                    print("Changement : ")
+                    for i in range(len(suivi_espece.keys())):
+                        print(i," : ", end = "")
+                        for I in range(3):
+                            print(suivi_espece[i][I],end=" ")
+                        print("")
+                    for i in range(len(liste_especes)):
+                        print(i ,":", liste_especes[i].effectif)
 
 
         age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
