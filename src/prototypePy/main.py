@@ -1,12 +1,14 @@
 #Importation des librairies
 
-import pygame,os,sys,time
+import pygame,os,sys,time, json
 from random import randint
 from structures.genome import Genome
 from structures.allele import Allele, dico_alleles
 from structures.individu import Individu
 from structures.environnement import Biome, WorldMap
 from structures.livings import Livings, Espece, Population
+from graph import *
+
 
 
 def moyenne_des_differences(individu1, individu2):
@@ -124,7 +126,7 @@ def NouvelleEspecePointDInterrogation(popu):
         elif distance > 0.25:
             differents += 1
 
-    # si sous-groupe (10% mini) + éloigné de la masse (30% mini)
+    # si sous-groupe (20.5% mini) + éloigné de la masse (35% mini)
     if similaires >= taille_pop *0.205 and  differents >= taille_pop *0.35:
         return agent_eloigne
 
@@ -244,7 +246,11 @@ while running:
             if event.key == pygame.K_ESCAPE: # Sécurité Plein Écran
                 running = False
             if event.key == pygame.K_e: # afficher les graphes
-                print(f"- - - - -\n{suivi_espece}\n- - - - -")
+                paused = not(paused)
+                save_json(liste_especes, suivi_espece)
+                generer_graphique_population()            
+                    
+                
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
@@ -255,14 +261,7 @@ while running:
         continue     
                
     else:
-        # 2. Dessin
         world.paint(screen)
-        
-        # (Optionnel) Afficher le climat sous la souris en temps réel
-        #mx, my = pygame.mouse.get_pos()
-        #temp, hum, nom = world.get_infos_at(mx, my)
-        #text_surf = font.render(f"{nom}: {temp}°C / {hum}%", True, (0, 0, 0))
-        #screen.blit(text_surf, (mx + 10, my + 10))
 
         # on dessine la population =)
         for g in Population.populations:

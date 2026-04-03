@@ -1,0 +1,54 @@
+{
+    "0": {
+        "parent": null,
+        "annee_naissance": 0,
+        "annee_mort": null,
+        "historique_effectif": [
+            4,
+            4,
+            5,
+            7,
+            10,
+            11,
+            15,
+            20,
+            27,
+            31,
+            40,
+            50,
+            65,
+            78,
+            96,
+            119,
+            143,
+            178,
+            192
+        ]
+    },
+    "1": {
+        "parent": null,
+        "annee_naissance": 0,
+        "annee_mort": null,
+        "historique_effectif": [
+            6,
+            6,
+            7,
+            7,
+            8,
+            10,
+            11,
+            13,
+            14,
+            21,
+            25,
+            29,
+            38,
+            47,
+            55,
+            64,
+            77,
+            96,
+            108
+        ]
+    }
+}
