@@ -1,0 +1,27 @@
+{
+    "0": {
+        "parent": null,
+        "annee_naissance": 0,
+        "annee_mort": null,
+        "historique_effectif": [
+            4
+        ]
+    },
+    "1": {
+        "parent": null,
+        "annee_naissance": 0,
+        "annee_mort": null,
+        "historique_effectif": [
+            6,
+            4
+        ]
+    },
+    "2": {
+        "parent": 1,
+        "annee_naissance": 660,
+        "annee_mort": null,
+        "historique_effectif": [
+            0
+        ]
+    }
+}

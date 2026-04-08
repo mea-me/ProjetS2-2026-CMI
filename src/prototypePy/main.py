@@ -1,6 +1,6 @@
 #Importation des librairies
 
-import pygame,os,sys,time
+import pygame,os,sys,time, json
 from random import randint
 from structures.genome import Genome
 from structures.allele import Allele, dico_alleles
@@ -14,8 +14,9 @@ from especes.requin import Requin
 from especes.blob import Blob
 from especes.dragon import Dragon
 from especes.licorne import Licorne
+from graph import *
 
-#Fonctions utilisées plus tard =)
+
 def explosion(screen, x, y, max_radius, entities):
     """Explosion animée qui tue toutes les entités dans un rayon."""
     radius = 0
@@ -48,50 +49,135 @@ def explosion(screen, x, y, max_radius, entities):
 
 
 def moyenne_des_differences(individu1, individu2):
+    """!
+    @brief Calcule la distance génétique moyenne entre deux individus.
+    @param individu1 Premier individu à comparer.
+    @param individu2 Second individu à comparer.
+    @return Un float représentant le pourcentage moyen de différence (ex: 0.2 = 20%).
+    """
     nb_alleles_etudiees = 0
-    t = 0
+    total_differences = 0
+
     for k in dico_alleles.keys():
-        if dico_alleles[k][5] == "int":
-            nb_alleles_etudiees += 1
-        
-        if k == "couleur":
-            nb_alleles_etudiees += 1
+        type_allele = dico_alleles[k][5]
+        val1 = individu1[k] if (isinstance(individu1, dict)) else individu1.genome.get_val(k)
+        val2 = individu2[k] if (isinstance(individu2, dict)) else individu2.genome.get_val(k)
 
-    
-        a = individu1.genome.get_val(k)
-        b = individu2.genome.get_val(k)
-        if dico_alleles[k][5] == "int":
-            if not a+b == 0:
-                t += abs((a-b)/((a+b)/2))
+        if type_allele == "int":
+            somme = val1 + val2
+            if somme != 0:
+                    # diff relative = |a - b| / moyenne(a, b)
+                total_differences += abs((val1 - val2) / (somme / 2))
+                nb_alleles_etudiees += 1
         
-        if k == "couleur":
-            t_bis = 0
-            for i in range(3):
-                if not a[i] + b[i] == 0:
-                    t_bis += abs((a[i]-b[i])/((a[i]+b[i])/2))
+        elif type_allele == "list":
+            diff, elements_valides = 0, 0
+            for i in range( len(val1) ):
+                somme = val1[i] + val2[i]
+                if somme != 0:
+                    diff += abs((val1[i] - val2[i]) / (somme / 2))
+                    elements_valides += 1
             
-            t += t_bis/3
+            if elements_valides > 0:
+                total_differences += diff / elements_valides
+                nb_alleles_etudiees += 1
     
+    if nb_alleles_etudiees == 0:
+        return 0
 
-    return t/nb_alleles_etudiees
+    return total_differences / nb_alleles_etudiees
 
+
+def agentArchetype(popu):
+    taille_pop = len(popu)
+    archetype = {} 
+    for agent in popu:
+        for k in dico_alleles.keys():
+            type_allele = dico_alleles[k][5]
+            val = agent.genome.get_val(k)
+
+            if type_allele == "int":
+                if k not in archetype:
+                    archetype[k] = val
+                else:
+                    archetype[k] += val
+
+            elif type_allele == "list":
+                if k not in archetype:
+                    archetype[k] = list(val) 
+                else:
+                    for i in range(len(archetype[k])):
+                        archetype[k][i] += val[i]
+
+            if type_allele == "str":
+                archetype[k] = val
+    
+    for k in archetype.keys(): # division par le nombre d'invidivus
+        type_allele = dico_alleles[k][5]
+
+        if type_allele == "int":
+            archetype[k] /= taille_pop
+
+        elif type_allele == "list":
+            for i in range(len(archetype[k])):
+                archetype[k][i] /= taille_pop
+    
+    return archetype
 
 def NouvelleEspecePointDInterrogation(popu):
-    '''renvoie un agent si les conditions requises pour une nouvelle espece sont atteintes, None sinon
-    arg : popu est la liste population mais ne contenant que des individus d'une meme espece'''
+    """!
+    @brief Cherche si un individu a suffisamment muté pour fonder une nouvelle espèce.
+    @param popu Liste contenant TOUS les individus d'une MÊME espèce.
+    @return L'individu fondateur de la nouvelle espèce, ou None si pas de spéciation.
+    """
+    taille_pop = len(popu)
+    if taille_pop < 5 : # pas besoin de réfléchir si y a pas assez d'indiv
+        return None
+    
+    #   PROFIL ARCHÉTYPE
+    archetype = dict(agentArchetype(popu))
+
+    ##
+
+    agent_eloigne = None 
+    max_distance = -1 
+    
     for agent in popu:
-        similaires = 0
-        for agent_bis in popu:
-            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)<=0.2:
-                similaires += 1
-        differents = 0
-        for agent_bis in popu:
-            if agent != agent_bis and moyenne_des_differences(agent,agent_bis)>0.3:
-                differents += 1
+        m2 = moyenne_des_differences(agent, archetype)
+        if m2 > max_distance:
+            max_distance = m2
+            agent_eloigne = agent
+    
+    # si le + grand mutant est quasi la moyenne -> on annule
+    if max_distance < 0.15:
+        return None
 
-        if len(popu)>4 and similaires >= len(popu)/4 and differents >= len(popu)/2:
-            return agent
+    differents = 0
+    similaires = 0
+    for agent in popu:
+        # l'agent compte dans sa famille maintenant
+        distance = moyenne_des_differences(agent_eloigne, agent)
 
+        if distance <= 0.2:
+            similaires += 1
+        elif distance > 0.25:
+            differents += 1
+
+    # si sous-groupe (20.5% mini) + éloigné de la masse (35% mini)
+    if similaires >= taille_pop *0.205 and  differents >= taille_pop *0.35:
+        return agent_eloigne
+
+    if moyenne_des_differences(archetype,suivi_espece[popu[0].id_espece][3]) >= 0.2:
+        print("floup")
+        distance = 1
+        agent_proche = None
+        for agent in popu:
+            m = moyenne_des_differences(agent,archetype)
+            if m < distance:
+                agent_proche = agent
+                distance = m
+        return agent_proche
+    
     return None
 
 
@@ -177,29 +263,46 @@ world.procedural_generation()
 
 #Création de grenouille-----------------------------------------------------------------
 grenouilles = []
+grenouilles_bis = []
 
-for i in range(5):
+for i in range(10):
     valide = False
     
     while not valide:
         x, y = randint(0, W), randint(0, H)
         if allowed_mask.get_at((x, y)):
             valide = True
-            
-    grenouilles.append(Individu(x, y, 0))
+    
+    if i > 5:       
+        grenouilles.append(Individu(x, y, 0))
+    else:
+        grenouilles_bis.append(Individu(x,y,1))
 
 for g in grenouilles:
+        g.craft_individu()
+        g.give_rect(g.genome.get_val("taille"))
+        Population.add_individu(g)
+for g in grenouilles_bis:
         g.craft_individu()
         g.give_rect(g.genome.get_val("taille"))
         Population.add_individu(g)
 
 
 grenouille = Espece(0,0)
+grenouille_bis = Espece(1,0)
 
-liste_especes = [grenouille]
-#     clé : espece;0 : parent ; 1 : date d'apparition ; 2 : date de mort
-suivi_espece = {0 : [None,0,None]}
+liste_especes = [grenouille,grenouille_bis]
+#   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
+suivi_espece = {0 : [None, 0, None], 1 : [None,0,None]}
 
+popu1, popu2 = [], []
+for p in Population.populations:
+    if p.id_espece == 0:
+        popu1.append(p)
+    else:
+        popu2.append(p)
+suivi_espece[0].append(agentArchetype(popu1)) 
+suivi_espece[1].append(agentArchetype(popu2))
 
 
 for i in range(50):
@@ -258,6 +361,12 @@ while game_state["running"]:
                 game_state["placing_mode"] = not game_state["placing_mode"]
                 game_state["radial_open"] = False
                 print("Mode pose :", game_state["placing_mode"])
+
+            if event.key == pygame.K_g: # afficher les graphes
+                game_state["paused"] = not game_state["paused"]
+                save_json(liste_especes, suivi_espece)
+                generer_graphique_population()
+                generer_arbre_genealogique()  
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
@@ -453,29 +562,57 @@ while game_state["running"]:
     # Accélération du temps
     age += game_state["speed"]
 
-    # Gestion des espèces (inchangé)
-    if age % 180 == 0:
+    # Gestion des espèces 
+    if age%60 == 0:
         liste_especes_bis = liste_especes[:]
         for e in liste_especes_bis:
-            popu = [indi for indi in Population.populations if indi.id_espece == e.id_espece]
+            popu = []
+            for indi in Population.populations:
+                if indi.id_espece == e.id_espece:
+                    popu.append(indi)
             agent = NouvelleEspecePointDInterrogation(popu)
-
             if agent is not None:
-                a = Espece(liste_especes[-1].id_espece + 1, age)
+                a = Espece(liste_especes[-1].id_espece + 1,age)
                 liste_especes.append(a)
-                suivi_espece[a.id_espece] = [agent.id_espece, age, None]
-                agent.id_espece = a.id_espece
-
+                suivi_espece[liste_especes[-1].id_espece] = [agent.id_espece, age, None]
+                agent.id_espece = liste_especes[-1].id_espece
+                popu_bis = []
                 for indiv in popu:
-                    if moyenne_des_differences(agent, indiv) <= 0.2 and agent != indiv:
-                        indiv.id_espece = a.id_espece
+                    if moyenne_des_differences(agent,indiv) <= 0.2 and agent != indiv:
+                        indiv.id_espece = liste_especes[-1].id_espece
+                        popu_bis.append(indiv)
+                suivi_espece[liste_especes[-1].id_espece].append(agentArchetype(popu_bis))
+                
+                popu_bis_bis = []
+                for indiv in popu:
+                    if indiv.id_espece == suivi_espece[liste_especes[-1].id_espece][0]:
+                        popu_bis_bis.append(indiv)
+                suivi_espece[suivi_espece[liste_especes[-1].id_espece][0]][3] = dict(agentArchetype(popu_bis_bis))
 
-            e.update()
+                print("Changement : ")
+                for i in range(len(suivi_espece.keys())):
+                    print(i," : ", end = "")
+                    for I in range(3):
+                        print(suivi_espece[i][I],end=" ")
+                    print("")
+                for i in range(len(liste_especes)):
+                    print(i ,":", liste_especes[i].effectif)
+
+                
+                e.update()
 
         for e in liste_especes:
             if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
                 e.morte = True
                 suivi_espece[e.id_espece][2] = age
+                # print("Changement : ")
+                # for i in range(len(suivi_espece.keys())):
+                #     print(i," : ", end = "")
+                #     for I in range(3):
+                #         print(suivi_espece[i][I],end=" ")
+                #     print("")
+                # for i in range(len(liste_especes)):
+                #     print(i ,":", liste_especes[i].effectif)
 
         print(suivi_espece)
 
