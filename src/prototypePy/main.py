@@ -248,7 +248,8 @@ while running:
             if event.key == pygame.K_e: # afficher les graphes
                 paused = not(paused)
                 save_json(liste_especes, suivi_espece)
-                generer_graphique_population()            
+                generer_graphique_population()
+                generer_arbre_genealogique()            
                     
                 
 
