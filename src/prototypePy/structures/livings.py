@@ -6,111 +6,148 @@ from .individu import Individu
 from .optimisation import QuadTree
 from .environnement import WorldMap
 
-
 class Livings:
     def __init__(self):
         self.populations = []
 
     def add_individu(self, individu):
         self.populations.append(individu)
+
+    def score_survie(self, individu, world):
+        température = individu.genome.get_val("température")
+        humidité = individu.genome.get_val("humidité")
+        adaptabilité = individu.genome.get_val("adaptabilité")
+        agilité = individu.genome.get_val("agilité")
+        age = individu.age
+        env = world.get_infos_at(individu.rect.x, individu.rect.y)
+        température_env = env[0]
+        humidité_env = env[1]
+
+        temp = abs(température - température_env)
+        humi = abs(humidité - humidité_env)
+        score = (age/600*(adaptabilité + 0.5*agilité))+(adaptabilité + 0.5*agilité) - (temp + humi)
+        return score
     
+    def predation(self, ind1, ind2, world):
+        pred1 = ind1.genome.get_val("aggréssivité")
+        pred2 = ind2.genome.get_val("aggréssivité")
+
+        if abs(pred1 - pred2) >= 10:
+            if pred1 > pred2 :
+                if self.score_survie(ind1, world) > self.score_survie(ind2, world)-5:
+                    masse = 0.6 * ind2.genome.get_val("masse")
+                    self.kill(ind2)
+                    if ind1.genome.get_val("régime") != "herbivore":
+                        ind1.energie += masse
+                    print("mangerrr")
+                elif randint(0, 100) < 50:
+                    masse = 0.3 * ind2.genome.get_val("masse")
+                    self.kill(ind2)
+                    if ind1.genome.get_val("régime") != "herbivore":
+                        ind1.energie += masse
+            elif pred1 < pred2 :
+                if self.score_survie(ind1, world) < self.score_survie(ind2, world)-5:
+                    masse = 0.6 * ind1.genome.get_val("masse")
+                    self.kill(ind1)
+                    if ind2.genome.get_val("régime") != "herbivore":
+                        ind2.energie += masse
+                    print("mangerrr")
+                elif randint(0, 100) < 50:
+                    masse = 0.3 * ind1.genome.get_val("masse")
+                    self.kill(ind1)
+                    if ind2.genome.get_val("régime") != "herbivore":
+                        ind2.energie += masse
+        else:
+            if pred1 > pred2 :
+                ind1.energie -= 5
+                ind2.energie -= 10
+            elif pred1 < pred2 :
+                ind1.energie -= 10
+                ind2.energie -= 5
+                
+
     def reproduction(self, individu1, individu2, world):
         new_genome = Genome()
-        if individu1.id_espece == individu2.id_espece:
-            
-            # --- Génération du génome de l'enfant ---
-            for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
-
-                if allele1.type in ('str', 'list'):
-                    parent_allele = choice([allele1, allele2])
-
-                    if isinstance(parent_allele.valeur, list):
-                        valeur = parent_allele.valeur.copy()
-                    else:
-                        valeur = parent_allele.valeur
-
-                    new_allele = Allele(
-                        parent_allele.nom,
-                        parent_allele.al_type,
-                        parent_allele.req,
-                        valeur,
-                        parent_allele.mutation_rate,
-                        parent_allele.mutation_step,
-                        parent_allele.type
-                    )
-
-                elif allele1.type == 'int':
-                    gosse_value = (allele1.valeur + allele2.valeur) // 2
-                    parent_allele = choice([allele1, allele2])
-
-                    new_allele = Allele(
-                        parent_allele.nom,
-                        parent_allele.al_type,
-                        parent_allele.req,
-                        gosse_value,
-                        parent_allele.mutation_rate,
-                        parent_allele.mutation_step,
-                        parent_allele.type
-                    )
-
-                new_genome.add_allele(new_allele)
-
-            # --- Position du bébé ---
-            x = (individu1.rect.x + individu2.rect.x) // 2
-            y = (individu1.rect.y + individu2.rect.y) // 2
-
-            # --- CRÉATION DU BÉBÉ AVEC LA CLASSE DU PREMIER IND ---
-            # Si le parent est une espèce dérivée (Licorne, Blob, etc.)
-            if individu1.__class__ is not Individu:
-                bébé = individu1.__class__(x, y)
-
-            # Si le parent est un Individu normal(random)
-            else:
-                bébé = Individu(x, y, individu1.id_espece)
-
-
-            # --- Application du génome ---
-            bébé.give_genome(new_genome.clone())
-            bébé.give_rect(bébé.genome.get_val("taille"))
-            bébé.genome.muter()
-
-            # --- Ajout à la population ---
-            self.populations.append(bébé)
-
-            # --- Mort environnementale(PAS FINI) --- 
-            temp = bébé.genome.get_val("température")
-            hum = bébé.genome.get_val("humidité")
-            env = world.get_infos_at(bébé.rect.x, bébé.rect.y)
-
-            if abs(env[0] - temp) >= 20:
-                if randint(0, 100) < 30:
-                    self.kill(bébé)
-            elif abs(env[0] - temp) >= 10:
-                if randint(0, 100) < 20:
-                    self.kill(bébé)
-            elif abs(env[0] - temp) >= 5:
-                if randint(0, 100) < 10:
-                    self.kill(bébé)
-
+    
+        # --- Génération du génome de l'enfant ---
+        for allele1, allele2 in zip(individu1.genome.alleles, individu2.genome.alleles):
+            if allele1.type in ('str', 'list'):
+                parent_allele = choice([allele1, allele2])
+                if isinstance(parent_allele.valeur, list):
+                    valeur = parent_allele.valeur.copy()
+                else:
+                    valeur = parent_allele.valeur
+                new_allele = Allele(
+                    parent_allele.nom,
+                    parent_allele.al_type,
+                    parent_allele.req,
+                    valeur,
+                    parent_allele.mutation_rate,
+                    parent_allele.mutation_step,
+                    parent_allele.type
+                )
+            elif allele1.type == 'int':
+                gosse_value = (allele1.valeur + allele2.valeur) // 2
+                parent_allele = choice([allele1, allele2])
+                new_allele = Allele(
+                    parent_allele.nom,
+                    parent_allele.al_type,
+                    parent_allele.req,
+                    gosse_value,
+                    parent_allele.mutation_rate,
+                    parent_allele.mutation_step,
+                    parent_allele.type
+                )
+            new_genome.add_allele(new_allele)
+        # --- Position du bébé ---
+        x = (individu1.rect.x + individu2.rect.x) // 2
+        y = (individu1.rect.y + individu2.rect.y) // 2
+        # --- CRÉATION DU BÉBÉ AVEC LA CLASSE DU PREMIER IND ---
+        # Si le parent est une espèce dérivée (Licorne, Blob, etc.)
+        if individu1.__class__ is not Individu:
+            bébé = individu1.__class__(x, y)
+        # Si le parent est un Individu normal(random)
+        else:
+            bébé = Individu(x, y, individu1.id_espece)
+        # --- Application du génome ---
+        bébé.give_genome(new_genome.clone())
+        bébé.give_rect(bébé.genome.get_val("taille"))
+        bébé.genome.muter()
+        # --- Ajout à la population ---
+        self.populations.append(bébé)
+        # --- Mort environnementale(PAS FINI) --- 
+        temp = bébé.genome.get_val("température")
+        hum = bébé.genome.get_val("humidité")
+        env = world.get_infos_at(bébé.rect.x, bébé.rect.y)
+        if abs(env[0] - temp) >= 20:
+            if randint(0, 100) < 30:
+                self.kill(bébé)
+        elif abs(env[0] - temp) >= 10:
+            if randint(0, 100) < 20:
+                self.kill(bébé)
+        elif abs(env[0] - temp) >= 5:
+            if randint(0, 100) < 10:
+                self.kill(bébé)
         
-
     def on_collision(self, ind1, ind2, world):
         env1 = world.get_infos_at(ind1.rect.x, ind1.rect.y)
         env2 = world.get_infos_at(ind2.rect.x, ind2.rect.y)
         temp1 = ind1.genome.get_val("température")
         temp2 = ind2.genome.get_val("température")
-        hum1 = ind1.genome.get_val("humidité")
-        hum2 = ind2.genome.get_val("humidité")
 
-        if ind1.age >= 60 and ind2.age >= 60 and ind1.age <= 600 and ind2.age <= 600:
-            if abs(env1[1]-temp1) < 5 and abs(env2[1]-temp2) < 5:
-                self.reproduction(ind1, ind2, world)
-            elif abs(env1[0]-temp1) <= 10 and abs(env2[0]-temp2) <= 10:
-                if randint(0,100) < 75:
+        if ind1.id_espece == ind2.id_espece:
+            if ind1.age >= 60 and ind2.age >= 60 and ind1.age <= 600 and ind2.age <= 600:
+                if abs(env1[0]-temp1) < 5 and abs(env2[0]-temp2) < 5:
                     self.reproduction(ind1, ind2, world)
-            else:
-                if randint(0,100) < 20:
-                    self.reproduction(ind1, ind2, world)
+                elif abs(env1[0]-temp1) <= 10 and abs(env2[0]-temp2) <= 10:
+                    if randint(0,100) <= 75:
+                        self.reproduction(ind1, ind2, world)
+                else:
+                    if randint(0,100) <= 20:
+                        self.reproduction(ind1, ind2, world)
+        
+        else:
+            self.predation(ind1, ind2, world)
 
     def update(self, screen_width, screen_height, world):
         quad = QuadTree(0, pygame.Rect(0, 0, screen_width, screen_height))
@@ -119,16 +156,16 @@ class Livings:
         for ind in self.populations:
             quad.insert(ind)
             ind.update()
-            if not ind.is_alive():
-                self.kill(ind)
-
-        # cooldown collisions
-        for ind in self.populations:
+            if not ind.is_alive() or self.score_survie(ind, world)<-32:
+                ind.energie -= 2
             if ind.collision_cooldown > 0: 
                 ind.collision_cooldown -= 1/60
+            self.apply_boids(ind, quad)
+
+            
 
         # déplacement Boids
-        self.handle_déplacement(quad, world)
+        #self.handle_déplacement(quad, world)
 
         # collisions / reproduction
         self.handle_collisions(quad, world)
@@ -168,7 +205,7 @@ class Livings:
             dist = dist2**0.5
 
             # trop proche → on repousse
-            if dist < min_dist * 0.8:  # on laisse une petite marge pour le contact
+            if dist < min_dist * 0.5:  # on laisse une petite marge pour le contact
                 force_x += dx / dist
                 force_y += dy / dist
                 count += 1

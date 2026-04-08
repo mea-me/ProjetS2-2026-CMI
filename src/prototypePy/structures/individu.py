@@ -130,7 +130,6 @@ class Individu:
         elif y > self.rect.y:
             self.bas()
 
-
     def __repr__(self): 
         return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 
     

@@ -39,6 +39,7 @@ class InfoPanel:
         write(f"Hum : {hum}%")
 
         # Âge
-        write("")
+        #write("")
         write("=== Âge ===")
         write(f"{round(indi.age/60, 1)} ans")
+        write(f"{round(indi.energie, 1)} energie")

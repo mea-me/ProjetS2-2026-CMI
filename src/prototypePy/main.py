@@ -16,6 +16,36 @@ from especes.licorne import Licorne
 
 
 #Fonctions utilisées plus tard =)
+def explosion(screen, x, y, max_radius, entities):
+    """Explosion animée qui tue toutes les entités dans un rayon."""
+    radius = 0
+    growth = 12  # vitesse du cercle
+
+    # animation
+    while radius < max_radius:
+        pygame.time.delay(10)
+
+        # dessiner l'explosion
+        pygame.draw.circle(screen, (255, 150, 0), (x, y), radius)
+        pygame.draw.circle(screen, (255, 80, 0), (x, y), radius // 2)
+        pygame.draw.circle(screen, (255, 200, 0), (x, y), radius, 3)
+
+        pygame.display.update()
+
+        radius += growth
+
+    # tuer les entités touchées
+    killed = []
+    for e in entities:
+        ex, ey = e.rect.center
+        if (ex - x)**2 + (ey - y)**2 <= max_radius**2:
+            killed.append(e)
+
+    for e in killed:
+        entities.remove(e)
+
+    return killed
+
 
 def moyenne_des_differences(individu1, individu2):
     nb_alleles_etudiees = 0
@@ -173,7 +203,7 @@ suivi_espece = {0 : [None,0,None]}
 
 # --- AJOUT : état global du jeu ---
 game_state = {
-    "paused": False,
+    "paused": True,
     "running": True,
     "reset": False,
     "selected": None,
@@ -207,7 +237,11 @@ while game_state["running"]:
 
             if event.key == pygame.K_RETURN:
                 game_state["paused"] = not game_state["paused"]
-            
+
+            if event.key == pygame.K_1:
+                x, y = pygame.mouse.get_pos()
+                explosion(screen, x, y, 300, Population.populations)
+
             if event.key == pygame.K_p:  # touche P
                 game_state["placing_mode"] = not game_state["placing_mode"]
                 game_state["radial_open"] = False
