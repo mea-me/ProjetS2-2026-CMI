@@ -39,7 +39,6 @@ class Livings:
                     self.kill(ind2)
                     if ind1.genome.get_val("régime") != "herbivore":
                         ind1.energie += masse
-                    print("mangerrr")
                 elif randint(0, 100) < 50:
                     masse = 0.3 * ind2.genome.get_val("masse")
                     self.kill(ind2)
@@ -51,7 +50,6 @@ class Livings:
                     self.kill(ind1)
                     if ind2.genome.get_val("régime") != "herbivore":
                         ind2.energie += masse
-                    print("mangerrr")
                 elif randint(0, 100) < 50:
                     masse = 0.3 * ind1.genome.get_val("masse")
                     self.kill(ind1)
@@ -156,8 +154,10 @@ class Livings:
         for ind in self.populations:
             quad.insert(ind)
             ind.update()
-            if not ind.is_alive() or self.score_survie(ind, world)<-32:
-                ind.energie -= 2
+            if not ind.is_alive():
+                self.kill(ind)
+            elif self.score_survie(ind, world)<-32:
+                ind.energie -= 10
             if ind.collision_cooldown > 0: 
                 ind.collision_cooldown -= 1/60
             self.apply_boids(ind, quad)
@@ -417,3 +417,4 @@ class Espece() :
             #for k in self.dico_evolution_alleles.keys():
             #    print(f'{k} : {self.dico_evolution_alleles[k]}')
             #print(f'Effectif de l espèce {self.id_espece} : {self.effectif}')
+

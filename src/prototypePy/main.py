@@ -87,7 +87,6 @@ def moyenne_des_differences(individu1, individu2):
 
     return total_differences / nb_alleles_etudiees
 
-
 def agentArchetype(popu):
     taille_pop = len(popu)
     archetype = {} 
@@ -254,7 +253,6 @@ pygame.draw.ellipse(mask_surface, (255, 255, 255, 255), movement_rect)
 
 allowed_mask = pygame.mask.from_surface(mask_surface)
 
-grenouille = Espece(0,0)
 font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
@@ -291,9 +289,9 @@ for g in grenouilles_bis:
 grenouille = Espece(0,0)
 grenouille_bis = Espece(1,0)
 
-liste_especes = [grenouille,grenouille_bis]
+liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
 #   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-suivi_espece = {0 : [None, 0, None], 1 : [None,0,None]}
+suivi_espece = {"requin" : [None,0,None],"licorne" : [None, 0, None],"blob" : [None, 0, None],"dragon" : [None, 0, None],0 : [None, 0, None], 1 : [None,0,None]}
 
 popu1, popu2 = [], []
 for p in Population.populations:
@@ -301,9 +299,13 @@ for p in Population.populations:
         popu1.append(p)
     else:
         popu2.append(p)
+
+suivi_espece["requin"].append(Requin(0,0))
+suivi_espece["licorne"].append(Licorne(0,0))
+suivi_espece["blob"].append(Blob(0,0))
+suivi_espece["dragon"].append(Dragon(0,0))
 suivi_espece[0].append(agentArchetype(popu1)) 
 suivi_espece[1].append(agentArchetype(popu2))
-
 
 for i in range(50):
     valide = False
@@ -456,26 +458,45 @@ while game_state["running"]:
 
         # Réinitialiser la population
         Population.populations = []
+        #Création de grenouille---------------------------------------------
         grenouilles = []
+        grenouilles_bis = []
 
-        for i in range(5):
+        for i in range(10):
             valide = False
+            
             while not valide:
                 x, y = randint(0, W), randint(0, H)
                 if allowed_mask.get_at((x, y)):
                     valide = True
-
-            grenouilles.append(Individu(x, y, 0))
+            
+            if i > 5:       
+                grenouilles.append(Individu(x, y, 0))
+            else:
+                grenouilles_bis.append(Individu(x,y,1))
 
         for g in grenouilles:
-            g.craft_individu()
-            g.give_rect(g.genome.get_val("taille"))
-            Population.add_individu(g)
+                g.craft_individu()
+                g.give_rect(g.genome.get_val("taille"))
+                Population.add_individu(g)
+        for g in grenouilles_bis:
+                g.craft_individu()
+                g.give_rect(g.genome.get_val("taille"))
+                Population.add_individu(g)
 
         # Réinitialiser les espèces
         grenouille = Espece(0, 0)
-        liste_especes = [grenouille]
-        suivi_espece = {0: [None, 0, None]}
+        grenouille_bis = Espece(1,0)
+        liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
+        #   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
+        suivi_espece = {"requin" : [None,0,None],"licorne" : [None, 0, None],"blob" : [None, 0, None],"dragon" : [None, 0, None],0 : [None, 0, None], 1 : [None,0,None]}
+        suivi_espece["requin"].append(Requin(0,0))
+        suivi_espece["licorne"].append(Licorne(0,0))
+        suivi_espece["blob"].append(Blob(0,0))
+        suivi_espece["dragon"].append(Dragon(0,0))
+        suivi_espece[0].append(agentArchetype(popu1)) 
+        suivi_espece[1].append(agentArchetype(popu2))
+
 
         # Réinitialiser le temps
         age = 0
@@ -563,7 +584,7 @@ while game_state["running"]:
     age += game_state["speed"]
 
     # Gestion des espèces 
-    if age%60 == 0:
+    if age%180 == 0:
         liste_especes_bis = liste_especes[:]
         for e in liste_especes_bis:
             popu = []
@@ -590,7 +611,7 @@ while game_state["running"]:
                 suivi_espece[suivi_espece[liste_especes[-1].id_espece][0]][3] = dict(agentArchetype(popu_bis_bis))
 
                 print("Changement : ")
-                for i in range(len(suivi_espece.keys())):
+                for i in suivi_espece.keys():
                     print(i," : ", end = "")
                     for I in range(3):
                         print(suivi_espece[i][I],end=" ")

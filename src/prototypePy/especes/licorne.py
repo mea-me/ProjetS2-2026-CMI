@@ -94,7 +94,7 @@ class Individu:
         self.y = y
         self.rect = pygame.Rect(x, y, 5, 5)
         self.age = 0
-        self.energie = 100 # Par défaut
+        self.energie = 10000 # Par défaut
         self.alive = True
         self.genome = Genome()
         self.id_espece = espece
@@ -133,7 +133,9 @@ class Individu:
         pass
 
     def is_alive(self):
-        if self.age >= 900:
+        if self.age >= 900 or self.energie <= 0:
+           if self.energie <= 0:
+               print("mort de faim (la honte)", self.genome.get_val("régime"))
            return False 
         return True
 
