@@ -15,7 +15,7 @@ class Individu:
         self.y = y
         self.rect = pygame.Rect(x, y, 5, 5)
         self.age = 0
-        self.energie = 100 # Par défaut
+        self.energie = 10000 # Par défaut
         self.alive = True
         self.genome = Genome()
         self.id_espece = espece
@@ -40,10 +40,10 @@ class Individu:
     def update(self):
         # c'est ça qu'on fera a chaque 'tick' de la clock pygame
         self.age += 1
-        self.energie -= 0.1 * self.genome.get_val("taille") # Plus on est gros, plus on consomme
+        self.energie -= 0.001 * self.genome.get_val("taille") * self.genome.get_val("vitesse") * self.genome.get_val("masse") # Plus on est gros, plus on consomme
 
-        if self.energie <= 0:
-            self.alive = False #bleurgh##
+        # if self.energie <= 0:
+        #     self.alive = False #bleurgh##
 
     def draw(self, screen):
         color = self.genome.get_val("couleur")
@@ -66,7 +66,9 @@ class Individu:
         pass
 
     def is_alive(self):
-        if self.age >= 900:
+        if self.age >= 900 or self.energie <= 0:
+           if self.energie <= 0:
+               print("mort de faim (la honte)", self.genome.get_val("régime"))
            return False 
         return True
 
