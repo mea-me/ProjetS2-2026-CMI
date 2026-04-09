@@ -11,10 +11,7 @@ from structures.livings import Livings, Espece, Population
 from nourriture.plantes import Plante,Liste_plantes
 from structures.menu import Menu
 from info_panel import InfoPanel
-from especes.requin import Requin
-from especes.blob import Blob
-from especes.dragon import Dragon
-from especes.licorne import Licorne
+from especes.especes_predef import *
 from graph import *
 
 
@@ -195,7 +192,7 @@ def NouvelleEspecePointDInterrogation(popu):
         return agent_eloigne
 
     if moyenne_des_differences(archetype,suivi_espece[popu[0].id_espece][3]) >= 0.2:
-        print("floup")
+        #print("floup")
         distance = 1
         agent_proche = None
         for agent in popu:
@@ -577,7 +574,7 @@ while game_state["running"]:
             if event.key == pygame.K_p:  # touche P
                 game_state["placing_mode"] = not game_state["placing_mode"]
                 game_state["radial_open"] = False
-                print("Mode pose :", game_state["placing_mode"])
+                print("Mode pause :", game_state["placing_mode"])
 
             if event.key == pygame.K_g: # afficher les graphes
                 game_state["paused"] = not game_state["paused"]
@@ -800,10 +797,10 @@ while game_state["running"]:
     age += game_state["speed"]
 
     # Gestion des espèces 
+    
     if age%60 == 0:
-        for e in liste_especes:
-            print(e.effectif)
         liste_especes_bis = liste_especes[:]
+        
         for e in liste_especes_bis:
             popu = []
             for indi in Population.populations:
@@ -828,14 +825,14 @@ while game_state["running"]:
                         popu_bis_bis.append(indiv)
                 suivi_espece[suivi_espece[liste_especes[-1].id_espece][0]][3] = dict(agentArchetype(popu_bis_bis))
 
-                print("Changement : ")
-                for i in suivi_espece.keys():
-                    print(i," : ", end = "")
-                    for I in range(3):
-                        print(suivi_espece[i][I],end=" ")
-                    print("")
-                for i in range(len(liste_especes)):
-                    print(i ,":", liste_especes[i].effectif)
+                #print("Changement : ")
+                #for i in range(len(suivi_espece.keys())):
+                #    print(i," : ", end = "")
+                #    for I in range(3):
+                #        print(suivi_espece[i][I],end=" ")
+                #    print("")
+                #for i in range(len(liste_especes)):
+                #    print(i ,":", liste_especes[i].effectif)
 
                 
             e.update()
@@ -844,16 +841,16 @@ while game_state["running"]:
             if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
                 e.morte = True
                 suivi_espece[e.id_espece][2] = age
-                # print("Changement : ")
-                # for i in range(len(suivi_espece.keys())):
-                #     print(i," : ", end = "")
-                #     for I in range(3):
-                #         print(suivi_espece[i][I],end=" ")
-                #     print("")
-                # for i in range(len(liste_especes)):
-                #     print(i ,":", liste_especes[i].effectif)
+                #print("Changement : ")
+                #for i in range(len(suivi_espece.keys())):
+                #    print(i," : ", end = "")
+                #    for I in range(3):
+                #        print(suivi_espece[i][I],end=" ")
+                #    print("")
+                #for i in range(len(liste_especes)):
+                #    print(i ,":", liste_especes[i].effectif)
 
-        print(suivi_espece)
+        #print(suivi_espece)
 
         for i in range(50-len(Liste_plantes)):
                 valide = False

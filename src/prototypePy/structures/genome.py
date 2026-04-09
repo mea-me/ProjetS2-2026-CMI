@@ -43,8 +43,17 @@ class Genome:
             li += f'{str(a)};\n '
         return f'Genome({li[:-2]})'
     
-    def craft_alleles(self):
-        for key,value in dico_alleles.items():
+
+    def craft_alleles(self, template_dico=None):
+        
+        # si pas de dico d'allele propsé, on prend celui par défaut
+        if template_dico is None:
+            from .allele import dico_alleles
+            template = dico_alleles
+        else:
+            template = template_dico
+
+        for key,value in template.items():
             if value[1]:
                 if value[5] == "int":
                     self.add_allele(Allele(key,value[0],True,randint(value[2][0],value[2][1]),randint(0,100),randint(value[3][0],value[3][1]),value[5]))

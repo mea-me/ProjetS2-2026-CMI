@@ -5,6 +5,7 @@ from .allele import Allele, dico_alleles
 from .individu import Individu
 from .optimisation import QuadTree
 from .environnement import WorldMap
+from .__init__ import W, H, ALLOWED_MASK
 
 class Livings:
     def __init__(self):
@@ -304,12 +305,33 @@ class Livings:
             ind.vx = ind.vx / speed * vitesse_max
             ind.vy = ind.vy / speed * vitesse_max
 
-        # déplacement
+        # Position future anticipée
         nv_x = ind.rect.x + int(ind.vx)
         nv_y = ind.rect.y + int(ind.vy)
 
-        ind.rect.x = nv_x
-        ind.rect.y = nv_y
+        # calcul du centre de l'individu 
+        center_x = nv_x + ind.rect.width // 2
+        center_y = nv_y + ind.rect.height // 2
+
+        # toujours dans la fenetre pygame
+        if 0 <= center_x < W and 0 <= center_y < H:
+            
+            # ensuite test si dans le masque ellipse
+            if ALLOWED_MASK.get_at((center_x, center_y)):
+                ind.rect.x = nv_x
+                ind.rect.y = nv_y
+
+            # si le boug touche le mur, on "rebondit" en inversant la vitesse
+            else:
+                ind.vx *= -1
+                ind.vy *= -1
+
+        else :
+            #print("rebond 2")
+            # sortie d'écran qui va arriver, on fait rebondir avant
+            ind.vx *= -1
+            ind.vy *= -1
+
 
     def handle_déplacement(self, quad, world):
         for ind in self.populations:
@@ -413,8 +435,3 @@ class Espece() :
                     
                     if n!=0:
                         self.dico_evolution_alleles[k].append([t[0]/n,t[1]/n,t[2]/n])
-            
-            #for k in self.dico_evolution_alleles.keys():
-            #    print(f'{k} : {self.dico_evolution_alleles[k]}')
-            #print(f'Effectif de l espèce {self.id_espece} : {self.effectif}')
-
