@@ -36,7 +36,7 @@ class Menu:
             
         ]
 
-        self.button_start[
+        self.buttons_start = [
             Button(20, 75, 160, 40, "Pause / Play", self.toggle_pause),
             Button(20, 125, 160, 40, "Vitesse x1", self.speed_x1),
             Button(20, 175, 160, 40, "Vitesse x2", self.speed_x2),

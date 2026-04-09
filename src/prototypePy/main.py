@@ -1,5 +1,6 @@
 #Importation des librairies
 
+import math
 import pygame,os,sys,time, json
 from random import randint
 from structures.genome import Genome
@@ -16,6 +17,34 @@ from especes.dragon import Dragon
 from especes.licorne import Licorne
 from graph import *
 
+
+def draw_dna(surface, center, time, scale=1.5):
+    cx, cy = center
+    points = 27  # plus de détails
+    height = 250 * scale   # hauteur ADN
+    width = 100 * scale    # largeur ADN
+
+    for i in range(points):
+        y = -height // 2 + (i / points) * height
+        angle = time * 0.002 + i * 0.35
+
+        x1 = math.cos(angle) * width
+        x2 = math.cos(angle + math.pi) * width
+
+        pygame.draw.circle(
+            surface, (0, 220, 255),
+            (int(cx + x1), int(cy + y)), 7
+        )
+        pygame.draw.circle(
+            surface, (0, 140, 220),
+            (int(cx + x2), int(cy + y)), 7
+        )
+
+        pygame.draw.line(
+            surface, (60, 100, 160),
+            (cx + x1, cy + y),
+            (cx + x2, cy + y), 2
+        )
 
 def explosion(screen, x, y, max_radius, entities):
     """Explosion animée qui tue toutes les entités dans un rayon."""
@@ -46,7 +75,6 @@ def explosion(screen, x, y, max_radius, entities):
         entities.remove(e)
 
     return killed
-
 
 def moyenne_des_differences(individu1, individu2):
     """!
@@ -216,7 +244,6 @@ def draw_radial_menu(screen, pos, options):
 
 
 
-
 #Initialisation de Pygame
 pygame.init()
 
@@ -226,6 +253,200 @@ W, H = info.current_w, info.current_h
 # Pour tester sans être en plein écran total bloquant :
 screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN) 
 pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
+
+def starting_game():
+    import random
+
+    clock = pygame.time.Clock()
+    run = True
+    time = 0
+
+    blink = True
+    blink_timer = 0
+
+    # Polices
+    font_title = pygame.font.Font(None, 110)
+    font_text = pygame.font.Font(None, 48)
+    font_signature = pygame.font.Font(None, 24)
+
+    signature_text = font_signature.render(
+        "Made by ToZiLéNon", True, (255, 255, 255)
+    )
+
+    signature_shadow = font_signature.render(
+        "Made by ToZiLéNon", True, (0, 0, 0)
+    )
+
+    # Textes
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    start_text = font_text.render(
+        "Appuyez sur n'importe quelle touche pour commencer",
+        True,
+        (200, 200, 200)
+    )
+
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+    start_rect = start_text.get_rect(center=(W // 2, H * 0.8))
+
+    # Surface de bruit (créée une seule fois)
+    noise_surface = pygame.Surface((W, H))
+    noise_surface.set_alpha(12)
+
+    while run:
+        dt = clock.tick(60)
+        time += dt
+        blink_timer += dt
+
+        # --- Events ---
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
+
+            if event.type == pygame.KEYDOWN:
+                return True
+
+        if blink_timer > 600:
+            blink = not blink
+            blink_timer = 0
+
+        
+        # ---------- FOND BLEU SUBTIL (GRADIENT) ----------
+        for y in range(H):
+            blue = int(20 + (y / H) * 40)
+            pygame.draw.line(
+                screen,
+                (10, 20, blue),
+                (0, y),
+                (W, y)
+            )
+
+        # ---------- BRUIT BLEUTÉ LÉGER ----------
+        noise_surface.fill((
+            random.randint(0, 4),
+            random.randint(0, 6),
+            random.randint(8, 14)
+        ))
+        screen.blit(noise_surface, (0, 0))
+
+        # ---------- ADN ----------
+        draw_dna(screen, (W // 2, H // 2), time, scale=1.6)
+
+        # ---------- TEXTES ----------
+        screen.blit(title_text, title_rect)
+
+         # Rotation du texte (penché)
+        signature_text_rot = pygame.transform.rotate(signature_text, +15)
+        signature_shadow_rot = pygame.transform.rotate(signature_shadow, +15)
+
+
+        # Texte penché style Minecraft (ombre + texte)
+        screen.blit(signature_shadow_rot, (14, 14))
+        screen.blit(signature_text_rot, (12, 12))
+
+        if blink:
+            screen.blit(start_text, start_rect)
+
+        pygame.display.flip()
+starting_game()
+
+def menu_start():
+    import random
+    import math
+
+    clock = pygame.time.Clock()
+    time = 0
+
+    options = ["Jouer", "Options", "Quitter"]
+    selected = 0
+
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 52)
+    font_signature = pygame.font.Font(None, 24)
+
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    # Signature penchée (style Minecraft)
+    signature = font_signature.render("Made by ToZiLéNon", True, (200, 220, 255))
+    signature_shadow = font_signature.render("Made by ToZiLéNon", True, (0, 0, 0))
+    signature_rot = pygame.transform.rotate(signature, +15)
+    signature_shadow_rot = pygame.transform.rotate(signature_shadow, +15)
+
+    # Bruit
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        dt = clock.tick(60)
+        time += dt
+
+        # -------- EVENTS --------
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(options)
+
+                if event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(options)
+
+                if event.key == pygame.K_RETURN:
+                    return options[selected]
+
+        # -------- FOND BLEU SUBTIL --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        # -------- BRUIT --------
+        noise.fill((
+            random.randint(0, 3),
+            random.randint(0, 5),
+            random.randint(8, 14)
+        ))
+        screen.blit(noise, (0, 0))
+        
+        # -------- TITRE --------
+        screen.blit(title_text, title_rect)
+
+        # -------- MENU --------
+        for i, option in enumerate(options):
+            if i == selected:
+                color = (150, 200, 255)
+            else:
+                color = (200, 200, 200)
+
+            text = font_menu.render(option, True, color)
+            rect = text.get_rect(center=(W // 2, H * 0.45 + i * 70))
+            screen.blit(text, rect)
+
+            # Petit indicateur discret
+            if i == selected:
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (rect.left - 20, rect.centery), 5)
+
+        # -------- SIGNATURE --------
+        screen.blit(signature_shadow_rot, (14, 14))
+        screen.blit(signature_rot, (12, 12))
+
+        pygame.display.flip()
+
+choix = menu_start()
+
+if choix == "Jouer":
+    pass
+
+elif choix == "Options":
+    print("igigi")
+
+elif choix == "Quitter":
+    pygame.quit()
+
 
 # Initialisation du framerate pour egaliser la vitesse de jeu sur toutes les machines
 framerate = 60
@@ -330,15 +551,9 @@ game_state = {
     "speed": 1,
     "skip": 0
 }
-
+# création du menu et du panel
 menu = Menu(screen, game_state)
 info_panel = InfoPanel(screen)
-
-
-
-shark = Requin(500, 500)
-Population.add_individu(shark)
-
 
 while game_state["running"]:
 
@@ -452,6 +667,7 @@ while game_state["running"]:
 
     # --- RESET ---
     if game_state["reset"]:
+        game_state["paused"] = True
         # Réinitialiser le monde
         world = WorldMap(W, H)
         world.procedural_generation()
@@ -489,7 +705,7 @@ while game_state["running"]:
         grenouille_bis = Espece(1,0)
         liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
         #   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-        suivi_espece = {"requin" : [None,0,None],"licorne" : [None, 0, None],"blob" : [None, 0, None],"dragon" : [None, 0, None],0 : [None, 0, None], 1 : [None,0,None]}
+        suivi_espece = {"requin" : ["TOBLADZ",0,None],"licorne" : ["TOBLADZ", 0, None],"blob" : ["TOBLADZ", 0, None],"dragon" : ["TOBLADZ", 0, None],0 : ["TOBLADZ", 0, None], 1 : ["TOBLADZ",0,None]}
         suivi_espece["requin"].append(Requin(0,0))
         suivi_espece["licorne"].append(Licorne(0,0))
         suivi_espece["blob"].append(Blob(0,0))
@@ -584,7 +800,9 @@ while game_state["running"]:
     age += game_state["speed"]
 
     # Gestion des espèces 
-    if age%180 == 0:
+    if age%60 == 0:
+        for e in liste_especes:
+            print(e.effectif)
         liste_especes_bis = liste_especes[:]
         for e in liste_especes_bis:
             popu = []
@@ -620,7 +838,7 @@ while game_state["running"]:
                     print(i ,":", liste_especes[i].effectif)
 
                 
-                e.update()
+            e.update()
 
         for e in liste_especes:
             if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:

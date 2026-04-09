@@ -9,16 +9,20 @@ sns.set_theme(style="darkgrid")
 def save_json(liste_especes, suivi_espece):
     data_export = {}
     for esp in liste_especes:
-        # JSON pref les clés texte
-        str_id = str(esp.id_espece)
-        infos = suivi_espece[esp.id_espece]
-        
-        data_export[str_id] = {
-            "parent": infos[0],
-            "annee_naissance": infos[1],
-            "annee_mort": infos[2],
-            "historique_effectif": esp.effectif
-        }
+        s = 0
+        for i in esp.effectif :
+            s += i
+        if i != 0:
+            # JSON pref les clés texte
+            str_id = str(esp.id_espece)
+            infos = suivi_espece[esp.id_espece]
+            
+            data_export[str_id] = {
+                "parent": infos[0],
+                "annee_naissance": infos[1],
+                "annee_mort": infos[2],
+                "historique_effectif": esp.effectif
+            }
     
     with open("./data/evolution_data.json", "w") as f:
         json.dump(data_export, f, indent=4)
@@ -82,7 +86,7 @@ def generer_arbre_genealogique():
         if noeud in generations:
             return generations[noeud]
         parent = data[noeud].get("parent")
-        if parent is None or str(parent) not in data or str(parent) == noeud:
+        if parent is None :
             generations[noeud] = 0
             return 0
         gen = calculer_generation(str(parent)) + 1

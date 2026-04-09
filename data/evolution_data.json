@@ -1,50 +1,11 @@
 {
-    "requin": {
-        "parent": null,
-        "annee_naissance": 0,
-        "annee_mort": null,
-        "historique_effectif": [
-            0,
-            4,
-            30
-        ]
-    },
-    "licorne": {
-        "parent": null,
-        "annee_naissance": 0,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "blob": {
-        "parent": null,
-        "annee_naissance": 0,
-        "annee_mort": null,
-        "historique_effectif": [
-            0,
-            5,
-            14,
-            13,
-            14
-        ]
-    },
-    "dragon": {
-        "parent": null,
-        "annee_naissance": 0,
-        "annee_mort": null,
-        "historique_effectif": [
-            0,
-            4,
-            2,
-            36
-        ]
-    },
     "0": {
         "parent": null,
         "annee_naissance": 0,
         "annee_mort": null,
         "historique_effectif": [
+            4,
+            4,
             4
         ]
     },
@@ -53,79 +14,9 @@
         "annee_naissance": 0,
         "annee_mort": null,
         "historique_effectif": [
-            6
-        ]
-    },
-    "2": {
-        "parent": "requin",
-        "annee_naissance": 60,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "3": {
-        "parent": "dragon",
-        "annee_naissance": 420,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "4": {
-        "parent": "requin",
-        "annee_naissance": 480,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "5": {
-        "parent": "dragon",
-        "annee_naissance": 480,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "6": {
-        "parent": "dragon",
-        "annee_naissance": 2340,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "7": {
-        "parent": "blob",
-        "annee_naissance": 3000,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "8": {
-        "parent": "blob",
-        "annee_naissance": 3540,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "9": {
-        "parent": "blob",
-        "annee_naissance": 3900,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
-        ]
-    },
-    "10": {
-        "parent": "blob",
-        "annee_naissance": 5760,
-        "annee_mort": null,
-        "historique_effectif": [
-            0
+            6,
+            6,
+            7
         ]
     }
 }
