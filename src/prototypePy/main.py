@@ -2,6 +2,7 @@
 
 import math
 import pygame,os,sys,time, json
+import random
 from random import randint
 from structures.genome import Genome
 from structures.allele import Allele, dico_alleles
@@ -204,7 +205,6 @@ def NouvelleEspecePointDInterrogation(popu):
     
     return None
 
-
 radial_options = [
     {"name": "Random", "color": (120, 180, 255)},
     {"name": "Requin", "color": (255, 80, 80)},
@@ -240,7 +240,6 @@ def draw_radial_menu(screen, pos, options):
     return button_positions
 
 
-
 #Initialisation de Pygame
 pygame.init()
 
@@ -252,8 +251,6 @@ screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
 pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
 
 def starting_game():
-    import random
-
     clock = pygame.time.Clock()
     run = True
     time = 0
@@ -345,12 +342,8 @@ def starting_game():
             screen.blit(start_text, start_rect)
 
         pygame.display.flip()
-starting_game()
 
 def menu_start():
-    import random
-    import math
-
     clock = pygame.time.Clock()
     time = 0
 
@@ -433,16 +426,370 @@ def menu_start():
 
         pygame.display.flip()
 
-choix = menu_start()
+def menu_options():
+    clock = pygame.time.Clock()
+    time = 0
 
-if choix == "Jouer":
-    pass
+    menu_items = ["Map", "Espece", "Retour"]
+    selected = 0
 
-elif choix == "Options":
-    print("igigi")
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 52)
 
-elif choix == "Quitter":
-    pygame.quit()
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    # Bruit
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        dt = clock.tick(60)
+        time += dt
+
+        # ----- EVENTS -----
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(menu_items)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(menu_items)
+
+                elif event.key == pygame.K_RETURN:
+                    return menu_items[selected]
+
+        # -------- FOND BLEU SUBTIL --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        # -------- BRUIT --------
+        noise.fill((
+            random.randint(0, 3),
+            random.randint(0, 5),
+            random.randint(8, 14)
+        ))
+        screen.blit(noise, (0, 0))
+        
+        # -------- TITRE --------
+        screen.blit(title_text, title_rect)
+
+        # ----- MENU -----
+        for i, item in enumerate(menu_items):
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+
+            text = item
+
+            render = font_menu.render(text, True, color)
+            rect = render.get_rect(center=(W // 2, H * 0.4 + i * 60))
+            screen.blit(render, rect)
+
+            if i == selected:
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (rect.left - 20, rect.centery), 5)
+
+        pygame.display.flip()
+
+def Map_options():
+    import random
+
+    clock = pygame.time.Clock()
+
+    # ----- OPTIONS CLASSIQUES -----
+    settings = {
+        "Taille": ["S", "M", "L", "XL"],
+        "Compléxité": ["1", "2", "3", "4", "5"]
+    }
+
+    values_index = {
+        "Taille": 1,
+        "Compléxité": 1
+    }
+
+    # ----- SLIDERS (souris) -----
+    temperature = 0.5   # -20 → 40
+    humidity = 0.5      # 0 → 100
+    active_slider = None
+
+    menu_items = ["Taille", "Compléxité", "Température", "Humidité", "Retour"]
+    selected = 0
+
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 52)
+
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    # Bruit
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    slider_width = 320
+
+    while True:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            # -------- CLAVIER --------
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(menu_items)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(menu_items)
+
+                elif event.key == pygame.K_LEFT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] - 1) % len(settings[item])
+
+                elif event.key == pygame.K_RIGHT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] + 1) % len(settings[item])
+
+                elif event.key == pygame.K_RETURN and menu_items[selected] == "Retour":
+                    return {
+                        "Taille": settings["Taille"][values_index["Taille"]],
+                        "Compléxité": int(settings["Compléxité"][values_index["Compléxité"]]),
+                        "Température": int(-20 + temperature * 60),
+                        "Humidité": int(humidity * 100)
+                    }
+
+            # -------- SOURIS (SLIDERS) --------
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = event.pos
+                slider_x = W // 2 - slider_width // 2
+
+                y_temp = int(H * 0.4 + 2 * 65 + 30)
+                y_hum = int(H * 0.4 + 3 * 65 + 30)
+
+                if slider_x <= mx <= slider_x + slider_width:
+                    if abs(my - y_temp) < 12:
+                        active_slider = "Température"
+                    elif abs(my - y_hum) < 12:
+                        active_slider = "Humidité"
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                active_slider = None
+
+            elif event.type == pygame.MOUSEMOTION and active_slider:
+                mx, _ = event.pos
+                slider_x = W // 2 - slider_width // 2
+                value = (mx - slider_x) / slider_width
+                value = max(0.0, min(1.0, value))
+
+                if active_slider == "Température":
+                    temperature = value
+                else:
+                    humidity = value
+
+        # -------- FOND --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        noise.fill((random.randint(0, 3), random.randint(0, 5), random.randint(8, 14)))
+        screen.blit(noise, (0, 0))
+
+        screen.blit(title_text, title_rect)
+
+        # -------- MENU --------
+        for i, item in enumerate(menu_items):
+            y_pos = int(H * 0.4 + i * 65)
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+
+            if item in settings:
+                value = settings[item][values_index[item]]
+                txt = f"{item} : {value}"
+                r = font_menu.render(txt, True, color)
+
+            elif item == "Température":
+                v = int(-20 + temperature * 60)
+                r = font_menu.render(f"Température : {v}°C", True, color)
+
+                sx = W // 2 - slider_width // 2
+                pygame.draw.rect(screen, (90, 90, 120), (sx, y_pos + 30, slider_width, 4))
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (int(sx + temperature * slider_width), y_pos + 32), 8)
+
+            elif item == "Humidité":
+                v = int(humidity * 100)
+                r = font_menu.render(f"Humidité : {v}%", True, color)
+
+                sx = W // 2 - slider_width // 2
+                pygame.draw.rect(screen, (90, 90, 120), (sx, y_pos + 30, slider_width, 4))
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (int(sx + humidity * slider_width), y_pos + 32), 8)
+
+            else:
+                r = font_menu.render(item, True, color)
+
+            screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
+
+            if i == selected:
+                pygame.draw.circle(screen, (150, 200, 255), (W // 2 - 230, y_pos), 6)
+
+        pygame.display.flip()  
+            
+def Espece_options():
+    clock = pygame.time.Clock()
+    time = 0
+
+    # ----- OPTIONS -----
+    settings = {
+        "Taille": ["S", "M", "L", "XL"],
+        "Compléxité": ["1", "2", "3", "4", "5"],
+        "Base": ["1", "2", "3", "4", "5"],
+        "Base": ["1", "2", "3", "4", "5"]
+    }
+
+    values_index = {
+        "Taille": 1,
+        "Compléxité": 1
+    }
+
+    menu_items = ["Démarrer", "Taille", "Compléxité", "Retour"]
+    selected = 0
+
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 52)
+    font_signature = pygame.font.Font(None, 24)
+
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    # Bruit
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        dt = clock.tick(60)
+        time += dt
+
+        # ----- EVENTS -----
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(menu_items)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(menu_items)
+
+                elif event.key == pygame.K_LEFT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] - 1) % len(settings[item])
+
+                elif event.key == pygame.K_RIGHT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] + 1) % len(settings[item])
+
+                elif event.key == pygame.K_RETURN:
+                    if menu_items[selected] == "Démarrer":
+                        return settings, values_index
+
+                    if menu_items[selected] == "Retour":
+                        return None
+
+        # -------- FOND BLEU SUBTIL --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        # -------- BRUIT --------
+        noise.fill((
+            random.randint(0, 3),
+            random.randint(0, 5),
+            random.randint(8, 14)
+        ))
+        screen.blit(noise, (0, 0))
+        
+        # -------- TITRE --------
+        screen.blit(title_text, title_rect)
+
+        # ----- MENU -----
+        for i, item in enumerate(menu_items):
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+
+            if item in settings:
+                value = settings[item][values_index[item]]
+                text = f"{item} : {value}"
+            else:
+                text = item
+
+            render = font_menu.render(text, True, color)
+            rect = render.get_rect(center=(W // 2, H * 0.4 + i * 60))
+            screen.blit(render, rect)
+
+            if i == selected:
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (rect.left - 20, rect.centery), 5)
+
+        pygame.display.flip()
+
+
+Map_taille=None
+running = True
+starting_game()
+while running:
+    choix = menu_start()
+
+    if choix == "Jouer":
+        running = False
+
+    elif choix == "Options":
+        while True:
+            option = menu_options()
+
+            if option == "Map":
+                while True:
+                    result = Map_options()
+                    if result:
+                        # Taille de la map
+                        taille_map_conversion = {
+                            "S": 15,
+                            "M": 60,
+                            "L": 140,
+                            "XL": 250
+                        }
+
+                        Map_taille = taille_map_conversion[result["Taille"]]
+                        Map_complexite = int(result["Compléxité"])
+                        Map_temperature = result["Température"]
+                        Map_humidite = result["Humidité"]
+                    break
+            elif option == "Espece":
+                while True:
+                    result = Espece_options()
+                    if result == "Retour":
+                        break
+                    else:
+                        print("Espèce sélectionnée")
+
+            elif option == "Retour":
+                break
+
+    elif choix == "Quitter":
+        pygame.quit()
+        running = False
 
 
 # Initialisation du framerate pour egaliser la vitesse de jeu sur toutes les machines
@@ -475,7 +822,10 @@ font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
 # génération de la map procédurale
-world.procedural_generation()
+if Map_taille!=None:
+    world.procedural_generation(Map_taille,Map_complexite)
+else:
+    world.procedural_generation()
 
 #Création de grenouille-----------------------------------------------------------------
 grenouilles = []
@@ -667,7 +1017,10 @@ while game_state["running"]:
         game_state["paused"] = True
         # Réinitialiser le monde
         world = WorldMap(W, H)
-        world.procedural_generation()
+        if Map_taille!=None:
+            world.procedural_generation(Map_taille,Map_complexite)
+        else:
+            world.procedural_generation()
 
         # Réinitialiser la population
         Population.populations = []

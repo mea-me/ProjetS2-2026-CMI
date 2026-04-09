@@ -179,13 +179,24 @@ class WorldMap:
         bg = dico_biomes[self.background_biome]
         return bg["temperature"], bg["humidite"], self.background_biome
 
-    def procedural_generation(self, taille=80, complx=3):
+
+    def procedural_generation(self, taille=80, complx=3, composition=None, bg_biome="ocean"):
         """
         @brief Génère une carte complète avec continents, plages, et biomes internes.
         @param taille Nombre de base définissant le volume de l'ossature (continents).
         @param complx Facteur de complexité [1 à 5] modifiant la densité et l'éparpillement.
         """
+        self.background_biome = bg_biome
+        if composition is None:
+            composition = {
+                "foret": 5, 
+                "desert": 5, 
+                "neige": 5, 
+                "montagne": 5
+            }
+        
         complx = max(1, min(int(complx), 5))
+        complx *= 2
 
         ###### Gération de la couche terrestre de 1er niveau
         ossature = []
@@ -201,50 +212,50 @@ class WorldMap:
 
             ossature.append(Biome("plaine", bX, bY, bW, bH))
 
-        ###### Création du dégradé d'eau (Eaux peu profondes)
-        self._shallow_water_maker(ossature)
-
-        ###### Création des plages
-        self._beach_maker(ossature)
+        ###### Création de la transition 
+        if self.background_biome in ["ocean", "lagon"]:
+            self._shallow_water_maker(ossature) # Dégradé d'eau
+            self._beach_maker(ossature) # Plage
+        else:
+            # Si le fond n'est PAS aquatique : pas de plage ni dégradé
+            for t in ossature:
+                self.biomes.append(t)
 
         ###### Génération des biomes intra couche terrestre de 1er niveau
         reduc = complx**0.5 #réduire taille et forcer a se chevaucher -> anti-trous
 
-        intra_biomes = {
-            "foret": {
-                "clusters": randint(1, complx),
-                "rects": int(8 * complx**1.5),
-                "t_min": 0.04 / reduc,
-                "t_max": 0.12 / reduc,
-                "spread": 0.12 / reduc,
-            },
-            "desert": {
-                "clusters": randint(1, complx),
-                "rects": int(5 * complx**1.5),
-                "t_min": 0.08 / reduc,
-                "t_max": 0.18 / reduc,
-                "spread": 0.08 / reduc,
-            },
-            "neige": {
-                "clusters": randint(1, complx),
-                "rects": int(4 * complx**1.5),
-                "t_min": 0.03 / reduc,
-                "t_max": 0.12 / reduc,
-                "spread": 0.07 / reduc,
-            },
-            "montagne": {
-                "clusters": randint(1, complx),
-                "rects": int(taille * 0.15),  # 15% du total des zones
-                "t_min": 0.03,
-                "t_max": 0.08,
-                "spread": 0.05,
-            },
-        }
+        # calcule dynamique de intra_biomes
+        intra_biomes = {}
+        for nom, base_clusters, base_rects, tmin, tmax, spread in [
+        ("foret", randint(1, complx), int(8 * complx**1.5), 0.04/reduc, 0.12/reduc, 0.12/reduc),
+        ("desert", randint(1, complx), int(5 * complx**1.5), 0.08/reduc, 0.18/reduc, 0.08/reduc),
+        ("neige", randint(1, complx), int(4 * complx**1.5), 0.03/reduc, 0.12/reduc, 0.07/reduc),
+        ("montagne", randint(1, complx), int(taille * 0.15), 0.03, 0.08, 0.05)]:
+            
+            val_slider = composition[nom]
+
+            # slider à 0 : on annule ce biome
+            if val_slider == 0:
+                continue
+                
+            # --- LES MATHS DE L'IMPACT EXTRÊME ---
+            # De 1 à 5: * normal (0.2 -> 1.0)
+            # De 6 à 10: * quadratique (1 -> 4)
+            multi_qte = (val_slider / 5.0) if val_slider <= 5 else ((val_slider / 5.0) ** 2)
+            
+            # La taille des zones grossit aussi 
+            multi_taille = 0.5 + (val_slider / 10.0)
+
+            intra_biomes[nom] = {
+                "clusters": max(1, int(base_clusters * multi_qte)),
+                "rects": max(1, int(base_rects * multi_qte)),
+                "t_min": tmin * multi_taille,
+                "t_max": tmax * multi_taille,
+                "spread": spread * (multi_taille * 1.2), # L'étalement augmente encore plus
+            }
 
         # mémoriser les épicentres --> éparpiller
         epicentres_utilises = []
-
-        # Pré-calcul des distances pour éviter les recalculs dans la boucle
         dist_x_min = 0.13 * self.width
         dist_y_min = 0.13 * self.height
 
@@ -287,7 +298,7 @@ class WorldMap:
 
                     # montagnes = indépendantes --> pas besoin d'être sur la plaine
                     if nom_actuel == "plaine" or nom_biome == "montagne":
-                        if noyau_W is not None:
+                        if noyau_W is None:
                             # ANTI-TROUS : gros bloc "noyau" au centre
                             noyau_W = cfg["t_max"] * self.width
                             noyau_H = cfg["t_max"] * self.height
@@ -333,13 +344,16 @@ class WorldMap:
         bg_color = dico_biomes[self.background_biome]["color"]
         self.merge_img.fill(bg_color)
 
-        # tiles de vagues sur l'ocean
-        data = self.asset_manager.assets["ocean"]
-        tile_size = self.asset_manager.tile_size
-        for px in range(0, self.width, tile_size):
-            for py in range(0, self.height, tile_size):
-                img = choices(data["images"], weights= data["poids"])[0]
-                self.merge_img.blit(img, (px, py))
+        # tiles de fond
+        if self.background_biome in self.asset_manager.assets and self.asset_manager.assets[self.background_biome]["images"]:
+            data = self.asset_manager.assets[self.background_biome]
+            tile_size = self.asset_manager.tile_size
+            
+            # éviter de dessiner des tiles sous la carte si taille d'écran géante (opti)
+            for px in range(0, self.width, tile_size):
+                for py in range(0, self.height, tile_size):
+                    img = choices(data["images"], weights=data["poids"])[0]
+                    self.merge_img.blit(img, (px, py))
 
         # PAR DESSUS, le reste du monde
         for b in self.biomes:
