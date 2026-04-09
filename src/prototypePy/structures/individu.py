@@ -55,8 +55,9 @@ class Individu:
 
         screen.blit(sprite, self.rect.topleft)
 
-    def craft_individu(self):
-        self.genome.craft_alleles()
+
+    def craft_individu(self, template_dico=None):
+        self.genome.craft_alleles(template_dico)
         
 
     def give_rect(self,size):
@@ -67,8 +68,8 @@ class Individu:
 
     def is_alive(self):
         if self.age >= 900 or self.energie <= 0:
-           if self.energie <= 0:
-               print("mort de faim (la honte)", self.genome.get_val("régime"))
+           #if self.energie <= 0:
+               #print("mort de faim (la honte)", self.genome.get_val("régime"))
            return False 
         return True
 
@@ -88,55 +89,35 @@ class Individu:
         except IndexError:
             pass # si ils sont débilent et essayent d'aller la ou ils ont pas le droit
 
-    def move_towards(self, target_x, target_y):
-        vitesse = self.genome.get_val("vitesse")
 
-        dx = target_x - self.rect.x
-        dy = target_y - self.rect.y
+    # déplacement d'avant
 
-        # distance
-        dist = max(1, (dx*dx + dy*dy)**0.5)
-
-        # attraction douce
-        self.rect.x += int((dx / dist) * vitesse * 0.5)
-        self.rect.y += int((dy / dist) * vitesse * 0.5)
-
-        # petit bruit aléatoire pour éviter les clusters
-        self.rect.x += random.choice([-1, 0, 1])
-        self.rect.y += random.choice([-1, 0, 1])
-
-    def haut(self):
-        vitesse = self.genome.get_val("vitesse")
-        self.rect.y -= vitesse 
-
-    def bas(self):
-        vitesse = self.genome.get_val("vitesse")
-        self.rect.y += vitesse
-
-    def gauche(self):
-        vitesse = self.genome.get_val("vitesse")
-        self.rect.x -= vitesse
-
-    def droite(self):
-        vitesse = self.genome.get_val("vitesse")
-        self.rect.x += vitesse
-
-    def get_close(self, x, y):
-        if x < self.rect.x:
-            self.gauche()
-        elif x > self.rect.x:
-            self.droite()
-
-        if y < self.rect.y:
-            self.haut()
-        elif y > self.rect.y:
-            self.bas()
+    #def haut(self):
+    #    vitesse = self.genome.get_val("vitesse")
+    #    self.rect.y -= vitesse 
+#
+    #def bas(self):
+    #    vitesse = self.genome.get_val("vitesse")
+    #    self.rect.y += vitesse
+#
+    #def gauche(self):
+    #    vitesse = self.genome.get_val("vitesse")
+    #    self.rect.x -= vitesse
+#
+    #def droite(self):
+    #    vitesse = self.genome.get_val("vitesse")
+    #    self.rect.x += vitesse
+#
+    #def get_close(self, x, y):
+    #    if x < self.rect.x:
+    #        self.gauche()
+    #    elif x > self.rect.x:
+    #        self.droite()
+#
+    #    if y < self.rect.y:
+    #        self.haut()
+    #    elif y > self.rect.y:
+    #        self.bas()
 
     def __repr__(self): 
-        return f"Individu :\n{repr(self.genome)}"  # la aussi c'est une idée 
-    
-    def __del__(self):
-        pass
-    
-
-    
+        return f"Individu :\n{repr(self.genome)}"     

@@ -1,6 +1,6 @@
-#Même vide, ce fichier dit à Python :
-#➡️ “Ce dossier est un module importable”.
-#D'après copilot
+"""
+@brief Fichier permettant le transfert de variable "d'environnements"
+"""
 
 import pygame
 pygame.init()

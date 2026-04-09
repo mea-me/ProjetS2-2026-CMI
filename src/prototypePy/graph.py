@@ -97,24 +97,31 @@ def generer_arbre_genealogique():
     pos_verticales = {noeud: (x, -y) for noeud, (y, x) in pos_initiales.items()}
 
     plt.figure(figsize=(10, 6))
-    plt.gcf().set_facecolor('#1e1e1e') # fond de la fenêtre
+    #plt.gcf().set_facecolor('#1e1e1e') # fond de la fenêtre
     ax = plt.gca()
-    ax.set_facecolor('#1e1e1e')        # fond du graphique
+    #ax.set_facecolor('#1e1e1e')        # fond du graphique"""
 
     plt.title("Arbre d'évolution des espèces", fontsize=16, color="white", pad=20)
+
+    M = G.number_of_edges()
+    edge_colors = range(2, M + 2)
+    edge_alphas = [(5 + i) / (M + 4) for i in range(M)]
+    cmap = plt.cm.plasma
 
     # fait le graphe fr
     nx.draw(G, pos_verticales, 
             ax=ax,
             with_labels=True, 
             node_size=2000, 
-            node_color="#4C72B0", 
+            node_color="indigo", 
             font_size=10, 
             font_weight="bold", 
             font_color="white", 
-            edge_color="#000000", 
+            edge_color=edge_colors, 
+            edge_cmap=cmap,
             arrows=True, 
-            arrowsize=20, 
+            arrowstyle="->",
+            arrowsize=10, 
             width=2)
 
     plt.tight_layout()
