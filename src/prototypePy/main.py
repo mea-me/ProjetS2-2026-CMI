@@ -577,10 +577,11 @@ while game_state["running"]:
                 print("Mode pause :", game_state["placing_mode"])
 
             if event.key == pygame.K_g: # afficher les graphes
-                game_state["paused"] = not game_state["paused"]
+                game_state["paused"] = True
                 save_json(liste_especes, suivi_espece)
                 generer_graphique_population()
                 generer_arbre_genealogique()  
+                generer_graphique_allele("taille")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
@@ -702,7 +703,7 @@ while game_state["running"]:
         grenouille_bis = Espece(1,0)
         liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
         #   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-        suivi_espece = {"requin" : ["TOBLADZ",0,None],"licorne" : ["TOBLADZ", 0, None],"blob" : ["TOBLADZ", 0, None],"dragon" : ["TOBLADZ", 0, None],0 : ["TOBLADZ", 0, None], 1 : ["TOBLADZ",0,None]}
+        suivi_espece = {"requin" : [None,0,None],"licorne" : [None, 0, None],"blob" : [None, 0, None],"dragon" : [None, 0, None],0 : [None, 0, None], 1 : [None,0,None]}
         suivi_espece["requin"].append(Requin(0,0))
         suivi_espece["licorne"].append(Licorne(0,0))
         suivi_espece["blob"].append(Blob(0,0))
