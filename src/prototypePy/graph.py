@@ -2,6 +2,7 @@ import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
+from structures.environnement import dico_biomes
 
 # Appliquer le style Seaborn
 sns.set_theme(style="darkgrid")
@@ -28,12 +29,17 @@ def save_json(liste_especes, suivi_espece):
     with open("./data/evolution_data.json", "w") as f:
         json.dump(data_export, f, indent=4)
 
-def generer_graphique_allele(allele):
+def generer_graphique_allele(allele,age):
     with open("./data/evolution_data.json", "r") as f:
         data = json.load(f)
 
     plt.figure(figsize=(12, 6))
     max_annee = 0 #pour regler le x
+
+    if allele == "humidité" or allele == "température":
+        l = list(range(0, age))
+        for biome in dico_biomes.keys():
+            sns.lineplot(x = l, y = dico_biomes[biome][allele], label = f"{allele} dans {biome}", linewidth = 15)
 
     for esp_id, infos in data.items():
         historique = infos["allele"][allele]

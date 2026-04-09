@@ -583,7 +583,7 @@ while game_state["running"]:
                 generer_arbre_genealogique()
                 for allele in dico_alleles.keys():
                     if dico_alleles[allele][5] == "int":
-                        generer_graphique_allele(allele)
+                        generer_graphique_allele(allele,age)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
