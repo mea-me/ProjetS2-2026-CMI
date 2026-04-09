@@ -580,8 +580,10 @@ while game_state["running"]:
                 game_state["paused"] = True
                 save_json(liste_especes, suivi_espece)
                 generer_graphique_population()
-                generer_arbre_genealogique()  
-                generer_graphique_allele("taille")
+                generer_arbre_genealogique()
+                for allele in dico_alleles.keys():
+                    if dico_alleles[allele][5] == "int":
+                        generer_graphique_allele(allele)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()

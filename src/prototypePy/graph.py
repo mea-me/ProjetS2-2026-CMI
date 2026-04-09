@@ -12,7 +12,7 @@ def save_json(liste_especes, suivi_espece):
         s = 0
         for i in esp.effectif :
             s += i
-        if i != 0:
+        if s != 0:
             # JSON pref les clés texte
             str_id = str(esp.id_espece)
             infos = suivi_espece[esp.id_espece]
@@ -61,8 +61,8 @@ def generer_graphique_allele(allele):
     plt.title(f"Évolution de l'allèle {allele} des espèces au fil du temps", fontsize=16)
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Valeur", fontsize=12)
-    plt.xlim(0, max_annee)
-    plt.ylim(0,100)
+    if max_annee > 0:
+        plt.xlim(0, max_annee)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
     plt.tight_layout() # ajuster les marges
     
@@ -101,7 +101,8 @@ def generer_graphique_population():
     plt.title("Évolution de la population des espèces au fil du temps", fontsize=16)
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Effectifs", fontsize=12)
-    plt.xlim(0, max_annee)
+    if max_annee > 0:
+        plt.xlim(0, max_annee)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
     plt.tight_layout() # ajuster les marges
     
