@@ -497,32 +497,32 @@ def menu_options():
         pygame.display.flip()
 
 def Map_options():
-    import random
-
     clock = pygame.time.Clock()
+
+    def reset_settings():
+        return {"Taille": 1, "Compléxité": 2, "Fond": 0}, {"Forêt": 0.5, "Désert": 0.5, "Neige": 0.5, "Montagne": 0.5}
+
 
     # ----- OPTIONS CLASSIQUES -----
     settings = {
         "Taille": ["S", "M", "L", "XL"],
-        "Compléxité": ["1", "2", "3", "4", "5"]
+        "Compléxité": ["1", "2", "3", "4", "5"],
+        "Fond": ["ocean", "lagon", "desert", "neige", "plaine"]
     }
 
-    values_index = {
-        "Taille": 1,
-        "Compléxité": 1
-    }
-
-    # ----- SLIDERS (souris) -----
-    temperature = 0.5   # -20 → 40
-    humidity = 0.5      # 0 → 100
+    values_index, biomes_sliders = reset_settings()
     active_slider = None
 
-    menu_items = ["Taille", "Compléxité", "Température", "Humidité", "Retour"]
+    menu_items = [
+        "Taille", "Compléxité", "Fond", 
+        "Forêt", "Désert", "Neige", "Montagne", 
+        "Réinitialiser", "Retour"
+    ]
     selected = 0
 
     # -------- FONTS --------
     font_title = pygame.font.Font(None, 110)
-    font_menu = pygame.font.Font(None, 52)
+    font_menu = pygame.font.Font(None, 50)
 
     title_text = font_title.render("NeoRiza", True, (255, 255, 255))
     title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
@@ -532,6 +532,8 @@ def Map_options():
     noise.set_alpha(14)
 
     slider_width = 320
+    start_y = H * 0.25 # début + haut pour + d'options
+    step_y = 60   # espacement ligne
 
     while True:
         clock.tick(60)
@@ -559,13 +561,25 @@ def Map_options():
                     if item in settings:
                         values_index[item] = (values_index[item] + 1) % len(settings[item])
 
-                elif event.key == pygame.K_RETURN and menu_items[selected] == "Retour":
-                    return {
-                        "Taille": settings["Taille"][values_index["Taille"]],
-                        "Compléxité": int(settings["Compléxité"][values_index["Compléxité"]]),
-                        "Température": int(-20 + temperature * 60),
-                        "Humidité": int(humidity * 100)
-                    }
+                elif event.key == pygame.K_RETURN:
+                    item = menu_items[selected]
+                    
+                    if item == "Réinitialiser":
+                        values_index, biomes_sliders = reset_settings()
+                        
+                    elif item == "Retour":
+                        # formaté pour WorldMap
+                        return {
+                            "Taille": settings["Taille"][values_index["Taille"]],
+                            "Compléxité": int(settings["Compléxité"][values_index["Compléxité"]]),
+                            "Fond": settings["Fond"][values_index["Fond"]],
+                            "Composition": {
+                                "foret": int(biomes_sliders["Forêt"] * 10),
+                                "desert": int(biomes_sliders["Désert"] * 10),
+                                "neige": int(biomes_sliders["Neige"] * 10),
+                                "montagne": int(biomes_sliders["Montagne"] * 10)
+                            }
+                        }
 
             # -------- SOURIS (SLIDERS) --------
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -575,11 +589,12 @@ def Map_options():
                 y_temp = int(H * 0.4 + 2 * 65 + 30)
                 y_hum = int(H * 0.4 + 3 * 65 + 30)
 
-                if slider_x <= mx <= slider_x + slider_width:
-                    if abs(my - y_temp) < 12:
-                        active_slider = "Température"
-                    elif abs(my - y_hum) < 12:
-                        active_slider = "Humidité"
+                if slider_x <= mx <= slider_x + slider_width:   
+                    for i, item in enumerate(menu_items): 
+                        if item in biomes_sliders: # chercher le slider en question
+                            y_pos = int(start_y + i * step_y) +30
+                            if abs(my - y_pos) < 15: 
+                                active_slider = item
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 active_slider = None
@@ -589,11 +604,7 @@ def Map_options():
                 slider_x = W // 2 - slider_width // 2
                 value = (mx - slider_x) / slider_width
                 value = max(0.0, min(1.0, value))
-
-                if active_slider == "Température":
-                    temperature = value
-                else:
-                    humidity = value
+                biomes_sliders[active_slider] = value
 
         # -------- FOND --------
         for y in range(H):
@@ -607,41 +618,38 @@ def Map_options():
 
         # -------- MENU --------
         for i, item in enumerate(menu_items):
-            y_pos = int(H * 0.4 + i * 65)
+            y_pos = int(start_y + i * step_y)
             color = (150, 200, 255) if i == selected else (200, 200, 200)
 
+            # Si c'est une option déroulante 
             if item in settings:
                 value = settings[item][values_index[item]]
                 txt = f"{item} : {value}"
                 r = font_menu.render(txt, True, color)
+                screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
 
-            elif item == "Température":
-                v = int(-20 + temperature * 60)
-                r = font_menu.render(f"Température : {v}°C", True, color)
+            # Si c'est un slider 
+            elif item in biomes_sliders:
+                v = int(biomes_sliders[item] * 10)
+                r = font_menu.render(f"{item} : {v}/10", True, color)
+                screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
 
+                # Dessin de la barre du slider
                 sx = W // 2 - slider_width // 2
                 pygame.draw.rect(screen, (90, 90, 120), (sx, y_pos + 30, slider_width, 4))
                 pygame.draw.circle(screen, (150, 200, 255),
-                                   (int(sx + temperature * slider_width), y_pos + 32), 8)
+                                   (int(sx + biomes_sliders[item] * slider_width), y_pos + 32), 8)
 
-            elif item == "Humidité":
-                v = int(humidity * 100)
-                r = font_menu.render(f"Humidité : {v}%", True, color)
-
-                sx = W // 2 - slider_width // 2
-                pygame.draw.rect(screen, (90, 90, 120), (sx, y_pos + 30, slider_width, 4))
-                pygame.draw.circle(screen, (150, 200, 255),
-                                   (int(sx + humidity * slider_width), y_pos + 32), 8)
-
+            # Si c'est un bouton
             else:
                 r = font_menu.render(item, True, color)
+                screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
 
-            screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
-
+            # Petit point de sélection à gauche
             if i == selected:
                 pygame.draw.circle(screen, (150, 200, 255), (W // 2 - 230, y_pos), 6)
 
-        pygame.display.flip()  
+        pygame.display.flip()
             
 def Espece_options():
     clock = pygame.time.Clock()
@@ -746,9 +754,12 @@ def Espece_options():
         pygame.display.flip()
 
 
-Map_taille=None
+# valeurs par défaut de la map
+Map_taille, Map_composition, Map_fond, Map_complexite = None, None, "ocean", 3
+
 running = True
 starting_game()
+
 while running:
     choix = menu_start()
 
@@ -763,19 +774,14 @@ while running:
                 while True:
                     result = Map_options()
                     if result:
-                        # Taille de la map
-                        taille_map_conversion = {
-                            "S": 15,
-                            "M": 60,
-                            "L": 140,
-                            "XL": 250
-                        }
+                        taille_map_conversion = {"S": 15, "M": 60, "L": 140, "XL": 250}
 
                         Map_taille = taille_map_conversion[result["Taille"]]
-                        Map_complexite = int(result["Compléxité"])
-                        Map_temperature = result["Température"]
-                        Map_humidite = result["Humidité"]
+                        Map_complexite = result["Compléxité"]
+                        Map_fond = result["Fond"]
+                        Map_composition = result["Composition"]
                     break
+
             elif option == "Espece":
                 while True:
                     result = Espece_options()
@@ -823,7 +829,7 @@ world = WorldMap(W, H)
 
 # génération de la map procédurale
 if Map_taille!=None:
-    world.procedural_generation(Map_taille,Map_complexite)
+    world.procedural_generation(Map_taille, Map_complexite, Map_composition, Map_fond)
 else:
     world.procedural_generation()
 
@@ -886,7 +892,7 @@ for i in range(50):
     Liste_plantes.append(Plante(x, y, 200, 0))
 #--------------------------------------------------------------------------------------- 
 
-# --- AJOUT : état global du jeu ---
+# --- état global du jeu ---
 game_state = {
     "paused": True,
     "running": True,
@@ -1017,8 +1023,8 @@ while game_state["running"]:
         game_state["paused"] = True
         # Réinitialiser le monde
         world = WorldMap(W, H)
-        if Map_taille!=None:
-            world.procedural_generation(Map_taille,Map_complexite)
+        if Map_taille != None:
+            world.procedural_generation(Map_taille, Map_complexite, Map_composition, Map_fond)
         else:
             world.procedural_generation()
 
@@ -1177,15 +1183,6 @@ while game_state["running"]:
                     if indiv.id_espece == suivi_espece[liste_especes[-1].id_espece][0]:
                         popu_bis_bis.append(indiv)
                 suivi_espece[suivi_espece[liste_especes[-1].id_espece][0]][3] = dict(agentArchetype(popu_bis_bis))
-
-                #print("Changement : ")
-                #for i in range(len(suivi_espece.keys())):
-                #    print(i," : ", end = "")
-                #    for I in range(3):
-                #        print(suivi_espece[i][I],end=" ")
-                #    print("")
-                #for i in range(len(liste_especes)):
-                #    print(i ,":", liste_especes[i].effectif)
 
                 
             e.update()

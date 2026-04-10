@@ -238,7 +238,6 @@ class WorldMap:
             if val_slider == 0:
                 continue
                 
-            # --- LES MATHS DE L'IMPACT EXTRÊME ---
             # De 1 à 5: * normal (0.2 -> 1.0)
             # De 6 à 10: * quadratique (1 -> 4)
             multi_qte = (val_slider / 5.0) if val_slider <= 5 else ((val_slider / 5.0) ** 2)
