@@ -2,6 +2,7 @@
 
 import math
 import pygame,os,sys,time, json
+import random
 from random import randint
 from structures.genome import Genome
 from structures.allele import Allele, dico_alleles
@@ -204,7 +205,6 @@ def NouvelleEspecePointDInterrogation(popu):
     
     return None
 
-
 radial_options = [
     {"name": "Random", "color": (120, 180, 255)},
     {"name": "Requin", "color": (255, 80, 80)},
@@ -240,7 +240,6 @@ def draw_radial_menu(screen, pos, options):
     return button_positions
 
 
-
 #Initialisation de Pygame
 pygame.init()
 
@@ -252,8 +251,6 @@ screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
 pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
 
 def starting_game():
-    import random
-
     clock = pygame.time.Clock()
     run = True
     time = 0
@@ -345,12 +342,8 @@ def starting_game():
             screen.blit(start_text, start_rect)
 
         pygame.display.flip()
-starting_game()
 
 def menu_start():
-    import random
-    import math
-
     clock = pygame.time.Clock()
     time = 0
 
@@ -433,16 +426,378 @@ def menu_start():
 
         pygame.display.flip()
 
-choix = menu_start()
+def menu_options():
+    clock = pygame.time.Clock()
+    time = 0
 
-if choix == "Jouer":
-    pass
+    menu_items = ["Map", "Espece", "Retour"]
+    selected = 0
 
-elif choix == "Options":
-    print("igigi")
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 52)
 
-elif choix == "Quitter":
-    pygame.quit()
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    # Bruit
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        dt = clock.tick(60)
+        time += dt
+
+        # ----- EVENTS -----
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(menu_items)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(menu_items)
+
+                elif event.key == pygame.K_RETURN:
+                    return menu_items[selected]
+
+        # -------- FOND BLEU SUBTIL --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        # -------- BRUIT --------
+        noise.fill((
+            random.randint(0, 3),
+            random.randint(0, 5),
+            random.randint(8, 14)
+        ))
+        screen.blit(noise, (0, 0))
+        
+        # -------- TITRE --------
+        screen.blit(title_text, title_rect)
+
+        # ----- MENU -----
+        for i, item in enumerate(menu_items):
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+
+            text = item
+
+            render = font_menu.render(text, True, color)
+            rect = render.get_rect(center=(W // 2, H * 0.4 + i * 60))
+            screen.blit(render, rect)
+
+            if i == selected:
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (rect.left - 20, rect.centery), 5)
+
+        pygame.display.flip()
+
+def Map_options():
+    clock = pygame.time.Clock()
+
+    def reset_settings():
+        return {"Taille": 1, "Compléxité": 2, "Fond": 0}, {"Forêt": 0.5, "Désert": 0.5, "Neige": 0.5, "Montagne": 0.5}
+
+
+    # ----- OPTIONS CLASSIQUES -----
+    settings = {
+        "Taille": ["S", "M", "L", "XL"],
+        "Compléxité": ["1", "2", "3", "4", "5"],
+        "Fond": ["ocean", "lagon", "desert", "neige", "plaine"]
+    }
+
+    values_index, biomes_sliders = reset_settings()
+    active_slider = None
+
+    menu_items = [
+        "Taille", "Compléxité", "Fond", 
+        "Forêt", "Désert", "Neige", "Montagne", 
+        "Réinitialiser", "Retour"
+    ]
+    selected = 0
+
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 50)
+
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    # Bruit
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    slider_width = 320
+    start_y = H * 0.25 # début + haut pour + d'options
+    step_y = 60   # espacement ligne
+
+    while True:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            # -------- CLAVIER --------
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(menu_items)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(menu_items)
+
+                elif event.key == pygame.K_LEFT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] - 1) % len(settings[item])
+
+                elif event.key == pygame.K_RIGHT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] + 1) % len(settings[item])
+
+                elif event.key == pygame.K_RETURN:
+                    item = menu_items[selected]
+                    
+                    if item == "Réinitialiser":
+                        values_index, biomes_sliders = reset_settings()
+                        
+                    elif item == "Retour":
+                        # formaté pour WorldMap
+                        return {
+                            "Taille": settings["Taille"][values_index["Taille"]],
+                            "Compléxité": int(settings["Compléxité"][values_index["Compléxité"]]),
+                            "Fond": settings["Fond"][values_index["Fond"]],
+                            "Composition": {
+                                "foret": int(biomes_sliders["Forêt"] * 10),
+                                "desert": int(biomes_sliders["Désert"] * 10),
+                                "neige": int(biomes_sliders["Neige"] * 10),
+                                "montagne": int(biomes_sliders["Montagne"] * 10)
+                            }
+                        }
+
+            # -------- SOURIS (SLIDERS) --------
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = event.pos
+                slider_x = W // 2 - slider_width // 2
+
+                y_temp = int(H * 0.4 + 2 * 65 + 30)
+                y_hum = int(H * 0.4 + 3 * 65 + 30)
+
+                if slider_x <= mx <= slider_x + slider_width:   
+                    for i, item in enumerate(menu_items): 
+                        if item in biomes_sliders: # chercher le slider en question
+                            y_pos = int(start_y + i * step_y) +30
+                            if abs(my - y_pos) < 15: 
+                                active_slider = item
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                active_slider = None
+
+            elif event.type == pygame.MOUSEMOTION and active_slider:
+                mx, _ = event.pos
+                slider_x = W // 2 - slider_width // 2
+                value = (mx - slider_x) / slider_width
+                value = max(0.0, min(1.0, value))
+                biomes_sliders[active_slider] = value
+
+        # -------- FOND --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        noise.fill((random.randint(0, 3), random.randint(0, 5), random.randint(8, 14)))
+        screen.blit(noise, (0, 0))
+
+        screen.blit(title_text, title_rect)
+
+        # -------- MENU --------
+        for i, item in enumerate(menu_items):
+            y_pos = int(start_y + i * step_y)
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+
+            # Si c'est une option déroulante 
+            if item in settings:
+                value = settings[item][values_index[item]]
+                txt = f"{item} : {value}"
+                r = font_menu.render(txt, True, color)
+                screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
+
+            # Si c'est un slider 
+            elif item in biomes_sliders:
+                v = int(biomes_sliders[item] * 10)
+                r = font_menu.render(f"{item} : {v}/10", True, color)
+                screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
+
+                # Dessin de la barre du slider
+                sx = W // 2 - slider_width // 2
+                pygame.draw.rect(screen, (90, 90, 120), (sx, y_pos + 30, slider_width, 4))
+                pygame.draw.circle(screen, (150, 200, 255),
+                                   (int(sx + biomes_sliders[item] * slider_width), y_pos + 32), 8)
+
+            # Si c'est un bouton
+            else:
+                r = font_menu.render(item, True, color)
+                screen.blit(r, r.get_rect(center=(W // 2, y_pos)))
+
+            # Petit point de sélection à gauche
+            if i == selected:
+                pygame.draw.circle(screen, (150, 200, 255), (W // 2 - 230, y_pos), 6)
+
+        pygame.display.flip()
+            
+def Espece_options():
+    clock = pygame.time.Clock()
+
+    # ----- OPTIONS -----
+    settings = {
+        "Nb Espèces": ["1", "2", "3", "4"],
+        "Pop Espèce 1": ["5", "10", "15", "20", "30", "50"],
+        "Pop Espèce 2": ["5", "10", "15", "20", "30", "50"],
+        "Pop Espèce 3": ["5", "10", "15", "20", "30", "50"],
+        "Pop Espèce 4": ["5", "10", "15", "20", "30", "50"]
+    }
+
+    values_index = {   # Valeurs par défaut : 2 espèces, de 10 individus
+        "Nb Espèces": 1, 
+        "Pop Espèce 1": 1, "Pop Espèce 2": 1, "Pop Espèce 3": 1, "Pop Espèce 4": 1
+    }
+
+    selected = 0
+
+    # -------- FONTS --------
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 52)
+    title_text = font_title.render("NeoRiza", True, (255, 255, 255))
+    title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
+
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        clock.tick(60)
+        
+        # On construit la liste des menus dynamiquement selon le nombre d'espèces
+        nb_esp = int(settings["Nb Espèces"][values_index["Nb Espèces"]])
+        menu_items = ["Nb Espèces"]
+        for i in range(1, nb_esp + 1):
+            menu_items.append(f"Pop Espèce {i}")
+        menu_items.append("Retour")
+
+        # ptite sécurité si le select dépasse la taille (quand on REDUIT le nb d'espèces)
+        if selected >= len(menu_items): # comme ça on peut pas toucher a l'effectif de lespece 3 si y a 2 especes
+            selected = len(menu_items) - 1
+
+        # ----- EVENTS -----
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(menu_items)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(menu_items)
+
+                elif event.key == pygame.K_LEFT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] - 1) % len(settings[item])
+
+                elif event.key == pygame.K_RIGHT:
+                    item = menu_items[selected]
+                    if item in settings:
+                        values_index[item] = (values_index[item] + 1) % len(settings[item])
+
+                elif event.key == pygame.K_RETURN:
+                    if menu_items[selected] == "Retour":
+                        # On renvoie les paramètres formatés au main
+                        return {
+                            "Nb Espèces": int(settings["Nb Espèces"][values_index["Nb Espèces"]]),
+                            "Pop Espèce 1": int(settings["Pop Espèce 1"][values_index["Pop Espèce 1"]]),
+                            "Pop Espèce 2": int(settings["Pop Espèce 2"][values_index["Pop Espèce 2"]]),
+                            "Pop Espèce 3": int(settings["Pop Espèce 3"][values_index["Pop Espèce 3"]]),
+                            "Pop Espèce 4": int(settings["Pop Espèce 4"][values_index["Pop Espèce 4"]])
+                        }
+
+        # -------- FOND --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        noise.fill((random.randint(0, 3), random.randint(0, 5), random.randint(8, 14)))
+        screen.blit(noise, (0, 0))
+        screen.blit(title_text, title_rect)
+
+        # ----- AFFICHAGE DU MENU -----
+        for i, item in enumerate(menu_items):
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+
+            if item in settings:
+                value = settings[item][values_index[item]]
+                text = f"{item} : {value}"
+            else:
+                text = item
+
+            render = font_menu.render(text, True, color)
+            rect = render.get_rect(center=(W // 2, H * 0.35 + i * 60))
+            screen.blit(render, rect)
+
+            if i == selected: #point de séléction
+                pygame.draw.circle(screen, (150, 200, 255), (rect.left - 20, rect.centery), 5)
+
+        pygame.display.flip()
+
+
+# valeurs par défaut de la map et des Espèces
+Map_taille, Map_composition, Map_fond, Map_complexite = None, None, "ocean", 3
+Espece_config = { "Nb Espèces": 2, "Pop Espèce 1": 10, "Pop Espèce 2": 10, "Pop Espèce 3": 10, "Pop Espèce 4": 10 }
+
+running = True
+starting_game()
+
+while running:
+    choix = menu_start()
+
+    if choix == "Jouer":
+        running = False
+
+    elif choix == "Options":
+        while True:
+            option = menu_options()
+
+            if option == "Map":
+                while True:
+                    result = Map_options()
+                    if result:
+                        taille_map_conversion = {"S": 15, "M": 60, "L": 140, "XL": 250}
+
+                        Map_taille = taille_map_conversion[result["Taille"]]
+                        Map_complexite = result["Compléxité"]
+                        Map_fond = result["Fond"]
+                        Map_composition = result["Composition"]
+                    break
+
+            elif option == "Espece":
+                while True:
+                    result = Espece_options()
+                    if result: # Si l'utilisateur clique sur Retour
+                        Espece_config = result
+                        break
+
+            elif option == "Retour":
+                break
+
+    elif choix == "Quitter":
+        pygame.quit()
+        running = False
 
 
 # Initialisation du framerate pour egaliser la vitesse de jeu sur toutes les machines
@@ -475,68 +830,77 @@ font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
 
 # génération de la map procédurale
-world.procedural_generation()
+if Map_taille!=None:
+    world.procedural_generation(Map_taille, Map_complexite, Map_composition, Map_fond)
+else:
+    world.procedural_generation()
 
-#Création de grenouille-----------------------------------------------------------------
-grenouilles = []
-grenouilles_bis = []
-
-for i in range(10):
+# no more grenouille, c'est controlé mainteannt -------------------------------------------------------
+def trouver_spawn_point():
+    # trouver un point d'apparition dans l'ellispe
     valide = False
-    
-    while not valide:
-        x, y = randint(0, W), randint(0, H)
-        if allowed_mask.get_at((x, y)):
-            valide = True
-    
-    if i > 5:       
-        grenouilles.append(Individu(x, y, 0))
-    else:
-        grenouilles_bis.append(Individu(x,y,1))
-
-for g in grenouilles:
-        g.craft_individu()
-        g.give_rect(g.genome.get_val("taille"))
-        Population.add_individu(g)
-for g in grenouilles_bis:
-        g.craft_individu()
-        g.give_rect(g.genome.get_val("taille"))
-        Population.add_individu(g)
-
-
-grenouille = Espece(0,0)
-grenouille_bis = Espece(1,0)
-
-liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
-#   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-suivi_espece = {"requin" : [None,0,None],"licorne" : [None, 0, None],"blob" : [None, 0, None],"dragon" : [None, 0, None],0 : [None, 0, None], 1 : [None,0,None]}
-
-popu1, popu2 = [], []
-for p in Population.populations:
-    if p.id_espece == 0:
-        popu1.append(p)
-    else:
-        popu2.append(p)
-
-suivi_espece["requin"].append(Requin(0,0))
-suivi_espece["licorne"].append(Licorne(0,0))
-suivi_espece["blob"].append(Blob(0,0))
-suivi_espece["dragon"].append(Dragon(0,0))
-suivi_espece[0].append(agentArchetype(popu1)) 
-suivi_espece[1].append(agentArchetype(popu2))
-
-for i in range(50):
-    valide = False
-    
     while not valide:
         x, y = randint(0, W-1), randint(0, H-1)
         if allowed_mask.get_at((x, y)):
             valide = True
-            
-    Liste_plantes.append(Plante(x, y, 200, 0))
-#--------------------------------------------------------------------------------------- 
+    return x, y
 
-# --- AJOUT : état global du jeu ---
+def genese(liste_especes=[], suivi_espece={}):
+    # nom hyper fancy pour generer la population de départ
+    # foncttion car on la réutilise dans le reset
+
+    liste_especes.clear()
+    suivi_espece.clear()
+    Population.populations.clear()
+    Liste_plantes.clear()
+
+    # init des especes predef (SILENCIEUX, pour que le menu_radial marche)
+    e_predef = ["requin", "licorne", "blob", "dragon"]
+    for name in e_predef:
+        liste_especes.append(Espece(name, 0))
+        # pas sur la map mais existe quand meme
+        suivi_espece[name] = [None, 0, None] 
+
+    # faux archétypes pour boucher les trous des listes
+    suivi_espece["requin"].append(agentArchetype([Requin(0,0)]))
+    suivi_espece["licorne"].append(agentArchetype([Licorne(0,0)]))
+    suivi_espece["blob"].append(agentArchetype([Blob(0,0)]))
+    suivi_espece["dragon"].append(agentArchetype([Dragon(0,0)]))
+
+    # spawn des especes que le joueur a ask for
+    nb_esp_depart = Espece_config["Nb Espèces"]
+
+    for i in range(nb_esp_depart):
+        nouvelle_espece = Espece(i, 0) # ID ; Apparition = Année 0
+        liste_especes.append(nouvelle_espece)
+        suivi_espece[i] = [None, 0, None]
+        
+        popu_temporaire = []
+        pop_count = Espece_config[f"Pop Espèce {i+1}"]
+        
+        for _ in range(pop_count):
+            x, y = trouver_spawn_point()
+            ind = Individu(x, y, i) # i est son ID d'espèce
+            ind.craft_individu()
+            ind.give_rect(ind.genome.get_val("taille"))
+            Population.add_individu(ind)
+            popu_temporaire.append(ind)
+            
+        # Validation de l'archétype pour le suivi
+        if popu_temporaire:
+            suivi_espece[i].append(agentArchetype(popu_temporaire))
+        
+        # et les plantes
+        for i in range( 50 ): 
+            x,y = trouver_spawn_point()
+            Liste_plantes.append(Plante(x, y, 200, 0))
+    
+    return liste_especes, suivi_espece, Liste_plantes
+
+liste_especes, suivi_espece, Liste_plantes = genese()
+# ---------------------------------------------------------------------------------------
+
+# --- état global du jeu ---
 game_state = {
     "paused": True,
     "running": True,
@@ -640,9 +1004,6 @@ while game_state["running"]:
 
                 game_state["radial_open"] = False
 
-
-
-
         # Boutons du menu
         menu.handle_event(event)
 
@@ -667,49 +1028,13 @@ while game_state["running"]:
         game_state["paused"] = True
         # Réinitialiser le monde
         world = WorldMap(W, H)
-        world.procedural_generation()
+        if Map_taille != None:
+            world.procedural_generation(Map_taille, Map_complexite, Map_composition, Map_fond)
+        else:
+            world.procedural_generation()
 
         # Réinitialiser la population
-        Population.populations = []
-        #Création de grenouille---------------------------------------------
-        grenouilles = []
-        grenouilles_bis = []
-
-        for i in range(10):
-            valide = False
-            
-            while not valide:
-                x, y = randint(0, W), randint(0, H)
-                if allowed_mask.get_at((x, y)):
-                    valide = True
-            
-            if i > 5:       
-                grenouilles.append(Individu(x, y, 0))
-            else:
-                grenouilles_bis.append(Individu(x,y,1))
-
-        for g in grenouilles:
-                g.craft_individu()
-                g.give_rect(g.genome.get_val("taille"))
-                Population.add_individu(g)
-        for g in grenouilles_bis:
-                g.craft_individu()
-                g.give_rect(g.genome.get_val("taille"))
-                Population.add_individu(g)
-
-        # Réinitialiser les espèces
-        grenouille = Espece(0, 0)
-        grenouille_bis = Espece(1,0)
-        liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
-        #   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-        suivi_espece = {"requin" : ["TOBLADZ",0,None],"licorne" : ["TOBLADZ", 0, None],"blob" : ["TOBLADZ", 0, None],"dragon" : ["TOBLADZ", 0, None],0 : ["TOBLADZ", 0, None], 1 : ["TOBLADZ",0,None]}
-        suivi_espece["requin"].append(Requin(0,0))
-        suivi_espece["licorne"].append(Licorne(0,0))
-        suivi_espece["blob"].append(Blob(0,0))
-        suivi_espece["dragon"].append(Dragon(0,0))
-        suivi_espece[0].append(agentArchetype(popu1)) 
-        suivi_espece[1].append(agentArchetype(popu2))
-
+        liste_especes, suivi_espece, Liste_plantes = genese(liste_especes, suivi_espece)
 
         # Réinitialiser le temps
         age = 0
@@ -825,41 +1150,24 @@ while game_state["running"]:
                         popu_bis_bis.append(indiv)
                 suivi_espece[suivi_espece[liste_especes[-1].id_espece][0]][3] = dict(agentArchetype(popu_bis_bis))
 
-                #print("Changement : ")
-                #for i in range(len(suivi_espece.keys())):
-                #    print(i," : ", end = "")
-                #    for I in range(3):
-                #        print(suivi_espece[i][I],end=" ")
-                #    print("")
-                #for i in range(len(liste_especes)):
-                #    print(i ,":", liste_especes[i].effectif)
-
                 
             e.update()
 
-        for e in liste_especes:
-            if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
-                e.morte = True
-                suivi_espece[e.id_espece][2] = age
-                #print("Changement : ")
-                #for i in range(len(suivi_espece.keys())):
-                #    print(i," : ", end = "")
-                #    for I in range(3):
-                #        print(suivi_espece[i][I],end=" ")
-                #    print("")
-                #for i in range(len(liste_especes)):
-                #    print(i ,":", liste_especes[i].effectif)
+            for e in liste_especes:
+                # si espece prdef (texte) et qu'elle n'a JAMAIS vécu
+                if isinstance(e.id_espece, str) and max(e.effectif) == 0:
+                    e.effectif = [0] # pas besoin de plein de 0 
+                    suivi_espece[e.id_espece][1] = age # on repousse sa date de naissance à "maintenant"
+                    continue # next: on peut pas mourir si on est pas né jamie
 
-        #print(suivi_espece)
+                #Vérification de la  mort 
+                if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
+                    e.morte = True
+                    suivi_espece[e.id_espece][2] = age
+                    # print(f"L'espèce {e.id_espece} s'est éteinte !")
 
-        for i in range(50-len(Liste_plantes)):
-                valide = False
-                
-                while not valide:
-                    x, y = randint(0, W-1), randint(0, H-1)
-                    if allowed_mask.get_at((x, y)):
-                        valide = True
-                        
+        for i in range(50-len(Liste_plantes)):                
+                x,y = trouver_spawn_point()                        
                 Liste_plantes.append(Plante(x, y, 200, 0))
         
     # Infos

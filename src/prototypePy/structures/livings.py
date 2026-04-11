@@ -64,7 +64,6 @@ class Livings:
                 ind1.energie -= 10
                 ind2.energie -= 5
                 
-
     def reproduction(self, individu1, individu2, world):
         new_genome = Genome()
     
