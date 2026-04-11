@@ -653,39 +653,45 @@ def Map_options():
             
 def Espece_options():
     clock = pygame.time.Clock()
-    time = 0
 
     # ----- OPTIONS -----
     settings = {
-        "Taille": ["S", "M", "L", "XL"],
-        "Compléxité": ["1", "2", "3", "4", "5"],
-        "Base": ["1", "2", "3", "4", "5"],
-        "Base": ["1", "2", "3", "4", "5"]
+        "Nb Espèces": ["1", "2", "3", "4"],
+        "Pop Espèce 1": ["5", "10", "15", "20", "30", "50"],
+        "Pop Espèce 2": ["5", "10", "15", "20", "30", "50"],
+        "Pop Espèce 3": ["5", "10", "15", "20", "30", "50"],
+        "Pop Espèce 4": ["5", "10", "15", "20", "30", "50"]
     }
 
-    values_index = {
-        "Taille": 1,
-        "Compléxité": 1
+    values_index = {   # Valeurs par défaut : 2 espèces, de 10 individus
+        "Nb Espèces": 1, 
+        "Pop Espèce 1": 1, "Pop Espèce 2": 1, "Pop Espèce 3": 1, "Pop Espèce 4": 1
     }
 
-    menu_items = ["Démarrer", "Taille", "Compléxité", "Retour"]
     selected = 0
 
     # -------- FONTS --------
     font_title = pygame.font.Font(None, 110)
     font_menu = pygame.font.Font(None, 52)
-    font_signature = pygame.font.Font(None, 24)
-
     title_text = font_title.render("NeoRiza", True, (255, 255, 255))
     title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
 
-    # Bruit
     noise = pygame.Surface((W, H))
     noise.set_alpha(14)
 
     while True:
-        dt = clock.tick(60)
-        time += dt
+        clock.tick(60)
+        
+        # On construit la liste des menus dynamiquement selon le nombre d'espèces
+        nb_esp = int(settings["Nb Espèces"][values_index["Nb Espèces"]])
+        menu_items = ["Nb Espèces"]
+        for i in range(1, nb_esp + 1):
+            menu_items.append(f"Pop Espèce {i}")
+        menu_items.append("Retour")
+
+        # ptite sécurité si le select dépasse la taille (quand on REDUIT le nb d'espèces)
+        if selected >= len(menu_items): # comme ça on peut pas toucher a l'effectif de lespece 3 si y a 2 especes
+            selected = len(menu_items) - 1
 
         # ----- EVENTS -----
         for event in pygame.event.get():
@@ -711,29 +717,26 @@ def Espece_options():
                         values_index[item] = (values_index[item] + 1) % len(settings[item])
 
                 elif event.key == pygame.K_RETURN:
-                    if menu_items[selected] == "Démarrer":
-                        return settings, values_index
-
                     if menu_items[selected] == "Retour":
-                        return None
+                        # On renvoie les paramètres formatés au main
+                        return {
+                            "Nb Espèces": int(settings["Nb Espèces"][values_index["Nb Espèces"]]),
+                            "Pop Espèce 1": int(settings["Pop Espèce 1"][values_index["Pop Espèce 1"]]),
+                            "Pop Espèce 2": int(settings["Pop Espèce 2"][values_index["Pop Espèce 2"]]),
+                            "Pop Espèce 3": int(settings["Pop Espèce 3"][values_index["Pop Espèce 3"]]),
+                            "Pop Espèce 4": int(settings["Pop Espèce 4"][values_index["Pop Espèce 4"]])
+                        }
 
-        # -------- FOND BLEU SUBTIL --------
+        # -------- FOND --------
         for y in range(H):
             blue = int(35 + (y / H) * 55)
             pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
 
-        # -------- BRUIT --------
-        noise.fill((
-            random.randint(0, 3),
-            random.randint(0, 5),
-            random.randint(8, 14)
-        ))
+        noise.fill((random.randint(0, 3), random.randint(0, 5), random.randint(8, 14)))
         screen.blit(noise, (0, 0))
-        
-        # -------- TITRE --------
         screen.blit(title_text, title_rect)
 
-        # ----- MENU -----
+        # ----- AFFICHAGE DU MENU -----
         for i, item in enumerate(menu_items):
             color = (150, 200, 255) if i == selected else (200, 200, 200)
 
@@ -744,18 +747,18 @@ def Espece_options():
                 text = item
 
             render = font_menu.render(text, True, color)
-            rect = render.get_rect(center=(W // 2, H * 0.4 + i * 60))
+            rect = render.get_rect(center=(W // 2, H * 0.35 + i * 60))
             screen.blit(render, rect)
 
-            if i == selected:
-                pygame.draw.circle(screen, (150, 200, 255),
-                                   (rect.left - 20, rect.centery), 5)
+            if i == selected: #point de séléction
+                pygame.draw.circle(screen, (150, 200, 255), (rect.left - 20, rect.centery), 5)
 
         pygame.display.flip()
 
 
-# valeurs par défaut de la map
+# valeurs par défaut de la map et des Espèces
 Map_taille, Map_composition, Map_fond, Map_complexite = None, None, "ocean", 3
+Espece_config = { "Nb Espèces": 2, "Pop Espèce 1": 10, "Pop Espèce 2": 10, "Pop Espèce 3": 10, "Pop Espèce 4": 10 }
 
 running = True
 starting_game()
@@ -785,10 +788,9 @@ while running:
             elif option == "Espece":
                 while True:
                     result = Espece_options()
-                    if result == "Retour":
+                    if result: # Si l'utilisateur clique sur Retour
+                        Espece_config = result
                         break
-                    else:
-                        print("Espèce sélectionnée")
 
             elif option == "Retour":
                 break
@@ -833,64 +835,70 @@ if Map_taille!=None:
 else:
     world.procedural_generation()
 
-#Création de grenouille-----------------------------------------------------------------
-grenouilles = []
-grenouilles_bis = []
-
-for i in range(10):
+# no more grenouille, c'est controlé mainteannt -------------------------------------------------------
+def trouver_spawn_point():
+    # trouver un point d'apparition dans l'ellispe
     valide = False
-    
-    while not valide:
-        x, y = randint(0, W), randint(0, H)
-        if allowed_mask.get_at((x, y)):
-            valide = True
-    
-    if i > 5:       
-        grenouilles.append(Individu(x, y, 0))
-    else:
-        grenouilles_bis.append(Individu(x,y,1))
-
-for g in grenouilles:
-        g.craft_individu()
-        g.give_rect(g.genome.get_val("taille"))
-        Population.add_individu(g)
-for g in grenouilles_bis:
-        g.craft_individu()
-        g.give_rect(g.genome.get_val("taille"))
-        Population.add_individu(g)
-
-
-grenouille = Espece(0,0)
-grenouille_bis = Espece(1,0)
-
-liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
-#   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-suivi_espece = {"requin" : [None,0,None],"licorne" : [None, 0, None],"blob" : [None, 0, None],"dragon" : [None, 0, None],0 : [None, 0, None], 1 : [None,0,None]}
-
-popu1, popu2 = [], []
-for p in Population.populations:
-    if p.id_espece == 0:
-        popu1.append(p)
-    else:
-        popu2.append(p)
-
-suivi_espece["requin"].append(Requin(0,0))
-suivi_espece["licorne"].append(Licorne(0,0))
-suivi_espece["blob"].append(Blob(0,0))
-suivi_espece["dragon"].append(Dragon(0,0))
-suivi_espece[0].append(agentArchetype(popu1)) 
-suivi_espece[1].append(agentArchetype(popu2))
-
-for i in range(50):
-    valide = False
-    
     while not valide:
         x, y = randint(0, W-1), randint(0, H-1)
         if allowed_mask.get_at((x, y)):
             valide = True
+    return x, y
+
+def genese(liste_especes=[], suivi_espece={}):
+    # nom hyper fancy pour generer la population de départ
+    # foncttion car on la réutilise dans le reset
+
+    liste_especes.clear()
+    suivi_espece.clear()
+    Population.populations.clear()
+    Liste_plantes.clear()
+
+    # init des especes predef (SILENCIEUX, pour que le menu_radial marche)
+    e_predef = ["requin", "licorne", "blob", "dragon"]
+    for name in e_predef:
+        liste_especes.append(Espece(name, 0))
+        # pas sur la map mais existe quand meme
+        suivi_espece[name] = [None, 0, None] 
+
+    # faux archétypes pour boucher les trous des listes
+    suivi_espece["requin"].append(agentArchetype([Requin(0,0)]))
+    suivi_espece["licorne"].append(agentArchetype([Licorne(0,0)]))
+    suivi_espece["blob"].append(agentArchetype([Blob(0,0)]))
+    suivi_espece["dragon"].append(agentArchetype([Dragon(0,0)]))
+
+    # spawn des especes que le joueur a ask for
+    nb_esp_depart = Espece_config["Nb Espèces"]
+
+    for i in range(nb_esp_depart):
+        nouvelle_espece = Espece(i, 0) # ID ; Apparition = Année 0
+        liste_especes.append(nouvelle_espece)
+        suivi_espece[i] = [None, 0, None]
+        
+        popu_temporaire = []
+        pop_count = Espece_config[f"Pop Espèce {i+1}"]
+        
+        for _ in range(pop_count):
+            x, y = trouver_spawn_point()
+            ind = Individu(x, y, i) # i est son ID d'espèce
+            ind.craft_individu()
+            ind.give_rect(ind.genome.get_val("taille"))
+            Population.add_individu(ind)
+            popu_temporaire.append(ind)
             
-    Liste_plantes.append(Plante(x, y, 200, 0))
-#--------------------------------------------------------------------------------------- 
+        # Validation de l'archétype pour le suivi
+        if popu_temporaire:
+            suivi_espece[i].append(agentArchetype(popu_temporaire))
+        
+        # et les plantes
+        for i in range( 50 ): 
+            x,y = trouver_spawn_point()
+            Liste_plantes.append(Plante(x, y, 200, 0))
+    
+    return liste_especes, suivi_espece, Liste_plantes
+
+liste_especes, suivi_espece, Liste_plantes = genese()
+# ---------------------------------------------------------------------------------------
 
 # --- état global du jeu ---
 game_state = {
@@ -996,9 +1004,6 @@ while game_state["running"]:
 
                 game_state["radial_open"] = False
 
-
-
-
         # Boutons du menu
         menu.handle_event(event)
 
@@ -1029,46 +1034,7 @@ while game_state["running"]:
             world.procedural_generation()
 
         # Réinitialiser la population
-        Population.populations = []
-        #Création de grenouille---------------------------------------------
-        grenouilles = []
-        grenouilles_bis = []
-
-        for i in range(10):
-            valide = False
-            
-            while not valide:
-                x, y = randint(0, W), randint(0, H)
-                if allowed_mask.get_at((x, y)):
-                    valide = True
-            
-            if i > 5:       
-                grenouilles.append(Individu(x, y, 0))
-            else:
-                grenouilles_bis.append(Individu(x,y,1))
-
-        for g in grenouilles:
-                g.craft_individu()
-                g.give_rect(g.genome.get_val("taille"))
-                Population.add_individu(g)
-        for g in grenouilles_bis:
-                g.craft_individu()
-                g.give_rect(g.genome.get_val("taille"))
-                Population.add_individu(g)
-
-        # Réinitialiser les espèces
-        grenouille = Espece(0, 0)
-        grenouille_bis = Espece(1,0)
-        liste_especes = [Espece("requin",0),Espece("licorne",0),Espece("blob",0),Espece("dragon",0),grenouille,grenouille_bis]
-        #   ID de l'espèce : [ID du parent, Année de naissance, Année de mort, agent archétype à la création]
-        suivi_espece = {"requin" : ["TOBLADZ",0,None],"licorne" : ["TOBLADZ", 0, None],"blob" : ["TOBLADZ", 0, None],"dragon" : ["TOBLADZ", 0, None],0 : ["TOBLADZ", 0, None], 1 : ["TOBLADZ",0,None]}
-        suivi_espece["requin"].append(Requin(0,0))
-        suivi_espece["licorne"].append(Licorne(0,0))
-        suivi_espece["blob"].append(Blob(0,0))
-        suivi_espece["dragon"].append(Dragon(0,0))
-        suivi_espece[0].append(agentArchetype(popu1)) 
-        suivi_espece[1].append(agentArchetype(popu2))
-
+        liste_especes, suivi_espece, Liste_plantes = genese(liste_especes, suivi_espece)
 
         # Réinitialiser le temps
         age = 0
@@ -1187,29 +1153,21 @@ while game_state["running"]:
                 
             e.update()
 
-        for e in liste_especes:
-            if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
-                e.morte = True
-                suivi_espece[e.id_espece][2] = age
-                #print("Changement : ")
-                #for i in range(len(suivi_espece.keys())):
-                #    print(i," : ", end = "")
-                #    for I in range(3):
-                #        print(suivi_espece[i][I],end=" ")
-                #    print("")
-                #for i in range(len(liste_especes)):
-                #    print(i ,":", liste_especes[i].effectif)
+            for e in liste_especes:
+                # si espece prdef (texte) et qu'elle n'a JAMAIS vécu
+                if isinstance(e.id_espece, str) and max(e.effectif) == 0:
+                    e.effectif = [0] # pas besoin de plein de 0 
+                    suivi_espece[e.id_espece][1] = age # on repousse sa date de naissance à "maintenant"
+                    continue # next: on peut pas mourir si on est pas né jamie
 
-        #print(suivi_espece)
+                #Vérification de la  mort 
+                if len(e.effectif) > 1 and e.effectif[-1] == 0 and not e.morte:
+                    e.morte = True
+                    suivi_espece[e.id_espece][2] = age
+                    # print(f"L'espèce {e.id_espece} s'est éteinte !")
 
-        for i in range(50-len(Liste_plantes)):
-                valide = False
-                
-                while not valide:
-                    x, y = randint(0, W-1), randint(0, H-1)
-                    if allowed_mask.get_at((x, y)):
-                        valide = True
-                        
+        for i in range(50-len(Liste_plantes)):                
+                x,y = trouver_spawn_point()                        
                 Liste_plantes.append(Plante(x, y, 200, 0))
         
     # Infos
