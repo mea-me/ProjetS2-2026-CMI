@@ -65,8 +65,8 @@ class Biome:
         self.height = height
 
         infos = dico_biomes[nom]
-        self.temperature = infos["temperature"]
-        self.humidite = infos["humidite"]
+        self.température = infos["température"]
+        self.humidité = infos["humidité"]
         self.color = infos["color"]
 
         self.rect = pygame.Rect(x, y, width, height)
@@ -123,18 +123,18 @@ class Biome:
         return (self.x, self.y)
 
     def __repr__(self):
-        return f"{self.nom} [Pos: {self.x},{self.y}] (T={self.temperature}, H={self.humidite})"
+        return f"{self.nom} [Pos: {self.x},{self.y}] (T={self.température}, H={self.humidité})"
 
 
-# Format : "nom": {"temperature": T, "humidite": H, "color": (R, G, B)}
+# Format : "nom": {"température": T, "humidité": H, "color": (R, G, B)}
 dico_biomes = {
-    "ocean": {"temperature": 10, "humidite": 100, "color": (66, 172, 175)},
-    "lagon": {"temperature": 12, "humidite": 100, "color": (119, 192, 180)},
-    "plaine": {"temperature": 15, "humidite": 30, "color": (177, 211, 84)},
-    "foret": {"temperature": 25, "humidite": 80, "color": (118, 202, 109)},
-    "desert": {"temperature": 40, "humidite": 0, "color": (231, 213, 147)},
-    "montagne": {"temperature": -5, "humidite": 20, "color": (128, 128, 128)},
-    "neige": {"temperature": -20, "humidite": 60, "color": (247, 255, 255)},
+    "ocean": {"température": 10, "humidité": 100, "color": (66, 172, 175)},
+    "lagon": {"température": 12, "humidité": 100, "color": (119, 192, 180)},
+    "plaine": {"température": 15, "humidité": 30, "color": (177, 211, 84)},
+    "foret": {"température": 25, "humidité": 80, "color": (118, 202, 109)},
+    "desert": {"température": 40, "humidité": 0, "color": (231, 213, 147)},
+    "montagne": {"température": -5, "humidité": 20, "color": (128, 128, 128)},
+    "neige": {"température": -20, "humidité": 60, "color": (247, 255, 255)},
 }
 
 class WorldMap:
@@ -174,10 +174,10 @@ class WorldMap:
         """
         for b in reversed(self.biomes):
             if b.contains(x, y):
-                return b.temperature, b.humidite, b.nom
+                return b.température, b.humidité, b.nom
 
         bg = dico_biomes[self.background_biome]
-        return bg["temperature"], bg["humidite"], self.background_biome
+        return bg["température"], bg["humidité"], self.background_biome
 
 
     def procedural_generation(self, taille=80, complx=3, composition=None, bg_biome="ocean"):

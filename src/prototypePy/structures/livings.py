@@ -132,16 +132,23 @@ class Livings:
         env2 = world.get_infos_at(ind2.rect.x, ind2.rect.y)
         temp1 = ind1.genome.get_val("température")
         temp2 = ind2.genome.get_val("température")
+        hum1 = ind1.genome.get_val("humidité")
+        hum2 = ind2.genome.get_val("humidité")
+        ferti1 = ind1.genome.get_val("fertilité")
+        ferti2 = ind2.genome.get_val("fertilité")
+        score_repro1 = abs(env1[0]-temp1)/abs(max(env1[0],temp1)) + abs(env1[1]-hum1)/max(env1[1],hum1) # somme des moyennes pondérées
+        score_repro2 = abs(env2[0]-temp2)/abs(max(env2[0],temp2)) + abs(env2[1]-hum2)/max(env2[1],hum2) # somme des moyennes pondérées
+        score_repro = ferti1/100 + ferti2/100 - (score_repro2+score_repro1)
 
         if ind1.id_espece == ind2.id_espece:
             if ind1.age >= 180 and ind2.age >= 180 and ind1.age <= 720 and ind2.age <= 720:
-                if abs(env1[0]-temp1) < 5 and abs(env2[0]-temp2) < 5:
+                if score_repro >= 0.25:
                     self.reproduction(ind1, ind2, world)
-                elif abs(env1[0]-temp1) <= 10 and abs(env2[0]-temp2) <= 10:
+                elif score_repro >= -0.05:
                     if randint(0,100) <= 75:
                         self.reproduction(ind1, ind2, world)
                 else:
-                    if randint(0,100) <= 20:
+                    if randint(0,100) <= 0.175*(ferti2+ferti1):
                         self.reproduction(ind1, ind2, world)
         
         else:

@@ -2,6 +2,7 @@ import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
+from structures.environnement import dico_biomes
 
 # Appliquer le style Seaborn
 sns.set_theme(style="darkgrid")
@@ -25,6 +26,51 @@ def save_json(liste_especes, suivi_espece):
     
     with open("./data/evolution_data.json", "w") as f:
         json.dump(data_export, f, indent=4)
+
+def generer_graphique_allele(allele,age):
+    with open("./data/evolution_data.json", "r") as f:
+        data = json.load(f)
+
+    plt.figure(figsize=(12, 6))
+    max_annee = 0 #pour regler le x
+
+    if allele == "humidité" or allele == "température":
+        l = list(range(0, age))
+        for biome in dico_biomes.keys():
+            sns.lineplot(x = l, y = dico_biomes[biome][allele], label = f"{allele} dans {biome}", linewidth = 15)
+
+    for esp_id, infos in data.items():
+        historique = infos["allele"][allele]
+        annee_naissance = infos["annee_naissance"]//60
+        
+        # Si l'espèce n'a pas d'historique, on l'ignore
+        if not historique:
+            continue
+            
+        # axe de x pour cette espece
+        annees_vecues = len(historique)
+        annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
+        
+        #maj anne max
+        if annees_x[-1] > max_annee:
+            max_annee = annees_x[-1]
+            
+        label = f"Espèce {esp_id}"
+        if infos["annee_mort"] is not None:
+            label += f" (Éteinte en {infos['annee_mort']//60})"
+            
+        sns.lineplot(x=annees_x, y=historique, label=label, linewidth=2)
+
+    
+    plt.title(f"Évolution de l'allèle {allele} des espèces au fil du temps", fontsize=16)
+    plt.xlabel("Années", fontsize=12)
+    plt.ylabel("Valeur", fontsize=12)
+    if max_annee > 0:
+        plt.xlim(0, max_annee)
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
+    plt.tight_layout() # ajuster les marges
+    
+    plt.show()
 
 def generer_graphique_population():
     with open("./data/evolution_data.json", "r") as f:
@@ -58,7 +104,8 @@ def generer_graphique_population():
     plt.title("Évolution de la population des espèces au fil du temps", fontsize=16)
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Effectifs", fontsize=12)
-    plt.xlim(0, max_annee) 
+    if max_annee > 0:
+        plt.xlim(0, max_annee)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
     plt.tight_layout() # ajuster les marges
     

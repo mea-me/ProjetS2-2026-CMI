@@ -941,10 +941,13 @@ while game_state["running"]:
                 print("Mode pause :", game_state["placing_mode"])
 
             if event.key == pygame.K_g: # afficher les graphes
-                game_state["paused"] = not game_state["paused"]
+                game_state["paused"] = True
                 save_json(liste_especes, suivi_espece)
                 generer_graphique_population()
-                generer_arbre_genealogique()  
+                generer_arbre_genealogique()
+                for allele in dico_alleles.keys():
+                    if dico_alleles[allele][5] == "int":
+                        generer_graphique_allele(allele,age)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
