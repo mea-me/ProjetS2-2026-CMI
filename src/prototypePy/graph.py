@@ -21,7 +21,8 @@ def save_json(liste_especes, suivi_espece):
             "annee_naissance": infos[1],
             "annee_mort": infos[2],
             "historique_effectif": esp.effectif,
-            "a_existe" : a_existe
+            "a_existe" : a_existe,
+            "allele": esp.dico_evolution_alleles
         }
     
     with open("./data/evolution_data.json", "w") as f:
@@ -40,26 +41,24 @@ def generer_graphique_allele(allele,age):
             sns.lineplot(x = l, y = dico_biomes[biome][allele], label = f"{allele} dans {biome}", linewidth = 15)
 
     for esp_id, infos in data.items():
-        historique = infos["allele"][allele]
-        annee_naissance = infos["annee_naissance"]//60
-        
         # Si l'espèce n'a pas d'historique, on l'ignore
-        if not historique:
-            continue
+        if infos["a_existe"] :
+            historique = infos["allele"][allele]
+            annee_naissance = infos["annee_naissance"]//60
+
+            # axe de x pour cette espece
+            annees_vecues = len(historique)
+            annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
             
-        # axe de x pour cette espece
-        annees_vecues = len(historique)
-        annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
-        
-        #maj anne max
-        if annees_x[-1] > max_annee:
-            max_annee = annees_x[-1]
-            
-        label = f"Espèce {esp_id}"
-        if infos["annee_mort"] is not None:
-            label += f" (Éteinte en {infos['annee_mort']//60})"
-            
-        sns.lineplot(x=annees_x, y=historique, label=label, linewidth=2)
+            #maj anne max
+            if annees_x[-1] > max_annee:
+                max_annee = annees_x[-1]
+                
+            label = f"Espèce {esp_id}"
+            if infos["annee_mort"] is not None:
+                label += f" (Éteinte en {infos['annee_mort']//60})"
+                
+            sns.lineplot(x=annees_x, y=historique, label=label, linewidth=2)
 
     
     plt.title(f"Évolution de l'allèle {allele} des espèces au fil du temps", fontsize=16)
