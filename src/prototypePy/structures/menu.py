@@ -1,4 +1,5 @@
 import pygame
+from .son import *
 
 class Button:
     def __init__(self, x, y, w, h, text, callback):
@@ -30,41 +31,31 @@ class Menu:
             Button(20, 75, 160, 40, "Pause / Play", self.toggle_pause),
             Button(20, 125, 160, 40, "Vitesse x1", self.speed_x1),
             Button(20, 175, 160, 40, "Vitesse x2", self.speed_x2),
-            Button(20, 225, 160, 40, "+20 ans", self.skip_time),
-            Button(20, 275, 160, 40, "Reset", self.reset_game),
-            Button(20, 325, 160, 40, "Quitter", self.quit_game)
-            
-        ]
-
-        self.buttons_start = [
-            Button(20, 75, 160, 40, "Pause / Play", self.toggle_pause),
-            Button(20, 125, 160, 40, "Vitesse x1", self.speed_x1),
-            Button(20, 175, 160, 40, "Vitesse x2", self.speed_x2),
-            Button(20, 225, 160, 40, "+20 ans", self.skip_time),
-            Button(20, 275, 160, 40, "Reset", self.reset_game),
-            Button(20, 325, 160, 40, "Quitter", self.quit_game)
+            Button(20, 225, 160, 40, "Reset", self.reset_game),
+            Button(20, 275, 160, 40, "Quitter", self.quit_game)
         ]
 
 
 
     def toggle_pause(self):
+        selection_2()
         self.game_state["paused"] = not self.game_state["paused"]
 
     def speed_x1(self):
+        selection_2()
         self.game_state["speed"] = 1
 
     def speed_x2(self):
+        selection_2()
         self.game_state["speed"] = 2
 
-    def skip_time(self):
-        self.game_state["skip"] = 20 * 60  # 100 ans
-
     def quit_game(self):
+        selection_2()
         self.game_state["running"] = False
 
     def reset_game(self):
+        selection_2()
         self.game_state["reset"] = True
-
 
     def draw(self):
         for b in self.buttons:
@@ -72,12 +63,4 @@ class Menu:
 
     def handle_event(self, event):
         for b in self.buttons:
-            b.handle_event(event)
-
-    def draw_start(self):
-        for b in self.buttons_start:
-            b.draw(self.screen)
-
-    def handle_event_start(self, event):
-        for b in self.buttons_start:
             b.handle_event(event)

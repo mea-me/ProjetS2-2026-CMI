@@ -14,6 +14,7 @@ from structures.menu import Menu
 from info_panel import InfoPanel
 from especes.especes_predef import *
 from graph import *
+import structures.son as son
 
 
 def draw_dna(surface, center, time, scale=1.5):
@@ -49,6 +50,7 @@ def explosion(screen, x, y, max_radius, entities):
     radius = 0
     growth = 12  # vitesse du cercle
 
+    son.explosion()
     # animation
     while radius < max_radius:
         pygame.time.delay(10)
@@ -250,6 +252,11 @@ W, H = info.current_w, info.current_h
 screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN) 
 pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
 
+# Musique pour le menu
+pygame.mixer.init()  # Initialize le module mixer.
+pygame.mixer.music.load("assets/Sound/background_music_start.mp3")
+pygame.mixer.music.play(15)  # Joue la musique de fond.
+
 def starting_game():
     clock = pygame.time.Clock()
     run = True
@@ -298,6 +305,7 @@ def starting_game():
                 return False
 
             if event.type == pygame.KEYDOWN:
+                son.selection_2()
                 return True
 
         if blink_timer > 600:
@@ -387,6 +395,7 @@ def menu_start():
 
                 if event.key == pygame.K_RETURN:
                     return options[selected]
+
 
         # -------- FOND BLEU SUBTIL --------
         for y in range(H):
@@ -718,6 +727,7 @@ def Espece_options():
 
                 elif event.key == pygame.K_RETURN:
                     if menu_items[selected] == "Retour":
+                        son.selection_3()
                         # On renvoie les paramètres formatés au main
                         return {
                             "Nb Espèces": int(settings["Nb Espèces"][values_index["Nb Espèces"]]),
@@ -767,13 +777,16 @@ while running:
     choix = menu_start()
 
     if choix == "Jouer":
+        son.selection_1()
         running = False
 
     elif choix == "Options":
+        son.selection_1()
         while True:
             option = menu_options()
 
             if option == "Map":
+                son.selection_1()
                 while True:
                     result = Map_options()
                     if result:
@@ -786,6 +799,7 @@ while running:
                     break
 
             elif option == "Espece":
+                son.selection_1()
                 while True:
                     result = Espece_options()
                     if result: # Si l'utilisateur clique sur Retour
@@ -793,12 +807,17 @@ while running:
                         break
 
             elif option == "Retour":
+                son.selection_3()
                 break
 
     elif choix == "Quitter":
+        son.selection_3()
+        for a in range(20000):
+            print(a)
         pygame.quit()
         running = False
 
+pygame.mixer.music.pause()
 
 # Initialisation du framerate pour egaliser la vitesse de jeu sur toutes les machines
 framerate = 60
@@ -828,6 +847,11 @@ allowed_mask = pygame.mask.from_surface(mask_surface)
 
 font = pygame.font.SysFont("Arial", 18)
 world = WorldMap(W, H)
+
+# Initialisation du son
+pygame.mixer.init()  # Initialize le module mixer.
+pygame.mixer.music.load("assets/Sound/background_musique.mp3")
+pygame.mixer.music.play(15)  # Joue la musique de fond.
 
 # génération de la map procédurale
 if Map_taille!=None:
@@ -906,11 +930,10 @@ game_state = {
     "running": True,
     "reset": False,
     "selected": None,
-    "placing_mode" : False,
+    "placing_mode" : True,
     "radial_open" : False,
     "radial_pos" : (0, 0),
-    "speed": 1,
-    "skip": 0
+    "speed": 1
 }
 # création du menu et du panel
 menu = Menu(screen, game_state)
@@ -938,7 +961,6 @@ while game_state["running"]:
             if event.key == pygame.K_p:  # touche P
                 game_state["placing_mode"] = not game_state["placing_mode"]
                 game_state["radial_open"] = False
-                print("Mode pause :", game_state["placing_mode"])
 
             if event.key == pygame.K_g: # afficher les graphes
                 game_state["paused"] = True
@@ -957,6 +979,7 @@ while game_state["running"]:
             for indi in Population.populations:
                 if indi.rect.collidepoint(mx, my):
                     clicked = indi
+                    son.selection_2()
                     break
 
             if clicked:
@@ -970,6 +993,7 @@ while game_state["running"]:
         # --- Clic droit : ouvrir le menu radial ---
         if game_state["placing_mode"] and event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3:  # clic droit
+                son.selection_3()
                 game_state["radial_open"] = True
                 game_state["radial_pos"] = pygame.mouse.get_pos()
         
@@ -988,18 +1012,22 @@ while game_state["running"]:
                             Population.add_individu(new)
 
                         elif name == "Requin":
+                            son.requin()
                             shark = Requin(mx, my)
                             Population.add_individu(shark)
 
                         elif name == "Licorne":
+                            son.licorne()
                             licorne = Licorne(mx, my)
                             Population.add_individu(licorne)
 
                         elif name == "Blob":
+                            son.blob()
                             blob = Blob(mx, my)
                             Population.add_individu(blob)
 
                         elif name == "Dragon":
+                            son.dragon()
                             dragon = Dragon(mx, my)
                             Population.add_individu(dragon)
 
@@ -1009,22 +1037,6 @@ while game_state["running"]:
 
         # Boutons du menu
         menu.handle_event(event)
-
-
-    # --- SAUT DANS LE TEMPS PROGRESSIF ---
-    if game_state["skip"] > 0:
-        step = min(10, game_state["skip"])  # 10 frames simulées par tick
-
-        for _ in range(step):
-
-            # Simuler la vie normalement (sans affichage)
-            for g in Population.populations:
-                g.deplacement_random()
-
-            Population.update(W, H, world)
-            age += 1
-
-        game_state["skip"] -= step
 
     # --- RESET ---
     if game_state["reset"]:

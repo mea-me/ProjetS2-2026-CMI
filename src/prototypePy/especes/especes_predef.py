@@ -24,11 +24,13 @@ class Blob(Individu):
         self.genome = Genome()
         self.genome.craft_alleles(blob_alleles)
 
-        # setup de variables uniques si y en a, EXEMPLE :
-        #taille = self.genome.get_val("taille")
-        #self.rect = pygame.Rect(x, y, taille, taille)
+        taille = self.genome.get_val("taille")
+        self.rect = pygame.Rect(x, y, taille, taille)
 
-        self.couleur = self.genome.get_val("couleur")
+        self.vx = 0
+        self.vy = 0
+
+        self.couleur = [255, 255, 102]
         self.base_sprite = pygame.image.load("src/asset/sprite/blob.png").convert_alpha()
 
 # ============================================================================
@@ -61,7 +63,7 @@ class Dragon(Individu):
         self.vx = 0
         self.vy = 0
 
-        self.couleur = self.genome.get_val("couleur")  # rouge feu
+        self.couleur = [255, 34, 51]  # rouge feu
         self.base_sprite = pygame.image.load("src/asset/sprite/dragon.png").convert_alpha()
 
 
@@ -97,7 +99,7 @@ class Licorne(Individu):
         self.vx = 0 
         self.vy = 0  
 
-        self.couleur = self.genome.get_val("couleur")
+        self.couleur = [191, 60, 219]
         self.base_sprite = pygame.image.load("src/asset/sprite/licorne.png").convert_alpha()
 
 # ============================================================================
@@ -133,7 +135,7 @@ class Requin(Individu):
         self.vy = 0  # vitesse verticale
 
         # Couleur du requin
-        self.couleur = self.genome.get_val("couleur")
+        self.couleur = [2, 69, 95]
         self.base_sprite = pygame.image.load("src/asset/sprite/requin.png").convert_alpha()
 
 # ============================================================================
