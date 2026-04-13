@@ -46,7 +46,7 @@ class Genome:
         return f'Genome({li[:-2]})'
     
 
-    def craft_alleles(self, template_dico=None):
+    def craft_alleles(self, regime, template_dico=None):
         
         # si pas de dico d'allele propsé, on prend celui par défaut
         if template_dico is None:
@@ -60,8 +60,8 @@ class Genome:
                 if value[5] == "int":
                     self.add_allele(Allele(key,value[0],True,randint(value[2][0],value[2][1]),randint(0,100),randint(value[3][0],value[3][1]),value[5]))
 
-                if value[5] == "str":
-                    self.add_allele(Allele(key,value[0],True,choice(value[2]),randint(0,100),value[3],value[5]))
+                if key == "régime":
+                    self.add_allele(Allele(key,value[0],True,regime,randint(0,100),value[3],value[5]))
                     
                 if key == "couleur":
                     self.add_allele(Allele("couleur","P",True,[randint(0,255),randint(0,255),randint(0,255)],randint(0,100),randint(value[3][0],value[3][1]),value[5]))

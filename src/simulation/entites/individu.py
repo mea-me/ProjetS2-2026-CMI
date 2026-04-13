@@ -10,7 +10,7 @@ def colorize(surface, color):
     return colored
 
 class Individu:       
-    def __init__(self, x, y, espece):
+    def __init__(self, x, y, espece, parthogenese = False):
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x, y, 5, 5)
@@ -19,6 +19,7 @@ class Individu:
         self.alive = True
         self.genome = Genome()
         self.id_espece = espece
+        self.parthogenese = parthogenese
 
         self.vx = 0  # vitesse horizontale
         self.vy = 0  # vitesse verticale
@@ -56,8 +57,8 @@ class Individu:
         screen.blit(sprite, self.rect.topleft)
 
 
-    def craft_individu(self, template_dico=None):
-        self.genome.craft_alleles(template_dico)
+    def craft_individu(self, regime, template_dico=None):
+        self.genome.craft_alleles(regime, template_dico)
         
 
     def give_rect(self,size):

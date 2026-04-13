@@ -22,7 +22,7 @@ class Blob(Individu):
         super().__init__(x, y, espece="blob") # init via l'init de sa classe parente
 
         self.genome = Genome()
-        self.genome.craft_alleles(blob_alleles)
+        self.genome.craft_alleles(None,blob_alleles)
 
         taille = self.genome.get_val("taille")
         self.rect = pygame.Rect(x, y, taille, taille)
@@ -55,7 +55,7 @@ class Dragon(Individu):
         super().__init__(x, y, espece="dragon")
 
         self.genome = Genome()
-        self.genome.craft_alleles(dragon_alleles)
+        self.genome.craft_alleles(None,dragon_alleles)
 
         taille = self.genome.get_val("taille")
         self.rect = pygame.Rect(x, y, taille, taille)
@@ -91,7 +91,7 @@ class Licorne(Individu):
         super().__init__(x, y, espece="licorne")
 
         self.genome = Genome()
-        self.genome.craft_alleles(licorne_alleles)  
+        self.genome.craft_alleles(None,licorne_alleles)  
 
         taille = self.genome.get_val("taille")
         self.rect = pygame.Rect(x, y, taille, taille)
@@ -104,7 +104,7 @@ class Licorne(Individu):
 
 # ============================================================================
 
-dico_alleles = {
+requin_alleles = {
     "vitesse" : ["P",True,(3,7), (1, 3), "La vitesse de déplacement de l'individu (0-100)", "int"],
     "masse" : ["P",True,(150,450), (1, 5), "La masse de l'individu (0-100)", "int"],
     "taille" : ["P",True,(20,45), (1, 5), "La taille de l'individu (0-100)", "int"],
@@ -125,7 +125,7 @@ class Requin(Individu):
 
         # Génome du requin
         self.genome = Genome()
-        self.genome.craft_alleles()  # génère les stats selon dico_alleles
+        self.genome.craft_alleles(None,requin_alleles)  # génère les stats selon dico_alleles
 
         # Taille du requin selon son gène "taille"
         taille = self.genome.get_val("taille")
