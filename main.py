@@ -1192,6 +1192,10 @@ while game_state["running"]:
         for i in range(50-len(Liste_plantes)):                
                 x,y = trouver_spawn_point()                        
                 Liste_plantes.append(Plante(x, y, 200, 0))
+
+        for ind in Population.populations:
+            if ind.parthogenese and ind.age >= 180 and ind.energie >= 5000:
+                Population.reproduction(ind,ind,world)
         
     # Infos
     age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
