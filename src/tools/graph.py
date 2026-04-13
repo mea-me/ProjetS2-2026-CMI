@@ -2,7 +2,7 @@ import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
-from structures.environnement import dico_biomes
+from src.simulation.environnement.map_generation import dico_biomes
 
 # Appliquer le style Seaborn
 sns.set_theme(style="darkgrid")
@@ -25,11 +25,11 @@ def save_json(liste_especes, suivi_espece):
             "allele": esp.dico_evolution_alleles
         }
     
-    with open("./data/evolution_data.json", "w") as f:
+    with open("././data/evolution_data.json", "w") as f:
         json.dump(data_export, f, indent=4)
 
 def generer_graphique_allele(allele,age):
-    with open("./data/evolution_data.json", "r") as f:
+    with open("././data/evolution_data.json", "r") as f:
         data = json.load(f)
 
     plt.figure(figsize=(12, 6))
@@ -72,7 +72,7 @@ def generer_graphique_allele(allele,age):
     plt.show()
 
 def generer_graphique_population():
-    with open("./data/evolution_data.json", "r") as f:
+    with open("././data/evolution_data.json", "r") as f:
         data = json.load(f)
 
     plt.figure(figsize=(12, 6))
@@ -111,7 +111,7 @@ def generer_graphique_population():
     plt.show()
 
 def generer_arbre_genealogique():
-    with open("./data/evolution_data.json", "r") as f:
+    with open("././data/evolution_data.json", "r") as f:
         data = json.load(f)
 
     G = nx.DiGraph()

@@ -1,11 +1,10 @@
 """!
-@file environnement.py
+@file map_generation.py
 @brief Module de gestion et de génération procédurale de l'environnement (WorldMap et Biomes).
 """
 
-import os
+import os, pygame
 from random import choices, gauss, randint, uniform
-import pygame
 
 class AssetManager:
     """!
@@ -19,7 +18,7 @@ class AssetManager:
         self.load_all_assets()
 
     def load_all_assets(self):
-        base_path = "assets/map"
+        base_path = "assets/maps"
 
         # Poids associés aux préfixes des fichiers (1_, 2_, 3_)
         poids_prefixe = {"1": 0.70, "2": 0.25, "3": 0.05}

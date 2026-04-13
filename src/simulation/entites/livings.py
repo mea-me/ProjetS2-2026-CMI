@@ -1,11 +1,14 @@
 import pygame
-from .genome import Genome
 from random import choice, randint
-from .allele import Allele, dico_alleles
-from .individu import Individu
-from .optimisation import QuadTree
-from .environnement import WorldMap
-from .__init__ import W, H, ALLOWED_MASK
+
+from src.simulation.genetique.genome import Genome
+from src.simulation.genetique.allele import Allele, dico_alleles
+
+from src.simulation.entites.individu import Individu
+
+from src.core.optimisation import QuadTree
+
+from src.core.config import W, H, ALLOWED_MASK
 
 class Livings:
     def __init__(self):

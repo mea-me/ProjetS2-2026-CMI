@@ -1,6 +1,8 @@
-from random import randint,choice
-from .allele import Allele, dico_alleles
+from random import randint, choice
 import copy
+
+from src.simulation.genetique.allele import Allele, dico_alleles
+
 
 class Genome:
     def __init__(self):
@@ -48,7 +50,7 @@ class Genome:
         
         # si pas de dico d'allele propsé, on prend celui par défaut
         if template_dico is None:
-            from .allele import dico_alleles
+            
             template = dico_alleles
         else:
             template = template_dico

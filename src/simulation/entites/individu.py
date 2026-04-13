@@ -1,7 +1,7 @@
 import pygame
 import random
-from .genome import Genome
-from .__init__ import W, H, ALLOWED_MASK
+from ..genetique.genome import Genome
+from src.core.config import W, H, ALLOWED_MASK
 
 def colorize(surface, color):
     colored = surface.copy()
@@ -27,7 +27,7 @@ class Individu:
         self.collision_cooldown = 0 # temps restant avant nouvelle collision 
         self.collision_delay = 0.5
 
-        self.base_sprite = pygame.image.load("src/asset/sprite/random.png").convert_alpha()
+        self.base_sprite = pygame.image.load("assets/sprites/random.png").convert_alpha()
 
 
 

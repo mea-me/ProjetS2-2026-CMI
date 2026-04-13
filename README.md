@@ -102,7 +102,7 @@ Simulateur d’Écosystème Dynamique et d’Évolution Biologique Fictive Numé
 
 ### Résumé
 
-Conception et développement d'un environnement virtuel en 2D où évoluent des entités autonomes dotées d'un génome numérique. Le projet vise à modéliser les mécanismes de la sélection naturelle (hérédité, mutation, adaptation) en réponse à des contraintes environnementales variables (biomes, climat, ressources). L'utilisateur interagit avec cet écosystème pour observer l'émergence de comportements et analyser les données biologiques via des outils statistiques intégrés.
+Conception et développement d'un map_generation virtuel en 2D où évoluent des entités autonomes dotées d'un génome numérique. Le projet vise à modéliser les mécanismes de la sélection naturelle (hérédité, mutation, adaptation) en réponse à des contraintes map_generationales variables (biomes, climat, ressources). L'utilisateur interagit avec cet écosystème pour observer l'émergence de comportements et analyser les données biologiques via des outils statistiques intégrés.
 
 ### Finalités du projet
 
@@ -125,7 +125,7 @@ Conception et développement d'un environnement virtuel en 2D où évoluent des 
 
 - **Périmètre et limites :**  
     
-  - **Inclus :** Moteur de simulation, gestion génétique (allèles), environnement 2D multicouche, interface de contrôle "Godhand / Sandbox", génération de graphiques/ arbres généalogiques.  
+  - **Inclus :** Moteur de simulation, gestion génétique (allèles), map_generation 2D multicouche, interface de contrôle "Godhand / Sandbox", génération de graphiques/ arbres généalogiques.  
       
   - **Exclus :** Rendu 3D, multijoueur en ligne, simulation moléculaire réelle (ATCG).  
       
@@ -150,7 +150,7 @@ Conception et développement d'un environnement virtuel en 2D où évoluent des 
 | Critère | Définition | Argumentation Projet |
 | :---- | :---- | :---- |
 | **S** (Spécifique) | Cadré et clair | La finalité est précise : créer une simulation ludique (mais précise) d’évolution d’espèces différentes (et en partie aléatoires pour plus de réalisme). |
-| **M** (Mesurable) | Indicateurs chiffrés | L’utilisateur aura la possibilité d’afficher des graphes et arbres modélisant les données génétiques et environnementales de la simulation en temps réel. |
+| **M** (Mesurable) | Indicateurs chiffrés | L’utilisateur aura la possibilité d’afficher des graphes et arbres modélisant les données génétiques et map_generationales de la simulation en temps réel. |
 | **A** (Atteignable) | Ambitieux / Motivant | Gestion des visuels changeants et modifiables en fonction du génome virtuel, optimisation pour gérer un maximum d’individus, challenge technique du passage Python vers C pour la performance. On peut facilement adapter la difficulté si on estime qu’elle n’est pas au niveau (ex : RapsberryPi). |
 | **R** (Réaliste) | Compétences / Temps |  Le groupe a les compétences nécessaires pour réaliser le projet en temps voulu.  |
 | **T** (Temporel) | Date de fin | Début : fin janvier Fin : la semaine du 13 avril avec soutenance orale sur notre projet et présentation du projet fini. |

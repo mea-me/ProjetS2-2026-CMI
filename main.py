@@ -1,20 +1,25 @@
-#Importation des librairies
+#Importation des librairies et fichiers
 
-import math
-import pygame,os,sys,time, json
-import random
+import math, pygame, random
 from random import randint
-from structures.genome import Genome
-from structures.allele import Allele, dico_alleles
-from structures.individu import Individu
-from structures.environnement import Biome, WorldMap
-from structures.livings import Livings, Espece, Population
-from nourriture.plantes import Plante,Liste_plantes
-from structures.menu import Menu
-from info_panel import InfoPanel
-from especes.especes_predef import *
-from graph import *
-import structures.son as son
+
+import src.core.son as son
+
+from src.simulation.genetique.genome import Genome
+from src.simulation.genetique.allele import Allele, dico_alleles
+
+from src.simulation.entites.individu import Individu
+from src.simulation.entites.livings import Livings, Espece, Population
+from src.simulation.entites.especes_predef import *
+
+from src.simulation.environnement.map_generation import Biome, WorldMap
+from src.simulation.environnement.plantes import Plante,Liste_plantes
+
+from src.ui.menu import Menu
+from src.ui.info_panel import InfoPanel
+
+from src.tools.graph import *
+
 
 
 def draw_dna(surface, center, time, scale=1.5):
@@ -254,7 +259,7 @@ pygame.display.set_caption("NeoRiza | Simulateur d’Évolution Biologique")
 
 # Musique pour le menu
 pygame.mixer.init()  # Initialize le module mixer.
-pygame.mixer.music.load("assets/Sound/background_music_start.mp3")
+pygame.mixer.music.load("assets/sounds/background_music_start.mp3")
 pygame.mixer.music.play(15)  # Joue la musique de fond.
 
 def starting_game():
@@ -850,7 +855,7 @@ world = WorldMap(W, H)
 
 # Initialisation du son
 pygame.mixer.init()  # Initialize le module mixer.
-pygame.mixer.music.load("assets/Sound/background_musique.mp3")
+pygame.mixer.music.load("assets/sounds/background_musique.mp3")
 pygame.mixer.music.play(15)  # Joue la musique de fond.
 
 # génération de la map procédurale

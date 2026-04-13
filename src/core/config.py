@@ -8,6 +8,7 @@ pygame.init()
 info = pygame.display.Info()
 W, H = info.current_w, info.current_h
 
+####
 #ellipse
 mask_surface = pygame.Surface((W, H), pygame.SRCALPHA) # -> SRCALPHA = transparent
 mask_surface.fill((0, 0, 0, 0)) # no no zone
@@ -25,6 +26,7 @@ movement_rect = playable_rect.inflate(-80, -80)
 mask_surface = pygame.Surface((W, H), pygame.SRCALPHA)
 # ellipse de déplacement autorisée 
 pygame.draw.ellipse(mask_surface, (255, 255, 255, 255), movement_rect)
+####
 
 ALLOWED_MASK = pygame.mask.from_surface(mask_surface)
 

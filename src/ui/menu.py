@@ -1,5 +1,5 @@
 import pygame
-from .son import *
+from src.core.son import *
 
 class Button:
     def __init__(self, x, y, w, h, text, callback):

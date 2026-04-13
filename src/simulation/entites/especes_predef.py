@@ -1,6 +1,6 @@
 import pygame
-from structures.individu import Individu
-from structures.genome import Genome
+from src.simulation.entites.individu import Individu
+from src.simulation.genetique.genome import Genome
 
 blob_alleles = {
     "vitesse": ["P", True, (1, 4), (1, 2), "", "int"],
@@ -31,7 +31,7 @@ class Blob(Individu):
         self.vy = 0
 
         self.couleur = [255, 255, 102]
-        self.base_sprite = pygame.image.load("src/asset/sprite/blob.png").convert_alpha()
+        self.base_sprite = pygame.image.load("assets/sprites/blob.png").convert_alpha()
 
 # ============================================================================
 
@@ -64,7 +64,7 @@ class Dragon(Individu):
         self.vy = 0
 
         self.couleur = [255, 34, 51]  # rouge feu
-        self.base_sprite = pygame.image.load("src/asset/sprite/dragon.png").convert_alpha()
+        self.base_sprite = pygame.image.load("assets/sprites/dragon.png").convert_alpha()
 
 
 # ============================================================================
@@ -100,7 +100,7 @@ class Licorne(Individu):
         self.vy = 0  
 
         self.couleur = [191, 60, 219]
-        self.base_sprite = pygame.image.load("src/asset/sprite/licorne.png").convert_alpha()
+        self.base_sprite = pygame.image.load("assets/sprites/licorne.png").convert_alpha()
 
 # ============================================================================
 
@@ -136,7 +136,7 @@ class Requin(Individu):
 
         # Couleur du requin
         self.couleur = [2, 69, 95]
-        self.base_sprite = pygame.image.load("src/asset/sprite/requin.png").convert_alpha()
+        self.base_sprite = pygame.image.load("assets/sprites/requin.png").convert_alpha()
 
 # ============================================================================
 
@@ -169,4 +169,4 @@ class Sylveon(Individu):
         self.vy = 0
 
         self.couleur = self.genome.get_val("couleur")
-        self.base_sprite = pygame.image.load("src/asset/sprite/sylveon.png").convert_alpha()
+        self.base_sprite = pygame.image.load("assets/sprites/sylveon.png").convert_alpha()
