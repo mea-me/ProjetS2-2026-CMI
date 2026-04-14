@@ -3,4 +3,5 @@ __pycache__
 *.env
 .venv/
 .env/
-*evolution_data.json
+*.json
+data/

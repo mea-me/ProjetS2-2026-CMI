@@ -1,4 +1,5 @@
 import json
+from random import choice
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
@@ -17,6 +18,17 @@ def normaliser_serie(y, longueur):
         return y + [y[-1]] * (longueur - len(y))
 
     return y
+
+def lisser_courbe(y, window=5):
+    # Petite fonction maison de moyenne mobile pour adoucir les courbes
+    if len(y) < window:
+        return y
+    smoothed = []
+    for i in range(len(y)):
+        start = max(0, i - window // 2)
+        end = min(len(y), i + window // 2 + 1)
+        smoothed.append(sum(y[start:end]) / (end - start))
+    return smoothed
 
 def save_json(liste_especes, suivi_espece):
     data_export = {}
@@ -47,17 +59,21 @@ def generer_graphique_allele(allele, age):
     max_annee = 0 #pour regler le x
 
     if allele == "humidité" or allele == "température":
-        l = list(range(age))
+        l = list(range( age//60 ))
         for biome in dico_biomes.keys():
             vals = dico_biomes[biome][allele]
-            vals = normaliser_serie(vals, age)
+            vals = normaliser_serie(vals, age//60)
 
+            # Lignes de biomes en pointillés pour plus de lisibilité
             sns.lineplot(
                 x=l,
                 y=vals,
-                label=f"{allele} dans {biome}",
-                linewidth=3
+                label=f"T° de {biome}",
+                linewidth=3,
+                linestyle="--", 
+                alpha=0.9 
             )
+
 
     for esp_id, infos in data.items():
         # Si l'espèce n'a pas d'historique, on l'ignore
@@ -69,8 +85,9 @@ def generer_graphique_allele(allele, age):
 
             annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
             historique = normaliser_serie(historique_brut, annees_vecues)
-
-            #maj anne max
+            historique = lisser_courbe(historique, window=5)
+            
+            #maj année max
             if annees_x[-1] > max_annee:
                 max_annee = annees_x[-1]
                 
@@ -82,17 +99,18 @@ def generer_graphique_allele(allele, age):
                 x=annees_x,
                 y=historique,
                 label=label,
-                linewidth=2
+                linewidth=3
             )
 
-    plt.title(f"Évolution de l'allèle {allele} des espèces au fil du temps", fontsize=16)
+    titre = f"Évolution de l'allèle {allele} des espèces au fil du temps"
+    plt.title(titre, fontsize=16)
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Valeur", fontsize=12)
     if max_annee > 0:
         plt.xlim(0, max_annee)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
     plt.tight_layout() # ajuster les marges
-    
+    plt.gcf().canvas.manager.set_window_title(titre)
     plt.show()
 
 def generer_graphique_population():
@@ -103,7 +121,6 @@ def generer_graphique_population():
     max_annee = 0 #pour regler le x
 
     for esp_id, infos in data.items():
-        # Si l'espèce n'a pas d'historique, on l'ignore
         if infos["a_existe"]:
             historique = infos["historique_effectif"]
             annee_naissance = infos["annee_naissance"] // 60
@@ -111,6 +128,13 @@ def generer_graphique_population():
             annees_vecues = len(historique)
             annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
             
+            #pas de PIC explosion stonks a l'année 1
+            if len(annees_x) > 0 and annees_x[0] == 0:
+                annees_x = annees_x[1:]
+                historique = historique[1:]
+            
+            historique = lisser_courbe(historique, window=5)
+
             if annees_x[-1] > max_annee:
                 max_annee = annees_x[-1]
                 
@@ -124,10 +148,10 @@ def generer_graphique_population():
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Effectifs", fontsize=12)
     if max_annee > 0:
-        plt.xlim(0, max_annee)
+        plt.xlim(1, max_annee) # Forcer le graphe à l'année 1 minimum
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
     plt.tight_layout() # ajuster les marges
-    
+    plt.gcf().canvas.manager.set_window_title("Évolution de la population par espèces")
     plt.show()
 
 def generer_arbre_genealogique():
@@ -170,7 +194,7 @@ def generer_arbre_genealogique():
     ax.set_title("Arbre d'évolution des espèces", fontsize=16, pad=20)
 
     M = G.number_of_edges()
-    edge_colors = range(2, M + 2)
+    edge_colors = range(2, M + 2) if M > 0 else []
     cmap = plt.cm.plasma
 
     # fait le graphe fr
@@ -189,6 +213,7 @@ def generer_arbre_genealogique():
             arrowsize=10, 
             width=2)
 
+    plt.gcf().canvas.manager.set_window_title("Arbre généalogique mondial")
     plt.tight_layout()
     plt.show()
 
@@ -196,8 +221,7 @@ def generer_dashboard_graphes(age):
     with open("././data/evolution_data.json", "r") as f:
         data = json.load(f)
 
-    fig, axs = plt.subplots(2, 2, figsize=(16, 10))
-    fig.suptitle("Vue globale de l'évolution", fontsize=18)
+    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
 
     # ================= POPULATION =================
     ax = axs[0, 0]
@@ -207,31 +231,54 @@ def generer_dashboard_graphes(age):
             naissance = infos["annee_naissance"] // 60
 
             x = list(range(naissance, naissance + len(histo)))
-            ax.plot(x, histo, label=f"E{esp_id}")
+            histo = lisser_courbe(histo, window=5)
+            ax.plot(x, histo, label=f"E{esp_id}", linewidth=2)
 
     ax.set_title("Population")
     ax.set_ylabel("Effectif")
 
     # ================= TEMPÉRATURE =================
     ax = axs[0, 1]
-    for biome in dico_biomes:
-        vals = normaliser_serie(dico_biomes[biome]["température"], age)
-        ax.plot(range(age), vals, label=biome)
+    for biome in dico_biomes.keys():
+        vals = normaliser_serie(dico_biomes[biome]["température"], age//60)
+        ax.plot(range(age//60), vals, label=biome, linestyle="--", alpha=0.9, linewidth=3 )
+    
+    for esp_id, infos in data.items():
+        if infos["a_existe"] and "température" in infos["allele"]:
+            histo_brut = infos["allele"]["température"]
+            longueur = len(histo_brut) 
+            naissance = infos["annee_naissance"] // 60
 
-    ax.set_title("Température par biome")
+            x = list(range(naissance, naissance + longueur))
+            histo = normaliser_serie(histo_brut, longueur)
+            histo = lisser_courbe(histo, window=5)
+            ax.plot(x, histo, label=f"E{esp_id}", linewidth=2)
+
+    ax.set_title("Température Préférée")
 
     # ================= HUMIDITÉ =================
     ax = axs[1, 0]
-    for biome in dico_biomes:
-        vals = normaliser_serie(dico_biomes[biome]["humidité"], age)
-        ax.plot(range(age), vals, label=biome)
+    for biome in dico_biomes.keys():
+        vals = normaliser_serie(dico_biomes[biome]["humidité"], age//60)
+        ax.plot(range(age//60), vals, label=biome, linestyle="--", alpha=0.9, linewidth=3)
 
-    ax.set_title("Humidité par biome")
+    for esp_id, infos in data.items():
+        if infos["a_existe"] and "humidité" in infos["allele"]:
+            histo_brut = infos["allele"]["humidité"]
+            longueur = len(histo_brut) 
+            naissance = infos["annee_naissance"] // 60
+
+            x = list(range(naissance, naissance + longueur))
+            histo = normaliser_serie(histo_brut, longueur)
+            histo = lisser_courbe(histo, window=5)
+            ax.plot(x, histo, label=f"E{esp_id}", linewidth=2)
+
+    ax.set_title("Humidité Préférée")
     ax.set_xlabel("Années")
 
-    # ================= ALÈLE EXEMPLE =================
+    # ================= ALLÈLE RANDOM =================
     ax = axs[1, 1]
-    allele = "taille"  # exemple
+    allele = choice(["vitesse", "masse", "taille", "agilit\u00e9", "aggr\u00e9ssivit\u00e9", "fertilit\u00e9", "adaptabilit\u00e9", "perception"])
     for esp_id, infos in data.items():
         if infos["a_existe"] and allele in infos["allele"]:
             histo_brut = infos["allele"][allele]
@@ -240,14 +287,19 @@ def generer_dashboard_graphes(age):
 
             x = list(range(naissance, naissance + longueur))
             histo = normaliser_serie(histo_brut, longueur)
-
-            ax.plot(x, histo, label=f"E{esp_id}")
+            histo = lisser_courbe(histo, window=5)
+            ax.plot(x, histo, label=f"E{esp_id}", linewidth=2)
+            
 
     ax.set_title(f"Allèle : {allele}")
     ax.set_xlabel("Années")
     
+    # légende prorpe en dehors du graphique ou en bas
     for ax in axs.flat:
-        ax.legend(fontsize=8)
+        # on met la légende que si pas trop chargé
+        ax.legend(fontsize=8, loc='upper left', bbox_to_anchor=(1, 1))
 
+
+    plt.gcf().canvas.manager.set_window_title("Vue Globable de l'évolution")
     plt.tight_layout()
     plt.show()
