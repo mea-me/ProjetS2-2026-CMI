@@ -7,6 +7,17 @@ from src.simulation.environnement.map_generation import dico_biomes
 # Appliquer le style Seaborn
 sns.set_theme(style="darkgrid")
 
+def normaliser_serie(y, longueur):
+    # si valeur unique
+    if not isinstance(y, list):
+        return [y] * longueur
+
+    # si liste trop courte
+    if len(y) < longueur:
+        return y + [y[-1]] * (longueur - len(y))
+
+    return y
+
 def save_json(liste_especes, suivi_espece):
     data_export = {}
     for esp in liste_especes:     
@@ -28,7 +39,7 @@ def save_json(liste_especes, suivi_espece):
     with open("././data/evolution_data.json", "w") as f:
         json.dump(data_export, f, indent=4)
 
-def generer_graphique_allele(allele,age):
+def generer_graphique_allele(allele, age):
     with open("././data/evolution_data.json", "r") as f:
         data = json.load(f)
 
@@ -36,20 +47,29 @@ def generer_graphique_allele(allele,age):
     max_annee = 0 #pour regler le x
 
     if allele == "humidité" or allele == "température":
-        l = list(range(0, age))
+        l = list(range(age))
         for biome in dico_biomes.keys():
-            sns.lineplot(x = l, y = dico_biomes[biome][allele], label = f"{allele} dans {biome}", linewidth = 15)
+            vals = dico_biomes[biome][allele]
+            vals = normaliser_serie(vals, age)
+
+            sns.lineplot(
+                x=l,
+                y=vals,
+                label=f"{allele} dans {biome}",
+                linewidth=3
+            )
 
     for esp_id, infos in data.items():
         # Si l'espèce n'a pas d'historique, on l'ignore
-        if infos["a_existe"] :
-            historique = infos["allele"][allele]
-            annee_naissance = infos["annee_naissance"]//60
+        if infos["a_existe"]:
+            historique_brut = infos["allele"][allele]
 
-            # axe de x pour cette espece
-            annees_vecues = len(historique)
+            annees_vecues = len(historique_brut) if isinstance(historique_brut, list) else 1
+            annee_naissance = infos["annee_naissance"] // 60
+
             annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
-            
+            historique = normaliser_serie(historique_brut, annees_vecues)
+
             #maj anne max
             if annees_x[-1] > max_annee:
                 max_annee = annees_x[-1]
@@ -58,9 +78,13 @@ def generer_graphique_allele(allele,age):
             if infos["annee_mort"] is not None:
                 label += f" (Éteinte en {infos['annee_mort']//60})"
                 
-            sns.lineplot(x=annees_x, y=historique, label=label, linewidth=2)
+            sns.lineplot(
+                x=annees_x,
+                y=historique,
+                label=label,
+                linewidth=2
+            )
 
-    
     plt.title(f"Évolution de l'allèle {allele} des espèces au fil du temps", fontsize=16)
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Valeur", fontsize=12)
@@ -80,16 +104,13 @@ def generer_graphique_population():
 
     for esp_id, infos in data.items():
         # Si l'espèce n'a pas d'historique, on l'ignore
-        if infos["a_existe"] :
-
+        if infos["a_existe"]:
             historique = infos["historique_effectif"]
-            annee_naissance = infos["annee_naissance"]//60
-                
-            # axe de x pour cette espece
+            annee_naissance = infos["annee_naissance"] // 60
+
             annees_vecues = len(historique)
             annees_x = list(range(annee_naissance, annee_naissance + annees_vecues))
             
-            #maj anne max
             if annees_x[-1] > max_annee:
                 max_annee = annees_x[-1]
                 
@@ -99,7 +120,6 @@ def generer_graphique_population():
             
             sns.lineplot(x=annees_x, y=historique, label=label, linewidth=2)
 
-    
     plt.title("Évolution de la population des espèces au fil du temps", fontsize=16)
     plt.xlabel("Années", fontsize=12)
     plt.ylabel("Effectifs", fontsize=12)
@@ -168,6 +188,66 @@ def generer_arbre_genealogique():
             arrowstyle="->",
             arrowsize=10, 
             width=2)
+
+    plt.tight_layout()
+    plt.show()
+
+def generer_dashboard_graphes(age):
+    with open("././data/evolution_data.json", "r") as f:
+        data = json.load(f)
+
+    fig, axs = plt.subplots(2, 2, figsize=(16, 10))
+    fig.suptitle("Vue globale de l'évolution", fontsize=18)
+
+    # ================= POPULATION =================
+    ax = axs[0, 0]
+    for esp_id, infos in data.items():
+        if infos["a_existe"]:
+            histo = infos["historique_effectif"]
+            naissance = infos["annee_naissance"] // 60
+
+            x = list(range(naissance, naissance + len(histo)))
+            ax.plot(x, histo, label=f"E{esp_id}")
+
+    ax.set_title("Population")
+    ax.set_ylabel("Effectif")
+
+    # ================= TEMPÉRATURE =================
+    ax = axs[0, 1]
+    for biome in dico_biomes:
+        vals = normaliser_serie(dico_biomes[biome]["température"], age)
+        ax.plot(range(age), vals, label=biome)
+
+    ax.set_title("Température par biome")
+
+    # ================= HUMIDITÉ =================
+    ax = axs[1, 0]
+    for biome in dico_biomes:
+        vals = normaliser_serie(dico_biomes[biome]["humidité"], age)
+        ax.plot(range(age), vals, label=biome)
+
+    ax.set_title("Humidité par biome")
+    ax.set_xlabel("Années")
+
+    # ================= ALÈLE EXEMPLE =================
+    ax = axs[1, 1]
+    allele = "taille"  # exemple
+    for esp_id, infos in data.items():
+        if infos["a_existe"] and allele in infos["allele"]:
+            histo_brut = infos["allele"][allele]
+            longueur = len(histo_brut) if isinstance(histo_brut, list) else 1
+            naissance = infos["annee_naissance"] // 60
+
+            x = list(range(naissance, naissance + longueur))
+            histo = normaliser_serie(histo_brut, longueur)
+
+            ax.plot(x, histo, label=f"E{esp_id}")
+
+    ax.set_title(f"Allèle : {allele}")
+    ax.set_xlabel("Années")
+    
+    for ax in axs.flat:
+        ax.legend(fontsize=8)
 
     plt.tight_layout()
     plt.show()

@@ -770,6 +770,120 @@ def Espece_options():
 
         pygame.display.flip()
 
+def menu_graphes():
+    clock = pygame.time.Clock()
+
+    options = [
+        "Population",
+        "Arbre généalogique",
+        "Allèles (choisir)",
+        "Vue globale (4 graphes)",
+        "Retour"
+    ]
+    selected = 0
+
+    font_title = pygame.font.Font(None, 110)
+    font_menu = pygame.font.Font(None, 50)
+
+    title = font_title.render("Graphes", True, (255, 255, 255))
+    title_rect = title.get_rect(center=(W // 2, H * 0.2))
+
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "Retour"
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = (selected - 1) % len(options)
+
+                elif event.key == pygame.K_DOWN:
+                    selected = (selected + 1) % len(options)
+
+                elif event.key == pygame.K_RETURN:
+                    return options[selected]
+
+        # -------- FOND --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        noise.fill((random.randint(0, 3), random.randint(0, 5), random.randint(8, 14)))
+        screen.blit(noise, (0, 0))
+
+        screen.blit(title, title_rect)
+
+        for i, opt in enumerate(options):
+            color = (150, 200, 255) if i == selected else (200, 200, 200)
+            txt = font_menu.render(opt, True, color)
+            rect = txt.get_rect(center=(W // 2, H * 0.4 + i * 55))
+            screen.blit(txt, rect)
+
+        pygame.display.flip()
+
+def menu_choix_allele(dico_alleles):
+    clock = pygame.time.Clock()
+
+    # On garde uniquement les allèles numériques
+    alleles = [
+        a for a in dico_alleles.keys()
+        if dico_alleles[a][5] == "int"
+    ]
+
+    index = 0
+
+    font_title = pygame.font.Font(None, 70)
+    font_text = pygame.font.Font(None, 48)
+
+    title = font_title.render("Choisir un allèle", True, (255, 255, 255))
+    title_rect = title.get_rect(center=(W // 2, H * 0.25))
+
+    noise = pygame.Surface((W, H))
+    noise.set_alpha(14)
+
+    while True:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    index = (index - 1) % len(alleles)
+
+                elif event.key == pygame.K_RIGHT:
+                    index = (index + 1) % len(alleles)
+
+                elif event.key == pygame.K_RETURN:
+                    return alleles[index]
+
+                elif event.key == pygame.K_ESCAPE:
+                    return None
+
+        # -------- FOND --------
+        for y in range(H):
+            blue = int(35 + (y / H) * 55)
+            pygame.draw.line(screen, (10, 20, blue), (0, y), (W, y))
+
+        noise.fill((random.randint(0, 3), random.randint(0, 5), random.randint(8, 14)))
+        screen.blit(noise, (0, 0))
+        screen.blit(title, title_rect)
+
+        txt = font_text.render(
+            f"<  {alleles[index]}  >",
+            True,
+            (150, 200, 255)
+        )
+        screen.blit(txt, txt.get_rect(center=(W // 2, H * 0.5)))
+
+        pygame.display.flip()
+
 
 # valeurs par défaut de la map et des Espèces
 Map_taille, Map_composition, Map_fond, Map_complexite = None, None, "ocean", 3
@@ -967,14 +1081,27 @@ while game_state["running"]:
                 game_state["placing_mode"] = not game_state["placing_mode"]
                 game_state["radial_open"] = False
 
-            if event.key == pygame.K_g: # afficher les graphes
+            if event.key == pygame.K_g:
                 game_state["paused"] = True
                 save_json(liste_especes, suivi_espece)
-                generer_graphique_population()
-                generer_arbre_genealogique()
-                for allele in dico_alleles.keys():
-                    if dico_alleles[allele][5] == "int":
-                        generer_graphique_allele(allele,age)
+            
+                choix = menu_graphes()
+            
+                if choix == "Population":
+                    generer_graphique_population()
+            
+                elif choix == "Arbre généalogique":
+                    generer_arbre_genealogique()
+            
+                elif choix == "Allèles (choisir)":
+                    allele = menu_choix_allele(dico_alleles)
+                    if allele is not None:
+                        generer_graphique_allele(allele, age)
+            
+                elif choix == "Vue globale (4 graphes)":
+                    generer_dashboard_graphes(age)
+            
+                game_state["paused"] = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
