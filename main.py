@@ -951,8 +951,6 @@ while running:
 
     elif choix == "Quitter":
         son.selection_3()
-        for a in range(20000):
-            print(a)
         pygame.quit()
         running = False
 
