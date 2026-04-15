@@ -1120,8 +1120,6 @@ while game_state["running"]:
             
                 elif choix == "Vue globale (4 graphes)":
                     generer_dashboard_graphes(age)
-            
-                game_state["paused"] = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
