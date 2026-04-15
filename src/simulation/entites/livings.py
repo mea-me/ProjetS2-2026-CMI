@@ -39,33 +39,33 @@ class Livings:
         if abs(pred1 - pred2) >= 10:
             if pred1 > pred2 :
                 if self.score_survie(ind1, world) > self.score_survie(ind2, world)-5:
-                    masse = 0.6 * ind2.genome.get_val("masse")
+                    masse = 20 * ind2.genome.get_val("masse")
                     self.kill(ind2)
                     if ind1.genome.get_val("régime") != "herbivore":
                         ind1.energie += masse
                 elif randint(0, 100) < 50:
-                    masse = 0.3 * ind2.genome.get_val("masse")
+                    masse = 10 * ind2.genome.get_val("masse")
                     self.kill(ind2)
                     if ind1.genome.get_val("régime") != "herbivore":
                         ind1.energie += masse
             elif pred1 < pred2 :
                 if self.score_survie(ind1, world) < self.score_survie(ind2, world)-5:
-                    masse = 0.6 * ind1.genome.get_val("masse")
+                    masse = 20 * ind1.genome.get_val("masse")
                     self.kill(ind1)
                     if ind2.genome.get_val("régime") != "herbivore":
                         ind2.energie += masse
                 elif randint(0, 100) < 50:
-                    masse = 0.3 * ind1.genome.get_val("masse")
+                    masse = 10 * ind1.genome.get_val("masse")
                     self.kill(ind1)
                     if ind2.genome.get_val("régime") != "herbivore":
                         ind2.energie += masse
         else:
             if pred1 > pred2 :
-                ind1.energie -= 5
-                ind2.energie -= 10
+                ind1.energie -= 500
+                ind2.energie -= 1000
             elif pred1 < pred2 :
-                ind1.energie -= 10
-                ind2.energie -= 5
+                ind1.energie -= 1000
+                ind2.energie -= 500
                 
     def reproduction(self, individu1, individu2, world):
         new_genome = Genome()
@@ -139,8 +139,8 @@ class Livings:
         hum2 = ind2.genome.get_val("humidité")
         ferti1 = ind1.genome.get_val("fertilité")
         ferti2 = ind2.genome.get_val("fertilité")
-        score_repro1 = abs(env1[0]-temp1)/abs(max(env1[0],temp1)) + abs(env1[1]-hum1)/max(env1[1],hum1) # somme des moyennes pondérées
-        score_repro2 = abs(env2[0]-temp2)/abs(max(env2[0],temp2)) + abs(env2[1]-hum2)/max(env2[1],hum2) # somme des moyennes pondérées
+        score_repro1 = abs(env1[0])-abs(temp1)/max(abs(env1[0]),abs(temp1)) + abs(env1[1]-hum1)/(max(env1[1],hum1)+0.1) # somme des moyennes pondérées
+        score_repro2 = abs(env2[0])-abs(temp2)/max(abs(env2[0]),abs(temp2)) + abs(env2[1]-hum2)/(max(env2[1],hum2)+0.1) # somme des moyennes pondérées
         score_repro = ferti1/100 + ferti2/100 - (score_repro2+score_repro1)
 
         if ind1.id_espece == ind2.id_espece:
@@ -192,10 +192,15 @@ class Livings:
         )
         candidats = quad.retrieve(zone)
         #Filtre : même espèce uniquement
-        voisins = [
-            o for o in candidats
-            if o is not ind and o.id_espece == ind.id_espece
-        ]
+        voisins = []
+        if not ind.parthogenese:
+            for o in candidats : 
+                if o is not ind and o.id_espece == ind.id_espece:
+                    voisins.append(o)
+        if ind.genome.get_val("régime") != "herbivore":
+            for o in candidats :
+                if o.id_espece != ind.id_espece and ind.energie < 5000:
+                    voisins.append(o) 
         return voisins
 
     def rule_separation(self, ind, neighbors):

@@ -1024,7 +1024,10 @@ def genese(liste_especes=[], suivi_espece={}):
         for _ in range(pop_count):
             x, y = trouver_spawn_point()
             ind = Individu(x, y, i) # i est son ID d'espèce
-            ind.craft_individu()
+            if i%2 == 0:
+                ind.craft_individu("herbivore")
+            else:
+                ind.craft_individu("carnivore")
             ind.give_rect(ind.genome.get_val("taille"))
             Population.add_individu(ind)
             popu_temporaire.append(ind)
@@ -1139,7 +1142,7 @@ while game_state["running"]:
 
                         if name == "Random":
                             new = Individu(mx, my, espece=0)
-                            new.craft_individu()
+                            new.craft_individu("herbivore")
                             new.give_rect(new.genome.get_val("taille"))
                             Population.add_individu(new)
 
@@ -1316,6 +1319,10 @@ while game_state["running"]:
         for i in range(50-len(Liste_plantes)):                
                 x,y = trouver_spawn_point()                        
                 Liste_plantes.append(Plante(x, y, 200, 0))
+
+        for ind in Population.populations:
+            if ind.parthogenese and ind.age >= 180 and ind.energie >= 5000:
+                Population.reproduction(ind,ind,world)
         
     # Infos
     age_texte = font.render(f"Années : {round(age/60, 1)}", True, (255, 255, 255))
