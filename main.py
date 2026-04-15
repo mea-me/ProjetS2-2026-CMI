@@ -678,20 +678,25 @@ def Espece_options():
         "Reproduction Espèce 1": ["Normal","Parthogénèse"],
         "Reproduction Espèce 2": ["Normal","Parthogénèse"],
         "Reproduction Espèce 3": ["Normal","Parthogénèse"],
-        "Reproduction Espèce 4": ["Normal","Parthogénèse"]
+        "Reproduction Espèce 4": ["Normal","Parthogénèse"],
+        "Régime Espèce 1": ["herbivore","carnivore","omnivore"],
+        "Régime Espèce 2": ["herbivore","carnivore","omnivore"],
+        "Régime Espèce 3": ["herbivore","carnivore","omnivore"],
+        "Régime Espèce 4": ["herbivore","carnivore","omnivore"]
     }
 
     values_index = {   # Valeurs par défaut : 2 espèces, de 10 individus
         "Nb Espèces": 1, 
         "Pop Espèce 1": 1, "Pop Espèce 2": 1, "Pop Espèce 3": 1, "Pop Espèce 4": 1,
-        "Reproduction Espèce 1" : 0, "Reproduction Espèce 2" : 0,"Reproduction Espèce 3" : 0,"Reproduction Espèce 4" : 0
+        "Reproduction Espèce 1" : 0, "Reproduction Espèce 2" : 0,"Reproduction Espèce 3" : 0,"Reproduction Espèce 4" : 0,
+        "Régime Espèce 1" : 0, "Régime Espèce 2" : 0,"Régime Espèce 3" : 0,"Régime Espèce 4" : 0
     }
 
     selected = 0
 
     # -------- FONTS --------
-    font_title = pygame.font.Font(None, 110)
-    font_menu = pygame.font.Font(None, 52)
+    font_title = pygame.font.Font(None, 90)
+    font_menu = pygame.font.Font(None, 38)
     title_text = font_title.render("NeoRiza", True, (255, 255, 255))
     title_rect = title_text.get_rect(center=(W // 2, H * 0.15))
 
@@ -707,6 +712,7 @@ def Espece_options():
         for i in range(1, nb_esp + 1):
             menu_items.append(f"Pop Espèce {i}")
             menu_items.append(f"Reproduction Espèce {i}")
+            menu_items.append(f"Régime Espèce {i}")
         menu_items.append("Retour")
 
         # ptite sécurité si le select dépasse la taille (quand on REDUIT le nb d'espèces)
@@ -749,7 +755,11 @@ def Espece_options():
                             "Reproduction Espèce 1": settings["Reproduction Espèce 1"][values_index["Reproduction Espèce 1"]],
                             "Reproduction Espèce 2": settings["Reproduction Espèce 2"][values_index["Reproduction Espèce 2"]],
                             "Reproduction Espèce 3": settings["Reproduction Espèce 3"][values_index["Reproduction Espèce 3"]],
-                            "Reproduction Espèce 4": settings["Reproduction Espèce 4"][values_index["Reproduction Espèce 4"]]
+                            "Reproduction Espèce 4": settings["Reproduction Espèce 4"][values_index["Reproduction Espèce 4"]],
+                            "Régime Espèce 1": settings["Régime Espèce 1"][values_index["Régime Espèce 1"]],
+                            "Régime Espèce 2": settings["Régime Espèce 2"][values_index["Régime Espèce 2"]],
+                            "Régime Espèce 3": settings["Régime Espèce 3"][values_index["Régime Espèce 3"]],
+                            "Régime Espèce 4": settings["Régime Espèce 4"][values_index["Régime Espèce 4"]]
                         }
 
         # -------- FOND --------
@@ -772,7 +782,7 @@ def Espece_options():
                 text = item
 
             render = font_menu.render(text, True, color)
-            rect = render.get_rect(center=(W // 2, H * 0.25 + i * 60))
+            rect = render.get_rect(center=(W // 2, H * 0.25 + i * 40))
             screen.blit(render, rect)
 
             if i == selected: #point de séléction
@@ -897,7 +907,7 @@ def menu_choix_allele(dico_alleles):
 
 # valeurs par défaut de la map et des Espèces
 Map_taille, Map_composition, Map_fond, Map_complexite = None, None, "ocean", 3
-Espece_config = { "Nb Espèces": 2, "Pop Espèce 1": 10, "Pop Espèce 2": 10, "Pop Espèce 3": 10, "Reproduction Espèce 4": "Normal","Reproduction Espèce 1": "Normal", "Reproduction Espèce 2": "Normal", "Reproduction Espèce 3": "Normal", "Pop Espèce 4": "Normal"}
+Espece_config = { "Nb Espèces": 2, "Pop Espèce 1": 10, "Pop Espèce 2": 10, "Pop Espèce 3": 10, "Reproduction Espèce 4": "Normal","Reproduction Espèce 1": "Normal", "Reproduction Espèce 2": "Normal", "Reproduction Espèce 3": "Normal", "Pop Espèce 4": 10,"Régime Espèce 4": "herbivore","Régime Espèce 1": "herbivore", "Régime Espèce 2": "herbivore", "Régime Espèce 3": "herbivore"}
 
 running = True
 starting_game()
@@ -1027,8 +1037,6 @@ def genese(liste_especes=[], suivi_espece={}):
         nouvelle_espece = Espece(i, 0) # ID ; Apparition = Année 0
         liste_especes.append(nouvelle_espece)
         suivi_espece[i] = [None, 0, None]
-
-        I = choice(["herbivore","omnivore","carnivore"])
         
         popu_temporaire = []
         pop_count = Espece_config[f"Pop Espèce {i+1}"]
@@ -1036,7 +1044,7 @@ def genese(liste_especes=[], suivi_espece={}):
         for _ in range(pop_count):
             x, y = trouver_spawn_point()
             ind = Individu(x, y, i, Espece_config[f"Reproduction Espèce {i+1}"] == "Parthogénèse") # i est son ID d'espèce
-            ind.craft_individu(I)
+            ind.craft_individu(Espece_config[f"Régime Espèce {i+1}"])
             ind.give_rect(ind.genome.get_val("taille"))
             Population.add_individu(ind)
             popu_temporaire.append(ind)
