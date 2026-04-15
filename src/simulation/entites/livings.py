@@ -383,6 +383,9 @@ class Espece() :
         self.date_apparition = date_apparition
         self.dico_evolution_alleles = {}
         self.effectif = []
+        self.mort_combat = []
+        self.mort_manque_energie = []
+        self.mort_vieillesse = []
         self.morte = False
 
         e = 0

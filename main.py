@@ -1,7 +1,7 @@
 #Importation des librairies et fichiers
 
 import math, pygame, random
-from random import randint
+from random import randint, choice
 
 import src.core.son as son
 
@@ -674,12 +674,17 @@ def Espece_options():
         "Pop Espèce 1": ["5", "10", "15", "20", "30", "50"],
         "Pop Espèce 2": ["5", "10", "15", "20", "30", "50"],
         "Pop Espèce 3": ["5", "10", "15", "20", "30", "50"],
-        "Pop Espèce 4": ["5", "10", "15", "20", "30", "50"]
+        "Pop Espèce 4": ["5", "10", "15", "20", "30", "50"],
+        "Reproduction Espèce 1": ["Normal","Parthogénèse"],
+        "Reproduction Espèce 2": ["Normal","Parthogénèse"],
+        "Reproduction Espèce 3": ["Normal","Parthogénèse"],
+        "Reproduction Espèce 4": ["Normal","Parthogénèse"]
     }
 
     values_index = {   # Valeurs par défaut : 2 espèces, de 10 individus
         "Nb Espèces": 1, 
-        "Pop Espèce 1": 1, "Pop Espèce 2": 1, "Pop Espèce 3": 1, "Pop Espèce 4": 1
+        "Pop Espèce 1": 1, "Pop Espèce 2": 1, "Pop Espèce 3": 1, "Pop Espèce 4": 1,
+        "Reproduction Espèce 1" : 0, "Reproduction Espèce 2" : 0,"Reproduction Espèce 3" : 0,"Reproduction Espèce 4" : 0
     }
 
     selected = 0
@@ -701,6 +706,7 @@ def Espece_options():
         menu_items = ["Nb Espèces"]
         for i in range(1, nb_esp + 1):
             menu_items.append(f"Pop Espèce {i}")
+            menu_items.append(f"Reproduction Espèce {i}")
         menu_items.append("Retour")
 
         # ptite sécurité si le select dépasse la taille (quand on REDUIT le nb d'espèces)
@@ -739,7 +745,11 @@ def Espece_options():
                             "Pop Espèce 1": int(settings["Pop Espèce 1"][values_index["Pop Espèce 1"]]),
                             "Pop Espèce 2": int(settings["Pop Espèce 2"][values_index["Pop Espèce 2"]]),
                             "Pop Espèce 3": int(settings["Pop Espèce 3"][values_index["Pop Espèce 3"]]),
-                            "Pop Espèce 4": int(settings["Pop Espèce 4"][values_index["Pop Espèce 4"]])
+                            "Pop Espèce 4": int(settings["Pop Espèce 4"][values_index["Pop Espèce 4"]]),
+                            "Reproduction Espèce 1": settings["Reproduction Espèce 1"][values_index["Reproduction Espèce 1"]],
+                            "Reproduction Espèce 2": settings["Reproduction Espèce 2"][values_index["Reproduction Espèce 2"]],
+                            "Reproduction Espèce 3": settings["Reproduction Espèce 3"][values_index["Reproduction Espèce 3"]],
+                            "Reproduction Espèce 4": settings["Reproduction Espèce 4"][values_index["Reproduction Espèce 4"]]
                         }
 
         # -------- FOND --------
@@ -762,7 +772,7 @@ def Espece_options():
                 text = item
 
             render = font_menu.render(text, True, color)
-            rect = render.get_rect(center=(W // 2, H * 0.35 + i * 60))
+            rect = render.get_rect(center=(W // 2, H * 0.25 + i * 60))
             screen.blit(render, rect)
 
             if i == selected: #point de séléction
@@ -887,7 +897,7 @@ def menu_choix_allele(dico_alleles):
 
 # valeurs par défaut de la map et des Espèces
 Map_taille, Map_composition, Map_fond, Map_complexite = None, None, "ocean", 3
-Espece_config = { "Nb Espèces": 2, "Pop Espèce 1": 10, "Pop Espèce 2": 10, "Pop Espèce 3": 10, "Pop Espèce 4": 10 }
+Espece_config = { "Nb Espèces": 2, "Pop Espèce 1": 10, "Pop Espèce 2": 10, "Pop Espèce 3": 10, "Reproduction Espèce 4": "Normal","Reproduction Espèce 1": "Normal", "Reproduction Espèce 2": "Normal", "Reproduction Espèce 3": "Normal", "Pop Espèce 4": "Normal"}
 
 running = True
 starting_game()
@@ -1017,17 +1027,16 @@ def genese(liste_especes=[], suivi_espece={}):
         nouvelle_espece = Espece(i, 0) # ID ; Apparition = Année 0
         liste_especes.append(nouvelle_espece)
         suivi_espece[i] = [None, 0, None]
+
+        I = choice(["herbivore","omnivore","carnivore"])
         
         popu_temporaire = []
         pop_count = Espece_config[f"Pop Espèce {i+1}"]
         
         for _ in range(pop_count):
             x, y = trouver_spawn_point()
-            ind = Individu(x, y, i) # i est son ID d'espèce
-            if i%2 == 0:
-                ind.craft_individu("herbivore")
-            else:
-                ind.craft_individu("carnivore")
+            ind = Individu(x, y, i, Espece_config[f"Reproduction Espèce {i+1}"] == "Parthogénèse") # i est son ID d'espèce
+            ind.craft_individu(I)
             ind.give_rect(ind.genome.get_val("taille"))
             Population.add_individu(ind)
             popu_temporaire.append(ind)

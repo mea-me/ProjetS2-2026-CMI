@@ -21,12 +21,15 @@ class InfoPanel:
             y += 30
 
         write("=== Individu ===")
-        write(f'ID : {"Stephanie parola"}')
         write(f"Espèce : {indi.id_espece}")
 
         # Caractéristiques génétiques
         write("")
         write("=== Génome ===")
+        if indi.parthogenese :
+            write("Reproduction : parthogénèse")
+        else:
+            write("Reproduction : normal")
         for allele in indi.genome.alleles:
             write(f"{allele.nom} : {allele.valeur}")
 
