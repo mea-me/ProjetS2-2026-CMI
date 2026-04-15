@@ -34,8 +34,8 @@ dico_alleles = {
     "agilité" : ["P",True,(0,100), (1, 5), "L'agilité de l'individu (résistance au terrain escarpé)", "int"],
 
     # climatoseptikPoP
-    "température" : ["P",True,(15,16), (1, 3), "La vitesse de déplacement de l'individu (0-100)", "int"],
-    "humidité" : ["P",True,(0,100), (1, 5), "La vitesse de déplacement de l'individu (0-100)", "int"],
+    "température" : ["P",True,(-20,45), (1, 3), "La température préférée de l'individu (-20 - 45 °C)", "int"],
+    "humidité" : ["P",True,(0,100), (1, 5), "Le taux d'humidité préféré de l'individu (0-100)", "int"],
  
     "aggréssivité" : ["C",True,(0,75), (1, 5), "Le taux d'aggresivité de l'individu (0-100)", "int", True],
     "fertilité" : ["C",True,(0,75), (1, 5), "Le taux de fertilité de l'individu (0-100)", "int", True],
