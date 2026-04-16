@@ -675,10 +675,10 @@ def Espece_options():
         "Pop Espèce 2": ["5", "10", "15", "20", "30", "50"],
         "Pop Espèce 3": ["5", "10", "15", "20", "30", "50"],
         "Pop Espèce 4": ["5", "10", "15", "20", "30", "50"],
-        "Reproduction Espèce 1": ["Normal","Parthogénèse"],
-        "Reproduction Espèce 2": ["Normal","Parthogénèse"],
-        "Reproduction Espèce 3": ["Normal","Parthogénèse"],
-        "Reproduction Espèce 4": ["Normal","Parthogénèse"],
+        "Reproduction Espèce 1": ["Normal","Parthenogénèse"],
+        "Reproduction Espèce 2": ["Normal","Parthenogénèse"],
+        "Reproduction Espèce 3": ["Normal","Parthenogénèse"],
+        "Reproduction Espèce 4": ["Normal","Parthenogénèse"],
         "Régime Espèce 1": ["herbivore","carnivore","omnivore"],
         "Régime Espèce 2": ["herbivore","carnivore","omnivore"],
         "Régime Espèce 3": ["herbivore","carnivore","omnivore"],
@@ -1041,7 +1041,7 @@ def genese(liste_especes=[], suivi_espece={}):
         
         for _ in range(pop_count):
             x, y = trouver_spawn_point()
-            ind = Individu(x, y, i, Espece_config[f"Reproduction Espèce {i+1}"] == "Parthogénèse") # i est son ID d'espèce
+            ind = Individu(x, y, i, Espece_config[f"Reproduction Espèce {i+1}"] == "Parthenogénèse") # i est son ID d'espèce
             ind.craft_individu(Espece_config[f"Régime Espèce {i+1}"])
             ind.give_rect(ind.genome.get_val("taille"))
             Population.add_individu(ind)

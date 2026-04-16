@@ -184,6 +184,7 @@ class Livings:
 
     def get_neighbors(self, ind, quad):
         perception = ind.genome.get_val("perception")  # distance de vision
+        count = 3
         zone = pygame.Rect(
             ind.rect.x - perception,
             ind.rect.y - perception,
@@ -197,9 +198,10 @@ class Livings:
             for o in candidats : 
                 if o is not ind and o.id_espece == ind.id_espece:
                     voisins.append(o)
-        if ind.genome.get_val("régime") != "herbivore":
+        if ind.genome.get_val("régime") != "herbivore" and count > 0:
             for o in candidats :
                 if o.id_espece != ind.id_espece and ind.energie < 5000:
+                    count -= 1
                     voisins.append(o) 
         return voisins
 
