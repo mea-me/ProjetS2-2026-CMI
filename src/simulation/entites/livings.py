@@ -137,8 +137,8 @@ class Livings:
         temp2 = ind2.genome.get_val("température")
         hum1 = ind1.genome.get_val("humidité")
         hum2 = ind2.genome.get_val("humidité")
-        ferti1 = ind1.genome.get_val("fertilité")
-        ferti2 = ind2.genome.get_val("fertilité")
+        ferti1 = ind1.genome.get_val("fertilité") * 1.5
+        ferti2 = ind2.genome.get_val("fertilité") * 1.5
         score_repro1 = abs(env1[0])-abs(temp1)/max(abs(env1[0]),abs(temp1)) + abs(env1[1]-hum1)/(max(env1[1],hum1)+0.1) # somme des moyennes pondérées
         score_repro2 = abs(env2[0])-abs(temp2)/max(abs(env2[0]),abs(temp2)) + abs(env2[1]-hum2)/(max(env2[1],hum2)+0.1) # somme des moyennes pondérées
         score_repro = ferti1/100 + ferti2/100 - (score_repro2+score_repro1)

@@ -1329,12 +1329,12 @@ while game_state["running"]:
                     suivi_espece[e.id_espece][2] = age
                     # print(f"L'espèce {e.id_espece} s'est éteinte !")
 
-        for i in range(50-len(Liste_plantes)):                
+        for i in range(80-len(Liste_plantes)):                
                 x,y = trouver_spawn_point()                        
                 Liste_plantes.append(Plante(x, y, 200, 0))
 
         for ind in Population.populations:
-            if ind.parthogenese and ind.age >= 180 and ind.energie * ind.genome.get_val("fertilité")/100 >= 3000:
+            if ind.parthogenese and ind.age >= 180 and ind.genome.get_val("fertilité") * ind.energie/100 >= 7000:
                 Population.reproduction(ind,ind,world)
         
     # Infos
