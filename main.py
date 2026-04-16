@@ -1334,7 +1334,7 @@ while game_state["running"]:
                 Liste_plantes.append(Plante(x, y, 200, 0))
 
         for ind in Population.populations:
-            if ind.parthogenese and ind.age >= 180 and ind.energie >= 5000:
+            if ind.parthogenese and ind.age >= 180 and ind.energie * ind.genome.get_val("fertilité")/100 >= 3000:
                 Population.reproduction(ind,ind,world)
         
     # Infos

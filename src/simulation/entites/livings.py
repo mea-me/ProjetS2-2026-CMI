@@ -109,7 +109,7 @@ class Livings:
             bébé = individu1.__class__(x, y)
         # Si le parent est un Individu normal(random)
         else:
-            bébé = Individu(x, y, individu1.id_espece)
+            bébé = Individu(x, y, individu1.id_espece,individu1.parthogenese)
         # --- Application du génome ---
         bébé.give_genome(new_genome.clone())
         bébé.give_rect(bébé.genome.get_val("taille"))
