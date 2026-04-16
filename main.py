@@ -1329,7 +1329,7 @@ while game_state["running"]:
                     suivi_espece[e.id_espece][2] = age
                     # print(f"L'espèce {e.id_espece} s'est éteinte !")
 
-        for i in range(50-len(Liste_plantes)):                
+        for i in range(80-len(Liste_plantes)):                
                 x,y = trouver_spawn_point()                        
                 Liste_plantes.append(Plante(x, y, 200, 0))
 
