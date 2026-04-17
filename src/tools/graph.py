@@ -51,6 +51,29 @@ def save_json(liste_especes, suivi_espece):
     with open("././data/evolution_data.json", "w") as f:
         json.dump(data_export, f, indent=4)
 
+def generer_graphique_fps_popu(liste_fps_popu):
+    plt.figure(figsize=(12, 6))
+    label = "fps"
+    fps = []
+    nb = []
+    for t in liste_fps_popu:
+        fps.append(t[0])
+        nb.append(t[1])
+    sns.lineplot(
+        x=nb,
+        y=fps,
+        label=label,
+        linewidth=3
+            )
+    titre = "fps en fonction du nombre d'entités"
+    plt.title(titre, fontsize=16)
+    plt.xlabel("nb entités", fontsize=12)
+    plt.ylabel("fps", fontsize=12)
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left') 
+    plt.tight_layout() # ajuster les marges
+    plt.gcf().canvas.manager.set_window_title(titre)
+    plt.show()
+
 def generer_graphique_allele(allele, age):
     with open("././data/evolution_data.json", "r") as f:
         data = json.load(f)

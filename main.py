@@ -1076,6 +1076,8 @@ game_state = {
 menu = Menu(screen, game_state)
 info_panel = InfoPanel(screen)
 
+liste_fps_popu = []
+
 while game_state["running"]:
 
     # --- Gestion des événements ---
@@ -1118,6 +1120,10 @@ while game_state["running"]:
             
                 elif choix == "Vue globale (4 graphes)":
                     generer_dashboard_graphes(age)
+            
+            if event.key == pygame.K_a:
+                game_state["paused"] = True
+                generer_graphique_fps_popu(liste_fps_popu)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
@@ -1287,6 +1293,9 @@ while game_state["running"]:
     # Gestion des espèces 
     
     if age%60 == 0:
+        liste_fps_popu.append((clock.get_fps(),len(Population.populations)))
+        print(liste_fps_popu)
+
         liste_especes_bis = liste_especes[:]
         
         for e in liste_especes_bis:
