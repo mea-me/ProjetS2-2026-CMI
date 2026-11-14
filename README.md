@@ -87,7 +87,7 @@ ProjetS2-2026-CMI/
 
 Clonez le dépôt et installez les dépendances depuis la racine du projet :
 ```bash
-git clone [https://github.com/mea-me/ProjetS2-2026-CMI.git](https://github.com/mea-me/ProjetS2-2026-CMI.git)
+git clone https://github.com/mea-me/ProjetS2-2026-CMI.git
 cd ProjetS2-2026-CMI
 pip install -r requirements.txt
 
